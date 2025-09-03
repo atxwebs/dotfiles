@@ -512,13 +512,24 @@ function pi.ssh() {
   fi
 }
 
-# Copy a file to the Pi
+# Copy files to the PI with scp
 # USAGE:
-# $ pi.cp ~/Downloads/file.txt /home/pi/Downloads/
+# $ pi.cp /to/path file1.txt file2.txt file3.txt
+# $ pi.cp /home/pi/Downloads/ ~/file1.txt ~/file2.txt
+# $ pi.cp /home/pi/ *.txt
 function pi.cp() {
-  local from=$1
-  local to=${2:-$from}
-  scp $from pi@pi.local:$to
+  if [ $# -lt 2 ]; then
+    echo "Usage: pi.cp <to> <file1> [file2] [file3] ..."
+    echo "Example: pi.cp /home/pi/Downloads/ ~/file1.txt ~/file2.txt"
+    return 1
+  fi
+  
+  local to=$1
+  shift
+  # All remaining arguments are source files
+  local srcs=("$@")
+  echo "Copying ${#srcs[@]} file(s) to pi@pi.local:$to"
+  scp "${srcs[@]}" "pi@pi.local:$to"
 }
 
 function dns.temp() {

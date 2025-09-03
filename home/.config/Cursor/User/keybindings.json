@@ -333,9 +333,5 @@
     "key": "ctrl+shift+f",
     "command": "-extension.formatJson",
     "when": "editorTextFocus"
-  },
-  {
-    "key": "ctrl+e",
-    "command": "composerMode.background"
   }
 ]

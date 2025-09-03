@@ -78,6 +78,7 @@ if ! shopt -oq posix; then
 fi
 
 
+[ -f ~/.bash_git ] && . ~/.bash_git
 . ~/.bash_exports
 . ~/.bash_options
 . ~/.bash_aliases
@@ -98,18 +99,13 @@ if [ "$(type -t g)" == "alias" ]; then
   fi
   __git_complete g __git_main
 fi
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/media/flesler/Extra/Programs/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/media/flesler/Extra/Programs/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/media/flesler/Extra/Programs/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/media/flesler/Extra/Programs/miniconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 
+# sleep 1 && node ~/bin/disable-keyboard.js
+. "$HOME/.cargo/env"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:$XDG_DATA_DIRS"
+
+export RIPGREP_CONFIG_PATH=~/.ripgreprc

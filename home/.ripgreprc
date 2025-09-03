@@ -1,0 +1,3 @@
+# Ripgrep config optimized for AI use
+--color=never
+--no-heading

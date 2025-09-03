@@ -13,6 +13,7 @@ if [[ "$PS1" != *🤖* ]]; then
   export GIT_PAGER=""
   export PAGER="cat"
   export EDITOR="nano"
+
   echo "🤖 Shell setup complete"
 else
   echo "🤖 Shell already configured"
