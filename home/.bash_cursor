@@ -13,6 +13,8 @@ if [[ "$PS1" != *🤖* ]]; then
   export GIT_PAGER=""
   export PAGER="cat"
   export EDITOR="nano"
+  # Simplify formatting for cursor
+  export RIPGREP_CONFIG_PATH=~/.ripgreprc
 
   echo "🤖 Shell setup complete"
 else
