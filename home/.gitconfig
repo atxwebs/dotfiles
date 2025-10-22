@@ -1,108 +1,112 @@
 [user]
-	name = Ariel Flesler
-	email = aflesler@gmail.com
-	signingkey = B56BB2FD099B63A7
+  name = Ariel Flesler
+  email = aflesler@gmail.com
+  signingkey = B56BB2FD099B63A7
 [github]
-	user = flesler
+  user = flesler
 [commit]
-	gpgsign = true
+  gpgsign = true
 [credential]
-	helper = store
-	# Remember credentials when cloning over HTTPS
-	# helper = wincred
+  helper = store
+  # Remember credentials when cloning over HTTPS
+  # helper = wincred
+[diff]
+    external = difft
+  # Detect copies as well as renames
+  renames = copies
 [alias]
-	s = status -s
-	d = diff
-	dw = diff --word-diff
-	dm = diff master..HEAD
-	d1 = diff HEAD^
-	a = add -A
-	cm = commit -m
-	cma = commit -am
-	cmnv = commit --no-verify -m
-	ame = commit --amend --allow-empty
-	amne = commit --amend --no-edit --allow-empty
-	cp = cherry-pick
-	co = checkout
-	com = checkout master
-	cob = checkout -b
-	bb = checkout -
-	fp = fetch -p
-	# rev = checkout --
-	rs1 = reset --soft HEAD^
-	rhh = reset --hard HEAD
-	rh1 = reset --hard HEAD^
-	p = push
-	pf = push --force-with-lease
-	pr = pull --rebase
-	st = stash
-	stu = stash save --keep-index
-	stl = stash list
-	stc = stash clear
-	pop = stash pop
-	b = branch
-	bm = branch -m
-	bd = branch -D
-	rb = rebase
-	rbc = rebase --continue
-	rba = rebase --abort
-	rbi = rebase --interactive
-	rbm = rebase master
-	empty = diff-index --quiet HEAD # might need: update-index --refresh
-	head = log -n1
-	lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%G?%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
-	l1 = ! git log --no-merges --reverse -n 20 --author $(git config --get user.email) --pretty=format:'%s' # only mine, just the commit messages
-	lc = log --format=%B -n1 # used to see a single commit (g lc f64632c)
-	lm = log --format=%s --reverse master.. # Commits not in master
-	ld = log --format=%s --reverse dev.. # Commits not in dev
-	lpd = log --format=%s --reverse origin/prod..origin/dev # Commits in dev and not in prod
-	recap = ! git log --all --no-merges --author $(git config --get user.email) --graph --pretty=format:'%Cgreen(%cr)%Creset %s'
-  lggrep = log --pretty=format:'%H %an %s (%cr)' --abbrev-commit -S
+  s = status -s
+  d = diff
+  dw = diff --word-diff
+  d1 = diff HEAD^
+  dh = diff HEAD
+  ds = diff --staged
+  a = add -A
+  cm = commit -m
+  cma = commit -am
+  cmnv = commit --no-verify -m
+  ame = commit --amend --allow-empty
+  amne = ame --no-edit
+  cp = cherry-pick
+  co = checkout
+  cob = checkout -b
+  bb = checkout -
+  fp = fetch -p
+  # rev = checkout --
+  rs1 = reset --soft HEAD^
+  rhh = reset --hard HEAD
+  rh1 = reset --hard HEAD^
+  p = push
+  pf = push --force-with-lease
+  pr = pull --rebase
+  st = stash
+  stu = stash save --keep-index
+  stl = stash list
+  stc = stash clear
+  pop = stash pop
+  b = branch
+  bm = branch -m
+  bd = branch -D
+  rb = rebase
+  rbc = rebase --continue
+  rba = rebase --abort
+  rbi = rebase --interactive
+  rbm = rebase master
+  lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%G?%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+  lg1d = lg --since='1 day'
+  lgt = lg --since='midnight'
+  lgy = lg --since='yesterday midnight' --until='midnight'
+  lm = ! git log --no-merges --reverse -n 20 --author $(git config --get user.email) --pretty=format:'%s' # only mine, just the commit messages
+  lm1d = lm --since='1 day'
+  lmt = lm --since='midnight'
+  lmy = lm --since='yesterday midnight' --until='midnight'
+  l1 = log --format=%B -n1 # used to see a single commit (g l1 f64632c, defaults to HEAD)
+  ld = lm dev.. # Commits not in dev
+  lpd = log --format=%s --reverse origin/prod..origin/dev # Commits in dev and not in prod
+  lggrep = lg -S
 
 [core]
-	# Use custom `.gitignore`
-	excludesfile = ~/.gitignore
-	autocrlf = false
-	quotepath = false
-	ignorecase = false
+  # Use custom `.gitignore`
+  excludesfile = ~/.gitignore
+  autocrlf = false
+  quotepath = false
+  ignorecase = false
 [color]
-	# Use colors in Git commands that are capable of colored output when
-	ui = auto
+  # Use colors in Git commands that are capable of colored output when
+  ui = auto
 [push]
-	# Make `git push` push relevant annotated tags when pushing branches out.
-	followTags = true
-	default = current
+  # Make `git push` push relevant annotated tags when pushing branches out.
+  followTags = true
+  default = current
 [pull]
-	rebase = true
-	autoStash = true
+  rebase = true
+  autoStash = true
 [rerere]
-	enabled = 1
-[diff]
-	# Detect copies as well as renames
-	renames = copies
+  enabled = 1
 [help]
-	# Automatically correct and execute mistyped commands
-	autocorrect = 1
+  # Automatically correct and execute mistyped commands
+  autocorrect = 1
 [stash]
-	showPatch = true
+  showPatch = true
 [tag]
-	gpgSign = true #NEW#
+  gpgSign = true
 [rebase]
-	autoStash = true #NEW#
+  autoStash = true
 [status]
-	showStash = true #NEW#
+  showStash = true
 
 # https://git-scm.com/docs/git-config
 [safe]
-	directory = /etc
+  directory = /etc
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-[credential "https://github.com"]
-	helper =
-	helper = !/usr/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper =
-	helper = !/usr/bin/gh auth git-credential
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+# [credential "https://github.com"]
+#   helper = !/usr/bin/gh auth git-credential
+# [credential "https://gist.github.com"]
+#   helper = !/usr/bin/gh auth git-credential
+[init]
+  defaultBranch = main
