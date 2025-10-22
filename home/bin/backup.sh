@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # For dry-run, run:
 # ~/bin/backup.sh --dry-run 2>&1 | tee /tmp/backup.log
+
+# Configuration
+FOLDER_DEPTH=2
 
 # FIXME: SSH private key not used
 if [ "$USER" = 'root' ]; then
@@ -18,6 +21,7 @@ info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
 fatal() { info $*; exit 1; }
 trap 'fatal "Backup interrupted"' INT TERM
 
+
 if [ "$1" = '-i' ]; then
 	info "Initializing repo"
 	borg init --encryption=repokey-blake2
@@ -32,6 +36,10 @@ if [ "$1" = '--dry-run' ] || [ "$2" = '--dry-run' ]; then
 fi
 
 info "Starting backup"
+
+# Set up temp file for output capture
+TEMP_OUTPUT=$(mktemp)
+trap 'rm -f "$TEMP_OUTPUT"' EXIT
 
 PREFIX="{hostname}-$USER-"
 BORG='sudo --set-home --preserve-env borg'
@@ -92,6 +100,9 @@ $BORG create       \
   --exclude '*.pyc' \
   --exclude '*.pyo' \
   --exclude '*.log' \
+  --exclude '*.backup' \
+  --exclude '*.old' \
+  --exclude '*.vscdb' \
   --exclude '*.cache' \
   --exclude '*.db' \
   --exclude '*.sqlite' \
@@ -112,6 +123,8 @@ $BORG create       \
   --exclude '*.desktop' \
   --exclude '*.txt.xz' \
   --exclude '*.org.chromium.Chromium*' \
+  --exclude '*.dsh-also' \
+  --exclude '*.0' \
   --exclude '*~' \
   --exclude '/home/*/bin/*.AppImage' \
   --exclude '/home/*/.ccache' \
@@ -136,9 +149,9 @@ $BORG create       \
   --exclude '/home/*/Code/manufactured/mfd-logs' \
   --exclude '/home/*/Code/manufactured/mfd-client/public/webviewer' \
   --exclude '/home/*/Code/dictation/downloads/' \
-  --exclude '/home/*/.local/share/Trash' \
-  --exclude '/home/*/.local/share/Steam' \
-  --exclude '/home/*/.local/share/virtualenvs' \
+  --exclude '/home/*/.local/share' \
+  --exclude '/home/*/.local/bin' \
+  --exclude '/home/*/.local/lib' \
   --exclude '/home/*/.node-gyp' \
   --exclude '/home/*/.npm/_cacache' \
   --exclude '/home/*/.nvm/versions' \
@@ -166,7 +179,7 @@ $BORG create       \
   --exclude '/home/*/.docker' \
   --exclude '/home/*/.kube' \
   --exclude '/home/*/.eclipse' \
-  --exclude '/home/*/SteamLibrary/steamapps/compatdata' \
+  --exclude '/home/*/SteamLibrary' \
   --exclude '/var/crash' \
   --exclude '/var/lock' \
   --exclude '/var/run' \
@@ -184,6 +197,12 @@ $BORG create       \
   --exclude '/var/lib/samba/private/msg.sock' \
   --exclude '/etc/alternatives' \
   --exclude '/etc/brltty' \
+  --exclude '/etc/firejail' \
+  --exclude '/etc/fonts' \
+  --exclude '/etc/sane.d' \
+  --exclude '/etc/console-setup' \
+  --exclude '/etc/rc*.d' \
+  --exclude '/var/snap' \
   --exclude '/root/.config/borg' \
   --exclude '/root/snap' \
   $BORG_REPO::"$PREFIX{now:%Y-%m-%dT%H:%M:%S}" \
@@ -192,9 +211,71 @@ $BORG create       \
   /root               \
   /var              \
   /opt/dnscrypt-proxy   \
+  2>&1 | tee "$TEMP_OUTPUT"
 
-if [ $? -ne 0 ]; then
+backup_exit_code=${PIPESTATUS[0]}
+
+if [ $backup_exit_code -ne 0 ]; then
   fatal 'Failed to backup'
+fi
+
+# Function to count files by extension during dry-run
+count_files_by_extension() {
+    local output="$1"
+
+    info "File count summary by extension:"
+
+    # Extract file paths from borg output and get extensions
+    echo "$output" | grep -E '^[AME-] ' | cut -c3- | while read -r filepath; do
+        # Get filename (last part after /)
+        filename=$(basename "$filepath")
+
+        # Skip directories (no extension)
+        if [[ "$filename" == *"."* ]]; then
+            # Get extension (everything after the last dot, lowercase)
+            ext=$(echo "$filename" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]')
+            echo "$ext"
+        else
+            # Files without extension
+            echo "(no extension)"
+        fi
+    done | sort | uniq -c | sort -nr | head -20 | while read -r count ext; do
+        printf "  %-20s: %d\n" "$ext" "$count"
+    done
+}
+
+# Function to count files by folder during dry-run
+count_files_by_folder() {
+    local output="$1"
+
+    info "File count summary by folder (depth $FOLDER_DEPTH):"
+
+    # Extract file paths from borg output, group by folder, and count
+    echo "$output" | grep -E '^[AME-] ' | cut -c3- | while read -r filepath; do
+        # Special handling for home directories - show each subfolder individually
+        if [[ "$filepath" =~ ^/home/[^/]+/(.+) ]]; then
+            folder="~/$(echo "${BASH_REMATCH[1]}" | cut -d'/' -f1)"
+        else
+            # Extract folder at specified depth
+            folder=$(echo "$filepath" | cut -d'/' -f1-$((FOLDER_DEPTH+1)) | sed 's|^/||')
+        fi
+
+        # Skip if it's just a file in root
+        if [[ "$folder" != *"/"* ]] && [[ "$folder" != ~/* ]]; then
+            continue
+        fi
+
+        echo "$folder"
+    done | sort | uniq -c | sort -nr | head -20 | while read -r count folder; do
+        printf "  %-50s/: %d\n" "$folder" "$count"
+    done
+}
+
+# Show file count summary if dry-run
+if [ -n "$DRY_RUN" ]; then
+    output_content="$(cat "$TEMP_OUTPUT")"
+    count_files_by_extension "$output_content"
+    count_files_by_folder "$output_content"
 fi
 
 if [ "$1" = '-v' ]; then
@@ -225,7 +306,7 @@ if [ -z "$DRY_RUN" ]; then
     --show-rc             \
     --save-space           \
     --stats                 \
-    --keep-daily  2         \
+    --keep-daily  1         \
     --keep-weekly   1         \
     --keep-monthly  1         \
 
