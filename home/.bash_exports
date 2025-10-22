@@ -1,5 +1,5 @@
 # Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 # Avoid duplicate entries
 export HISTCONTROL="erasedups:ignoreboth"
@@ -28,3 +28,7 @@ export FZF_DEFAULT_COMMAND='find . ! -path "*.git*" ! -path "*node_modules*"'
 export BAT_PAGER=
 export BAT_THEME="Monokai Extended Bright"
 export BAT_TABS=2
+
+# Difftastic settings
+export DFT_CONTEXT=1
+export DFT_TAB_WIDTH=2

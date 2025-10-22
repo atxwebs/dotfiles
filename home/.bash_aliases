@@ -7,16 +7,19 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias b='cd -'
 alias ~='cd ~'
-alias zz='z -c'
 alias rr='rm -r'
 alias rrf='rr -f'
-# alias trash='gio trash'
+alias trash='gio trash'
 #alias rm=trash
 alias mkp='mkdir -p'
 alias path.list='echo "$PATH" | tr ":" "\n"'
-alias t='tldr --update &>/dev/null && tldr'
+alias t='tldr'
 alias restart='sudo shutdown -r now'
 alias cursor="~/Applications/cursor.AppImage"
+
+# Z (zoxide)
+alias z.here='z -c'
+alias z.list='z -l'
 
 # Find
 alias find.dir='find . -type d -iname'
@@ -24,18 +27,21 @@ alias find.file='find . -type f -iname'
 alias find.inside='grep --exclude-dir={node_modules,.git} -Irlw . -e'
 alias find.gzip='find . -iname '''*.gz''' | sort | xargs gzip -dc | grep -Eie'
 
-# FD
-alias fd=fdfind
-alias fd.glob='fdfind --glob'
-alias fd.str='fdfind --fixed-strings'
-alias fd.ext='fdfind -e'
+# FD (fdfind)
+alias fd.glob='fd --glob'
+alias fd.str='fd --fixed-strings'
+alias fd.ext='fd -e'
+
+# RG
+alias rg.type='rg --type'
+alias rg.str='rg --fixed-strings'
 
 # Dust
 alias du.s='dust -X node_modules -X .git -n 35'
 alias du.flat='du.s -d1'
 alias du.big='du.s -p -F -z 10M'
 
-# Node.js
+# Node.js / NPM
 
 alias ns='node server'
 alias na='node app'
@@ -51,7 +57,7 @@ alias ts='node -pe "process.argv[1] ? new Date(+(process.argv[1]+'\''000'\'').sl
 alias g=git
 
 # Bring these aliases from .gitconfig to global scope
-for k in s d a p pf pr pop rba rbi lg rhh rh1 rs1 stu stl stc l1 bb; do
+for k in s d a p pf pr pop rba rbi lg rhh rh1 rs1 lm; do
 	alias $k="git $k"
 done
 
@@ -63,16 +69,15 @@ alias stpll='st && pr && pop'
 alias stpsh='st && pr && p && pop'
 # alias rbm='_br_=$(git rev-parse --abbrev-ref HEAD) && git co master && pr && git co $_br_ && git rebase master'
 # alias rbm='git fetch -p && git rebase origin/master'
-alias rbm='git com && pr && git co - && git rbm'
 alias rbd='git co dev && pr && git co - && git rb dev'
 alias rdb=rbd
 alias rbp='git co prod && pr && git co - && git rb prod'
 alias rpb=rbp
 alias rbbranch='git rebase -i $(git merge-base $(git rev-parse --abbrev-ref HEAD) master)'
-alias misc='a && git cm "Modified $(git diff --name-only HEAD | grep -Eo ''[^/]+$'')" && p'
-alias last_commit='git log -1 --pretty=%B | clip'
+alias cmmisc='a && git cm "Modified $(git diff --name-only HEAD | grep -Eo ''[^/]+$'')" && p'
+alias last_commit='g l1 | clip'
 #alias first_foreign_commit='git log --graph --pretty=format:"%h %an" | grep -vi "$(git config user.name)" | head -n1 | cut -d" " -f1'
-alias first_foreign_commit='git rev-list --boundary ...master | grep "^-" | cut -c2- | tail -n1'
+alias first_foreign_commit='git rev-list --boundary ...dev | grep "^-" | cut -c2- | tail -n1'
 alias rbmine='git rebase -i $(first_foreign_commit)'
 alias set_upstream='git branch --set-upstream-to=origin/$(git rev-parse --abbrev-ref HEAD) $(git rev-parse --abbrev-ref HEAD)'
 alias git_gc='git fetch --prune && git fsck --unreachable && git reflog expire --expire=now --all && git gc --prune=now --aggressive'
@@ -83,6 +88,10 @@ alias tomain='git co main && pr && git fp && git_delete_other_branches -f; git_g
 # If I had another file descriptor watcher leak, check which processes are hoarding
 alias watchers="sudo lsof -n | grep inotify | awk '{print $1}' | sort | uniq -c | sort -rn"
 
+# PS, gets processes for the current directory
+alias ps.here='for pid in $(pgrep -u $USER); do pwdx $pid 2>/dev/null | grep -q "^$pid: $(pwd)$" && ps -p $pid -o pid=,args= --no-headers; done | grep -vE "(cursor|grep|pwdx)" | grep -vE "bin/(ba)?sh\s*$"'
+alias ps.kill='ps.here | awk "{print \$1}" | xargs -r kill 2>/dev/null'
+
 # Internet
 
 alias localip='hostname -I | awk '\''{print $1}'\'''
@@ -90,7 +99,7 @@ alias localip='hostname -I | awk '\''{print $1}'\'''
 # Ping one of Google's DNS servers
 alias online='ping 8.8.8.8'
 # Ping a domain to also check DNS resolution
-alias onlined='ping google.com'
+alias online.d='ping google.com'
 
 # DNS
 alias dns.blocked="tail -n99 /opt/dnscrypt-proxy/blocked.log | awk '{print \$1,\$2,\$4,\$5}' | sort -r | awk '!a[\$3]++' | sort"
@@ -115,7 +124,7 @@ alias ollama.stop='sudo systemctl stop ollama'
 alias ollama.logs='sudo journalctl -u ollama.service'
 alias ollama.update='curl -fsSL https://ollama.com/install.sh | sudo sh && ollama --version'
 
-# History (history.forget is in .bash_functions)
+# History (forget is in .bash_functions)
 alias history.restore='cp ~/.bash_history.bkp ~/.bash_history'
 alias history.grep='history | grep'
 alias history.forget='forget'
@@ -128,9 +137,11 @@ alias keyboard.dump='sleep 1; xdotool type "$(xclip -o -selection clipboard)"'
 # Add an "alert" alias for long running commands. Use like so: sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Dotfiles
+# Dotfiles (dotfiles.edit is in .bash_functions)
 alias dotfiles.reload='source ~/.bashrc'
+alias reload='dotfiles.reload' # old habits die hard
 alias dotfiles.sync='find ~ -maxdepth 1 -type f -mtime -1 | grep -e git -e bash -e rc | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User'
+alias rc='dotfiles.edit'
 
 # Extract prompt from an image
 alias prompt="identify -format '%[parameters]'"
@@ -142,6 +153,7 @@ alias snap.r='snap refresh'
 # Apt
 alias apt.i='sudo apt update -y && sudo apt install -y'
 alias apt.u='sudo apt update -y && sudo apt upgrade -y'
+alias apt.r='sudo apt remove'
 
 # Rsync
 alias rs='rsync -av --progress --no-owner --no-group --open-noatime --human-readable --acls'
@@ -159,3 +171,6 @@ alias gpu.usage='nvidia-smi --query-compute-apps=pid,process_name,used_memory --
 # Cargo
 alias cargo.i='CARGO_BUILD_RUSTFLAGS="-C target-cpu=native" cargo install --locked'
 alias cargo.u='cargo uninstall'
+
+# Paste - Join lines by delimiter
+alias paste.sd='paste -sd'

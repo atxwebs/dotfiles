@@ -77,6 +77,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 [ -f ~/.bash_git ] && . ~/.bash_git
 . ~/.bash_exports
@@ -86,10 +89,6 @@ fi
 . ~/.bash_functions
 # Not versioned, includes the local/private things
 [ -f ~/.bash_extras ] && . ~/.bash_extras
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Add git completion to the g alias
 if [ "$(type -t g)" == "alias" ]; then

@@ -189,5 +189,8 @@
     "zenMode.centerLayout": false,
     "zenMode.hideLineNumbers": false,
     "json.schemaDownload.enable": true,
-    "window.confirmSaveUntitledWorkspace": false
+    "window.confirmSaveUntitledWorkspace": false,
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }

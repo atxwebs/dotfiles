@@ -198,7 +198,7 @@ function forget() {
   fi
   local file=~/.bash_history
   local before=$(cat $file | wc -l)
-  tac $file | grep -vEe 'MFD-|chmod|archived|mkdir|npm ?i|npm ?rm|--help|chown|forget|ollama pull|ollama rm|duhs' -e '^([a-z])$' -e '^(z|e|t|hg|which|eval|ls|echo)\b' -e '\b(stash|pop|cm|cd|cp|rrf?|code|alias|apt)\b' -e '(g|git) (cob?|cmnv|clone|bd|bm|init)\b' \
+  tac $file | grep -vEe 'MFD-|chmod|archived|mkdir|npm ?i|npm ?rm|--help|chown|forget|ollama pull|ollama rm|duhs' -e '^([a-z])$' -e '^(z|e|t|hg|which|eval|ls|echo)\b' -e '\b(stash|pop|cm|cd|cp|rrf?|code|alias|apt)\b' -e '\btest[./-]' -e '^[[]' -e '^\w+:' -e '(g|git) (cob?|cmnv|clone|bd|bm|init)\b' \
     | sed -r 's/ +$//g' | sed -n "/$filter/!p" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then

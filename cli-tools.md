@@ -9,3 +9,6 @@
 - jq: `apt install jq`
 - yq: `snap install yq`
 - miller (mlr): `apt install miller`
+- parallel (mine): `npm install -g parallel`
+- difftastic (git diff): `cargo install difftastic`
+- tealdeer (tldr): `cargo install tealdeer`
