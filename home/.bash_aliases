@@ -100,9 +100,10 @@ alias dns.blacklist='code /opt/dnscrypt-proxy/blacklist.txt --wait && dns.restar
 alias dns.config='code /opt/dnscrypt-proxy/dnscrypt-proxy.toml --wait && dns.restart'
 alias dns.clear='for f in /opt/dnscrypt-proxy/*.log; do echo "" | sudo tee "$f"; done'
 alias dns.logs='sudo journalctl -u dnscrypt-proxy.service'
-alias dns.enable='sudo cp /etc/resolv.conf.override /etc/resolv.conf'
-alias dns.disable='sudo cp /etc/resolv.conf.bkp /etc/resolv.conf'
+alias dns.enable='sudo cp /etc/resolv.conf.local /etc/resolv.conf'
+alias dns.disable='sudo cp /etc/resolv.conf.cloudflare /etc/resolv.conf'
 alias dns.pihole='sudo cp /etc/resolv.conf.pihole /etc/resolv.conf'
+alias dns.google='sudo cp /etc/resolv.conf.google /etc/resolv.conf'
 
 # Wifi
 alias wifi.on='sudo rfkill unblock wifi && sudo ip link set wlan0 up'
