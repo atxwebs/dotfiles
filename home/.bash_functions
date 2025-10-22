@@ -181,28 +181,22 @@ function mvb() {
 
 # Swaps 2 files
 function swap() {
-  mv $1 $1.bkp
-  mv $2 $1
+  mvb $2 $1
   mv $1.bkp $2
 }
 
-# Remove entries matching $1 from the bash history, also remove duplicates
+# Remove entries matching a filter from the bash history, also remove duplicates and known needless lines
 function forget() {
   history -a
-  # TODO: Support multi-argument so I don't need to always wrap in quotes?
   # When empty, just clean up the history
-  local filter=${1:-no_match}
-  if [[ *"$1"* = *"/"* ]]; then
-    echo "Slashes cannot be included"
-    return
-  fi
+  local filter="${*:-no_match}"
   local file=~/.bash_history
   local before=$(cat $file | wc -l)
   tac $file | grep -vEe 'MFD-|chmod|archived|mkdir|npm ?i|npm ?rm|--help|chown|forget|ollama pull|ollama rm|duhs' -e '^([a-z])$' -e '^(z|e|t|hg|which|eval|ls|echo)\b' -e '\b(stash|pop|cm|cd|cp|rrf?|code|alias|apt)\b' -e '\btest[./-]' -e '^[[]' -e '^\w+:' -e '(g|git) (cob?|cmnv|clone|bd|bm|init)\b' \
-    | sed -r 's/ +$//g' | sed -n "/$filter/!p" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
+    | sed -r 's/ +$//g' | grep -vF "$filter" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then
-    echo "Reverting..."
+    echo "Wiped all history, reverting..."
     mv $file{.bkp,}
   fi
   history -c
@@ -216,7 +210,10 @@ function forget() {
 function calc() {
   local code="${*//x/*}"  # Replace x with *
   code="${code//^/**}"    # Replace ^ with **
-  node -pe "with(Math) { $code }"
+  code=$(echo "$code" | sed -E 's/\$([0-9]+)/\1/g')  # Remove $ from $\d+
+  code=$(echo "$code" | sed -E 's/([0-9]),([0-9])/\1\2/g')  # Remove commas from \d,\d globally
+  code=$(echo "$code" | sed -E 's/([0-9]),([0-9])/\1\2/g')  # Second pass for multiple commas
+  node -pe "with(Math) { $code }" | tee /dev/tty | clip
 }
 
 # Archive file and/or dirs with tar+gzip
