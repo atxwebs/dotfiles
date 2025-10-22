@@ -537,3 +537,48 @@ function dns.temp() {
   dns.disable && sleep $secs
   dns.enable
 }
+
+function crypt() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: crypt <file>..." >&2
+    echo "  Encrypts files without .gpg extension (adds .gpg, removes original)" >&2
+    echo "  Decrypts files with .gpg extension (removes .gpg, removes original)" >&2
+    return 1
+  fi
+
+  local passphrase
+  read -sp "Enter passphrase: " passphrase
+  echo
+
+  if [[ -z "$passphrase" ]]; then
+    echo "Error: Passphrase cannot be empty" >&2
+    return 1
+  fi
+
+  for file in "$@"; do
+    if [[ ! -f "$file" ]]; then
+      echo "Warning: '$file' not found, skipping" >&2
+      continue
+    fi
+
+    if [[ "$file" == *.gpg ]]; then
+      # Decrypt
+      local output="${file%.gpg}"
+      if gpg --batch -d --passphrase "$passphrase" --output "$output" "$file" 2>/dev/null; then
+        rm -f "$file"
+        echo "Decrypted: $file -> $output"
+      else
+        echo "Error: Failed to decrypt $file" >&2
+      fi
+    else
+      # Encrypt
+      local output="${file}.gpg"
+      if gpg --batch -c --passphrase "$passphrase" --output "$output" "$file" 2>/dev/null; then
+        rm -f "$file"
+        echo "Encrypted: $file -> $output"
+      else
+        echo "Error: Failed to encrypt $file" >&2
+      fi
+    fi
+  done
+}
