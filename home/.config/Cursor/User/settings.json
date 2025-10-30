@@ -192,5 +192,6 @@
     "window.confirmSaveUntitledWorkspace": false,
     "[json]": {
       "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    },
+    "cursor.composer.queueMessageDefaultBehavior": "queue"
 }

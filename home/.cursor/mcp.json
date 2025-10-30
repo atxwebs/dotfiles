@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "mcp-files": {
+      "command": "npx",
+      "args": ["-y", "mcp-files"],
+      "env": {
+        "DEBUG": "true",
+        "COLLECT_MISMATCHES": "true"
+      }
+    }
+  }
+}

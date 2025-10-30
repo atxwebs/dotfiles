@@ -129,6 +129,7 @@ alias history.restore='cp ~/.bash_history.bkp ~/.bash_history'
 alias history.grep='history | grep'
 alias history.forget='forget'
 alias history.edit='code ~/.bash_history'
+alias history.pop='sed -i "$ d" ~/.bash_history && history -c && history -r && tail -1 ~/.bash_history'
 
 # Keyboard
 alias keyboard.keys="xev | grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'"
@@ -140,7 +141,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # Dotfiles (dotfiles.edit is in .bash_functions)
 alias dotfiles.reload='source ~/.bashrc'
 alias reload='dotfiles.reload' # old habits die hard
-alias dotfiles.sync='find ~ -maxdepth 1 -type f -mtime -1 | grep -e git -e bash -e rc | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User'
+alias dotfiles.sync='find ~ -maxdepth 1 -type f -mtime -1 | grep -e git -e bash -e rc | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User;mkdir -p ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/commands/* ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/mcp.json ~/Code/dotfiles/home/.cursor'
 alias rc='dotfiles.edit'
 
 # Extract prompt from an image
