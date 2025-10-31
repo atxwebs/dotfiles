@@ -3,26 +3,26 @@
 ## ImageMagick
 
 ### Overlay 2 images with transparency
-convert bottom.png \( top.png -alpha set -channel a -evaluate set 75% +channel \) -gravity center -compose over -composite out.png
-composite -dissolve 75 -gravity Center top.png bottom.png -alpha Set out.png
+magick convert bottom.png \( top.png -alpha set -channel a -evaluate set 75% +channel \) -gravity center -compose over -composite out.png
+magick composite -dissolve 75 -gravity Center top.png bottom.png -alpha Set out.png
 
 ### Convert all JPGs to PNG & Remove
-for f in *.jpg; do convert "$f" -quality 100 -format png "${f/.jpg/.png}" && rm "$f"; done
+for f in *.jpg; do magick convert "$f" -quality 100 -format png "${f/.jpg/.png}" && rm "$f"; done
 
 ### Convert all WEBPs to PNG
-for f in *.webp; do convert "$f" "${f/.webp/.png}"; done
+for f in *.webp; do magick convert "$f" "${f/.webp/.png}"; done
 
 ### Resize images
-for f in *.png; do convert "$f" -quality 100 -filter Lanczos -resize 1080x1350 "${f/.png/-lg.png}"; done
+for f in *.png; do magick convert "$f" -quality 100 -filter Lanczos -resize 1080x1350 "${f/.png/-lg.png}"; done
 
 ### Crop image
-convert input.png -crop 800x600+100+50 output.png
+magick convert input.png -crop 800x600+100+50 output.png
 
 ### Add border to image
-convert input.png -bordercolor black -border 10x10 output.png
+magick convert input.png -bordercolor black -border 10x10 output.png
 
 ### Create thumbnail
-convert input.png -thumbnail 200x200 thumb.png
+magick convert input.png -thumbnail 200x200 thumb.png
 
 ### Batch rename files with counter
 i=1; for f in *.png; do mv "$f" "image_$(printf %03d $i).png"; ((i++)); done

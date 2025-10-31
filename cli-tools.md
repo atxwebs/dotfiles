@@ -12,3 +12,5 @@
 - parallel (mine): `npm install -g parallel`
 - difftastic (git diff): `cargo install difftastic`
 - tealdeer (tldr): `cargo install tealdeer`
+- fzf: `apt install fzf`
+- yazi: `cargo install yazi-fm`
