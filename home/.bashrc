@@ -81,26 +81,30 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-[ -f ~/.bash_git ] && . ~/.bash_git
+# [ -f ~/.bash_git ] && . ~/.bash_git  # commented out - __git_ps1 no longer needed
 . ~/.bash_exports
 . ~/.bash_options
 . ~/.bash_aliases
-. ~/.bash_prompt
+# . ~/.bash_prompt
 . ~/.bash_functions
 # Not versioned, includes the local/private things
 [ -f ~/.bash_extras ] && . ~/.bash_extras
 
-# Add git completion to the g alias
-if [ "$(type -t g)" == "alias" ]; then
-  # Force load the file that is otherwise loaded on demand
-  if [ "$(type -t __git_complete)" != "function" ]; then
-    . /usr/share/bash-completion/completions/git
-  fi
-  __git_complete g __git_main
+# Colorize the prompt if not on the PI
+if [ "$USER" = "pi" ]; then
+  . ~/.bash_pi
 fi
 
-# sleep 1 && node ~/bin/disable-keyboard.js
+if [[ -n "$CURSOR_TRACE_ID" ]]; then
+  # Runs only for the agent
+  . ~/.bash_cursor
+fi
+
+# Load cargo/env first so starship is available
 . "$HOME/.cargo/env"
+
+# Starship Bash prompt
+eval "$(starship init bash)"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

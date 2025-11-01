@@ -1,0 +1,97 @@
+# Starship prompt configuration
+# Matches the colors from .bash_prompt:
+# - Green (32m) for user@host
+# - Purple/Magenta (35m) for time
+# - Yellow (33m) for directory
+# - Cyan (36m) for git status
+
+# Main format: matches the layout of .bash_prompt
+# Line 1: user@host time directory git_status nodejs cmd_duration
+# Line 2: prompt character
+format = """
+$username$hostname\
+$time\
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Username module - green for users
+[username]
+format = "[$user@]($style)"
+style_user = "green"
+show_always = true
+
+# Hostname module
+[hostname]
+ssh_only = false
+format = "[$hostname]($style) "
+style = "green"
+ssh_symbol = " "
+
+# Time module - purple/magenta
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "magenta"
+time_format = "%H:%M:%S"
+
+# Directory module - yellow/brownish yellow
+[directory]
+truncation_length = 0
+truncate_to_repo = false
+format = "[$path]($style) "
+style = "yellow"
+read_only = " 󰌾"
+
+# Git branch module
+[git_branch]
+format = "[$symbol$branch]($style) "
+symbol = " "
+style = "cyan"
+
+# Git status module - cyan
+[git_status]
+format = "[$all_status$ahead_behind]($style)"
+style = "cyan"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?"
+stashed = "$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+# Node.js module - shows node version when package.json is present
+[nodejs]
+format = "[$symbol($version )]($style)"
+symbol = "  "
+style = "bold green"
+detect_files = ["package.json"]
+detect_extensions = []
+detect_folders = []
+
+# Command duration module - only show if > 2 seconds
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+style = "yellow"
+
+# Character (prompt symbol)
+# Starship's format parser treats $ as variable start, so literal $ can't be used
+# Using ➜ as a close visual alternative (or use # for simplicity)
+[character]
+format = "[$symbol](bold) "
+success_symbol = "➜"
+error_symbol = "➜"
+
+# Line break
+[line_break]
+disabled = false
+
