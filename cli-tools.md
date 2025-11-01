@@ -7,7 +7,6 @@
 - rg: `cargo install ripgrep`
 - sd: `cargo install sd`
 - jq: `apt install jq`
-- yq: `snap install yq`
 - miller (mlr): `apt install miller`
 - parallel (mine): `npm install -g parallel`
 - difftastic (git diff): `cargo install difftastic`
@@ -16,3 +15,9 @@
 - yazi: `cargo install yazi-fm`
 - kitty: `curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin`
 - starship: `cargo install starship`
+
+## Have potential
+
+- ast-grep: `cargo install ast-grep`
+- exa: `cargo install exa`
+- yq: `snap install yq`
