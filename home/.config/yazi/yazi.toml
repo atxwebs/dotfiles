@@ -1,0 +1,14 @@
+# Yazi configuration
+
+# Trash/Delete configuration
+# Yazi's default 'remove' command moves files to trash (FreeDesktop.org Trash spec)
+# Use 'd' to delete selected files (moves to trash)
+# Use 'D' (shift+d) for permanent deletion
+
+# MIME type plugin - faster than file(1), uses extension-based detection
+[[plugin.prepend_fetchers]]
+id   = "mime"
+name = "*"
+run  = "mime-ext"
+prio = "high"
+

@@ -1,0 +1,27 @@
+# Yazi Keymap Configuration
+
+# Default keybindings:
+# - Enter: Open file / Enter directory
+# - Space: Select/unselect file
+# - x: Mark for deletion (then use 'd' to delete)
+# - d: Delete selected files (moves to trash by default)
+# - D: Permanent delete (bypasses trash)
+# - y: Copy selected files
+# - p: Paste files
+# - /: Filter/search files
+# - Esc: Cancel/exit
+
+# Copy hovered file path to clipboard
+[[manager.keymap]]
+keys = [ "y", "l" ]  # y + l = copy path
+on = [
+	{ run = "shell", args = [ "sh", "-c", "echo \"$1\" | xclip -selection clipboard", "$YAZI_HOVERED_PATH" ], desc = "Copy hovered path to clipboard" },
+]
+
+# Copy all selected file paths to clipboard  
+[[manager.keymap]]
+keys = [ "y", "p" ]  # y + p = copy paths
+on = [
+	{ run = "shell", args = [ "sh", "-c", "echo \"$@\" | xclip -selection clipboard", "$YAZI_SELECTED_PATHS" ], desc = "Copy selected paths to clipboard" },
+]
+

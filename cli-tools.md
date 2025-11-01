@@ -15,3 +15,4 @@
 - fzf: `apt install fzf`
 - yazi: `cargo install yazi-fm`
 - kitty: `curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin`
+- starship: `cargo install starship`

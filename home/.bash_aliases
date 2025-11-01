@@ -16,6 +16,10 @@ alias path.list='echo "$PATH" | tr ":" "\n"'
 alias t='tldr'
 alias restart='sudo shutdown -r now'
 alias cursor="~/Applications/cursor.AppImage"
+
+# Yazi
+alias y=yazi
+
 # Kitty
 alias kitty='kitty --config ~/.kitty.conf --session ~/.kitty-session.conf'
 
