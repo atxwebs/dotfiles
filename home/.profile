@@ -1,2 +1,2 @@
 [ -f ~/.bashrc ] && . ~/.bashrc
-# . "$HOME/.cargo/env"
+#. "$HOME/.cargo/env"

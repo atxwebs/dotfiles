@@ -1,3 +1,7 @@
+# Silence Job control messages (printed when commands go into background and when they finish)
+# NOTE: Commenting, I think it broke many things (starting the server, code $FILE). They used up a lot of file descriptors
+#set +m
+
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob
 
@@ -47,10 +51,3 @@ bind '"\eOB": history-search-forward'
 bind '"\e[5~": reverse-search-history'
 # Page down to Cycle thru auto-completions
 bind '"\e[6~": menu-complete'
-
-# Map Menu to grave/tilde (broken in keyboard)
-xmodmap -e "keycode 135 = grave asciitilde grave asciitilde"
-# Unmap grave/tilde so it stops typing
-xmodmap -e "keycode 49 ="
-# Which one is it!?
-xmodmap -e "keycode 96 ="

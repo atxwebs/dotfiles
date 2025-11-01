@@ -1,5 +1,6 @@
 alias code=nano
 # Username color change to red for pi user is handled in starship config
+# via custom.username_pi module (no action needed here)
 # Old PS1 replacement (no longer needed with starship, but keeping for reference)
 # export PS1=${PS1//32m/31m}
 # If SSH session and not already in /mnt/ssd, cd there

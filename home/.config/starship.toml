@@ -77,9 +77,9 @@ detect_files = ["package.json"]
 detect_extensions = []
 detect_folders = []
 
-# Command duration module - only show if > 2 seconds
+# Command duration module - only show if > 10 seconds
 [cmd_duration]
-min_time = 2_000
+min_time = 10_000
 format = "[$duration]($style) "
 style = "yellow"
 

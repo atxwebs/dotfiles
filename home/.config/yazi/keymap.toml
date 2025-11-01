@@ -9,19 +9,18 @@
 # - y: Copy selected files
 # - p: Paste files
 # - /: Filter/search files
+# - r: Rename
 # - Esc: Cancel/exit
 
 # Copy hovered file path to clipboard
-[[manager.keymap]]
-keys = [ "y", "l" ]  # y + l = copy path
-on = [
-	{ run = "shell", args = [ "sh", "-c", "echo \"$1\" | xclip -selection clipboard", "$YAZI_HOVERED_PATH" ], desc = "Copy hovered path to clipboard" },
-]
+[[mgr.prepend_keymap]]
+on = "y l"
+run = "shell 'echo \"$YAZI_HOVERED_PATH\" | xclip -selection clipboard'"
+desc = "Copy hovered path to clipboard"
 
 # Copy all selected file paths to clipboard  
-[[manager.keymap]]
-keys = [ "y", "p" ]  # y + p = copy paths
-on = [
-	{ run = "shell", args = [ "sh", "-c", "echo \"$@\" | xclip -selection clipboard", "$YAZI_SELECTED_PATHS" ], desc = "Copy selected paths to clipboard" },
-]
+[[mgr.prepend_keymap]]
+on = "y p"
+run = "shell 'echo \"$YAZI_SELECTED_PATHS\" | xclip -selection clipboard'"
+desc = "Copy selected paths to clipboard"
 

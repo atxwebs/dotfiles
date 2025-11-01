@@ -95,16 +95,17 @@ if [ "$USER" = "pi" ]; then
   . ~/.bash_pi
 fi
 
-if [[ -n "$CURSOR_TRACE_ID" ]]; then
-  # Runs only for the agent
-  . ~/.bash_cursor
-fi
 
 # Load cargo/env first so starship is available
 . "$HOME/.cargo/env"
 
 # Starship Bash prompt
 eval "$(starship init bash)"
+
+if [[ -n "$CURSOR_TRACE_ID" ]]; then
+  # Runs only for the agent
+  . ~/.bash_cursor
+fi
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

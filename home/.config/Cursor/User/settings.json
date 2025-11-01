@@ -155,7 +155,6 @@
     "editor.autoClosingBrackets": "never",
     "cursor.chat.defaultNoContext": true,
     "cursor.chat.premiumChatAutoScrollWhenAtBottom": true,
-    "update.mode": "manual",
     "diffEditor.ignoreTrimWhitespace": false,
     "window.customTitleBarVisibility": "auto",
     "cursor.cmdk.useThemedDiffBackground": true,

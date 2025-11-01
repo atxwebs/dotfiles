@@ -5,7 +5,9 @@ export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 export HISTCONTROL="erasedups:ignoreboth"
 
 # Don't record some commands
-export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:set:cd:p:e:clear:cm:st:pop:z:t:hg:which:eval:npmi:npm i:npmrm:npm rm:chmod:mkdir"
+# Note: Adding patterns to prevent shell option commands from cluttering history
+# HISTIGNORE uses glob patterns - "set +o*" matches "set +o ignoreeof", "set +o pipefail", etc.
+export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:set:set +o*:set -o*:cd:p:e:clear:cm:st:pop:z:t:hg:which:eval:npmi:npm i:npmrm:npm rm:chmod:mkdir"
 
 # Keep more entries in the bash history
 export HISTSIZE=3000
@@ -33,3 +35,7 @@ export BAT_TABS=2
 # Difftastic settings
 export DFT_CONTEXT=1
 export DFT_TAB_WIDTH=2
+
+# For dictation
+export LIBALSA_LOG_LEVEL=0
+export LIBGL_ALWAYS_SOFTWARE=1

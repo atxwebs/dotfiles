@@ -1,2 +1,9 @@
 home/.bash_extras
 home/.bash_history*
+home/.git-credentials
+home/.netrc
+home/.serverlessrc
+home/.xinputrc
+home/.yarnrc
+home/.npmrc
+home/sources.json
