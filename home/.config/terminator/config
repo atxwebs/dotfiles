@@ -1,0 +1,62 @@
+[global_config]
+  window_state = maximise
+  suppress_multiple_term_dialog = True
+[keybindings]
+  paste = <Primary>v
+  close_window = <Alt>F4
+  toggle_zoom = <Primary>space
+  broadcast_all = <Alt>a
+[profiles]
+  [[default]]
+    cursor_color = "#aaaaaa"
+    font = Fira Code 11
+    scrollback_lines = 10000
+    disable_mousewheel_zoom = True
+    use_system_font = False
+[layouts]
+  [[default]]
+    [[[child0]]]
+      type = Window
+      parent = ""
+      order = 0
+      position = 0:27
+      maximised = True
+      fullscreen = False
+      size = 1600, 836
+      title = /home/flesler
+      last_active_term = 5bb21982-6391-4e22-82a8-3b2e24366184
+      last_active_window = True
+    [[[child1]]]
+      type = VPaned
+      parent = child0
+      order = 0
+      position = 416
+      ratio = 0.5006016847172082
+    [[[terminal2]]]
+      type = Terminal
+      parent = child1
+      order = 0
+      profile = default
+      uuid = dfa25d59-2d6c-4fa3-9efa-f5dd51d07534
+      directory = /home/flesler/Code/manufactured/mfd-fin-api
+    [[[child3]]]
+      type = HPaned
+      parent = child1
+      order = 1
+      position = 798
+      ratio = 0.5003134796238244
+    [[[terminal4]]]
+      type = Terminal
+      parent = child3
+      order = 0
+      profile = default
+      uuid = 5bb21982-6391-4e22-82a8-3b2e24366184
+      directory = /home/flesler/Code/manufactured/mfd-fin-api
+    [[[terminal5]]]
+      type = Terminal
+      parent = child3
+      order = 1
+      profile = default
+      uuid = aa0ef00d-eb9e-41d1-9fce-7923981170b5
+      directory = /home/flesler/Code/manufactured/mfd-fin-api
+[plugins]

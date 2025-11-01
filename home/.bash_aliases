@@ -16,6 +16,8 @@ alias path.list='echo "$PATH" | tr ":" "\n"'
 alias t='tldr'
 alias restart='sudo shutdown -r now'
 alias cursor="~/Applications/cursor.AppImage"
+# Kitty
+alias kitty='kitty --config ~/.kitty.conf --session ~/.kitty-session.conf'
 
 # Z (zoxide)
 alias z.here='z -c'
@@ -141,7 +143,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # Dotfiles (dotfiles.edit is in .bash_functions)
 alias dotfiles.reload='source ~/.bashrc'
 alias reload='dotfiles.reload' # old habits die hard
-alias dotfiles.sync='find ~ -maxdepth 1 -type f -mtime -1 | grep -e git -e bash -e rc | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User;mkdir -p ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/commands/* ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/mcp.json ~/Code/dotfiles/home/.cursor'
+alias dotfiles.sync='find ~ -maxdepth 1 -type f -mtime -1 | grep -e git -e bash -e rc -e .conf | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User;mkdir -p ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/commands/* ~/Code/dotfiles/home/.cursor/commands; cp ~/.cursor/mcp.json ~/Code/dotfiles/home/.cursor; for dir in yazi kitty; do mkdir -p ~/Code/dotfiles/home/.config/$dir && cp -r ~/.config/$dir/* ~/Code/dotfiles/home/.config/$dir/ 2>/dev/null || true; cp ~/.config/starship.toml ~/Code/dotfiles/home/.config/; done'
 alias rc='dotfiles.edit'
 
 # Extract prompt from an image
@@ -164,7 +166,7 @@ alias rs.dry='rs.cp --dry-run'
 alias rs.mv='rs --remove-source-files'
 
 # For the RaspberryPI
-alias pi.home='rs ~/.{bash_{aliases,functions,profile,options,exports,prompt,login,logout,extras,cursor},profile,gitconfig,npmrc,bashrc} rsync://pi.local/home'
+alias pi.home='rs ~/.{bash_{aliases,functions,profile,options,exports,prompt,login,logout,extras,cursor,pi},profile,gitconfig,npmrc,bashrc} rsync://pi.local/home'
 
 # GPU
 alias gpu.usage='nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv'
