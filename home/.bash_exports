@@ -5,7 +5,7 @@ export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 export HISTCONTROL="erasedups:ignoreboth"
 
 # Don't record some commands
-export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:cd:p:e:clear:cm:cmnv:st:pop:z"
+export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:set:cd:p:e:clear:cm:st:pop:z:t:hg:which:eval:npmi:npm i:npmrm:npm rm:chmod:mkdir"
 
 # Keep more entries in the bash history
 export HISTSIZE=3000
@@ -20,6 +20,7 @@ fi
 
 # Use less command as a pager
 export PAGER=less
+
 
 # Default command for fzf (filter alias)
 export FZF_DEFAULT_COMMAND='find . ! -path "*.git*" ! -path "*node_modules*"'
