@@ -57,16 +57,16 @@ style = "cyan"
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
 style = "cyan"
-conflicted = "="
+conflicted = "C"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 untracked = "?"
-stashed = "$"
-modified = "!"
+stashed = "S"
+modified = "M"
 staged = "+"
-renamed = "»"
-deleted = "✘"
+renamed = "R"
+deleted = "X"
 
 # Node.js module - shows node version when package.json is present
 [nodejs]
@@ -84,12 +84,11 @@ format = "[$duration]($style) "
 style = "yellow"
 
 # Character (prompt symbol)
-# Starship's format parser treats $ as variable start, so literal $ can't be used
-# Using ➜ as a close visual alternative (or use # for simplicity)
+# Starship's format parser treats $ as variable start, so literal $ can't be used (use ＄ instead)
 [character]
 format = "[$symbol](bold) "
-success_symbol = "➜"
-error_symbol = "➜"
+success_symbol = "＄"
+error_symbol = "＄"
 
 # Line break
 [line_break]
