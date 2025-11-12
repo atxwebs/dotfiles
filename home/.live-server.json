@@ -1,9 +1,0 @@
-{
-  "port": 8080,
-  "host": "0.0.0.0",
-  "root": ".",
-  "open": true,
-  "ignore": ["node_modules",".git"],
-  "file": "index.html",
-  "wait": 500
-}
