@@ -192,5 +192,9 @@
     "[json]": {
       "editor.defaultFormatter": "vscode.json-language-features"
     },
-    "cursor.composer.usageSummaryDisplay": "always"
+    "cursor.composer.usageSummaryDisplay": "always",
+    "jupyter.askForKernelRestart": false,
+    "[python]": {
+      "diffEditor.ignoreTrimWhitespace": false
+    }
 }

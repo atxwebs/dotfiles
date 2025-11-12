@@ -182,3 +182,7 @@ alias cargo.u='cargo uninstall'
 
 # Paste - Join lines by delimiter
 alias paste.sd='paste -sd'
+
+# Exa
+alias exa.s='exa --icons --no-permissions --all --sort size --reverse'
+alias exa.l='exa.s --long'

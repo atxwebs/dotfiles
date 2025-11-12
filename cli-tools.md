@@ -15,9 +15,12 @@
 - yazi: `cargo install yazi-fm`
 - kitty: `curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin`
 - starship: `cargo install starship`
+- exa: `cargo install exa`
 
 ## Have potential
 
-- ast-grep: `cargo install ast-grep`
-- exa: `cargo install exa`
 - yq: `snap install yq`
+
+## Discarded
+
+- ast-grep: `cargo install ast-grep` (didn't quite match what Cursor expected)

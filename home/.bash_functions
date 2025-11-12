@@ -176,13 +176,13 @@ function remind(){
 # mv command but it backups
 function mvb() {
   local to=$2
-  mv $to $to.bkp && mv $@
+  mv $to $to.bak && mv $@
 }
 
 # Swaps 2 files
 function swap() {
   mvb $2 $1
-  mv $1.bkp $2
+  mv $1.bak $2
 }
 
 # Remove entries matching a filter from the bash history, also remove duplicates and known needless lines
@@ -197,12 +197,12 @@ function forget() {
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then
     echo "Wiped all history, reverting..."
-    mv $file{.bkp,}
+    mv $file{.bak,}
   fi
   history -c
   history -r
 
-  diff ~/.bash_history{.bkp,} | grep '^<' | sort -u
+  diff ~/.bash_history{.bak,} | grep '^<' | sort -u
   echo "Trimmed $file, lines: $before -> $after"
 }
 
@@ -222,7 +222,7 @@ function archive() {
   local dest=$(basename "$1")
   cd "$dir"
   shift
-  tar -ac --exclude=node_modules --exclude-vcs -f "$dest.tar.xz" "$dest" "$@"
+  tar -ac --exclude=node_modules --exclude=__pycache__ --exclude=venv --exclude-vcs -f "$dest.tar.xz" "$dest" "$@"
   cd -
 }
 

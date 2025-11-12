@@ -120,6 +120,7 @@ $BORG create       \
   --exclude '*.map' \
   --exclude '*.swp' \
   --exclude '*.bak' \
+  --exclude '*.so' \
   --exclude '*.desktop' \
   --exclude '*.txt.xz' \
   --exclude '*.org.chromium.Chromium*' \

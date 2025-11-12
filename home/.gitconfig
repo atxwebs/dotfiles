@@ -43,6 +43,7 @@
   stu = stash save --keep-index
   stl = stash list
   stc = stash clear
+  std = stash show -p
   pop = stash pop
   b = branch
   bm = branch -m
@@ -53,11 +54,9 @@
   rbi = rebase --interactive
   rbm = rebase master
   lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%G?%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
-  lg1d = lg --since='1 day'
   lgt = lg --since='midnight'
   lgy = lg --since='yesterday midnight' --until='midnight'
   lm = ! git log --no-merges --reverse -n 20 --author $(git config --get user.email) --pretty=format:'%s' # only mine, just the commit messages
-  lm1d = lm --since='1 day'
   lmt = lm --since='midnight'
   lmy = lm --since='yesterday midnight' --until='midnight'
   l1 = log --format=%B -n1 # used to see a single commit (g l1 f64632c, defaults to HEAD)
