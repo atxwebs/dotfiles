@@ -16,6 +16,7 @@
 - kitty: `curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin`
 - starship: `cargo install starship`
 - exa: `cargo install exa`
+- duckdb: `curl https://install.duckdb.org | sh`
 
 ## Have potential
 

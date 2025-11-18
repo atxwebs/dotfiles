@@ -81,6 +81,9 @@ tar -xzf archive.tar.gz
 ### Find files modified in last 7 days
 find . -type f -mtime -7
 
+### Delete empty directories
+find . -type d -empty -delete
+
 ## Text Processing
 
 ### Replace text in files
