@@ -10,6 +10,7 @@ Available CLI tools, use when suitable:
 - parallel (job parallelization)
 - tldr (tealdeer, simplified man pages)
 - fzf (fuzzy finder)
+- gh (github CLI)
 
 ## Working on JSON, CSV, TSV
 
