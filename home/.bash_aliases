@@ -16,12 +16,16 @@ alias path.list='echo "$PATH" | tr ":" "\n"'
 alias t='tldr'
 alias restart='sudo shutdown -r now'
 alias cursor="~/Applications/cursor.AppImage"
+# Last command with sudo
+alias please='sudo $(history -p !!)'
+
+# Date and time helpers.
+alias date.now='date +"%Y-%m-%d %H:%M:%S"'
+alias date.today='date +"%Y-%m-%d"'
+alias date.ts='date +%s'
 
 # Yazi
 alias y=yazi
-
-# Kitty
-alias kitty='kitty --config ~/.kitty.conf --session ~/.kitty-session.conf'
 
 # Z (zoxide)
 alias z.here='z -c'
@@ -133,7 +137,7 @@ alias ollama.update='curl -fsSL https://ollama.com/install.sh | sudo sh && ollam
 
 # History (forget is in .bash_functions)
 alias history.restore='cp ~/.bash_history.bkp ~/.bash_history'
-alias history.grep='history | grep'
+alias history.grep='history | grep -i --color=auto'
 alias history.forget='forget'
 alias history.edit='code ~/.bash_history'
 alias history.pop='sed -i "$ d" ~/.bash_history && history -c && history -r && tail -1 ~/.bash_history'

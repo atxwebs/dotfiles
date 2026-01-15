@@ -1,7 +1,9 @@
 #!/bin/bash
 # Auto-setup for AI agent shell environment
 if [[ "$PS1" != *🤖* ]]; then
-  unset HISTFILE
+  # Load existing history but disable saving new history
+  history -r 2>/dev/null || true
+  set +o history
   
   # SECURITY: Set 30-second sudo timeout for AI shell
   alias sudo='sudo -T 30'

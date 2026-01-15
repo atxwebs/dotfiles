@@ -39,3 +39,6 @@ export DFT_TAB_WIDTH=2
 # For dictation
 export LIBALSA_LOG_LEVEL=0
 export LIBGL_ALWAYS_SOFTWARE=1
+
+# Force correct TERM for SSH compatibility (Kitty reports xterm-kitty by default)
+export TERM=xterm-256color
