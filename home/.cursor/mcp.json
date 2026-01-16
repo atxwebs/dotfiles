@@ -14,41 +14,42 @@
     "linear": {
       "command": "npx",
       "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
+    }
+  },
+  "templates": {
+    "template-postgres": {
+      "command": "uv",
+      "args": [
+        "run",
+        "postgres-mcp",
+        "--access-mode=unrestricted"
+      ],
+      "env": {
+        "DATABASE_URI": "postgres://username:password@localhost:5432/database?options=-csearch_path%3Dschema_name"
+      }
     },
-    // These are placeholders, since they require credentials or vary from project to project
-    // "postgres": {
-    //   "command": "uv",
-    //   "args": [
-    //     "run",
-    //     "postgres-mcp",
-    //     "--access-mode=unrestricted"
-    //   ],
-    //   "env": {
-    //     "DATABASE_URI": "postgres://username:password@localhost:5432/database?options=-csearch_path%3Dschema_name"
-    //   }
-    // },
-    // "graphql-local": {
-    //   "command": "npx",
-    //   "args": ["mcp-graphql"],
-    //   "env": {
-    //     "ENDPOINT": "http://127.0.0.1:4001/_/gql",
-    //     "ALLOW_MUTATIONS": "true",
-    //     "HEADERS": "{\"Authorization\":\"Email user@example.com\",\"User-Agent\": \"Cursor\"}"
-    //   }
-    // }
-    // "slack": {
-    //   "command": "npx",
-    //   "args": [
-    //     "-y",
-    //     "slack-mcp-server@latest",
-    //     "--transport",
-    //     "stdio"
-    //   ],
-    //   "env": {
-    //     "SLACK_MCP_ADD_MESSAGE_TOOL": "true",
-    //     "SLACK_MCP_XOXC_TOKEN": "$XOXC_TOKEN",
-    //     "SLACK_MCP_XOXD_TOKEN": "$XOXD_TOKEN"
-    //   }
-    // },
+    "template-graphql-local": {
+      "command": "npx",
+      "args": ["mcp-graphql"],
+      "env": {
+        "ENDPOINT": "http://127.0.0.1:4001/_/gql",
+        "ALLOW_MUTATIONS": "true",
+        "HEADERS": "{\"Authorization\":\"Email user@example.com\",\"User-Agent\": \"Cursor\"}"
+      }
+    },
+    "template-slack": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "slack-mcp-server@latest",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "SLACK_MCP_ADD_MESSAGE_TOOL": "true",
+        "SLACK_MCP_XOXC_TOKEN": "$XOXC_TOKEN",
+        "SLACK_MCP_XOXD_TOKEN": "$XOXD_TOKEN"
+      }
+    }
   }
 }
