@@ -1,5 +1,6 @@
 ---
 description: When creating or updating Linear issues
+globs: 
 alwaysApply: false
 ---
 # Rules

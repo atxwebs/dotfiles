@@ -152,7 +152,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # Dotfiles (dotfiles.edit is in .bash_functions)
 alias dotfiles.reload='source ~/.bashrc'
 alias reload='dotfiles.reload' # old habits die hard
-alias dotfiles.sync='find ~ -maxdepth 1 -type f | grep -e git -e bash -e rc -e .conf | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User;for dir in commands rules; do mkdir -p ~/Code/dotfiles/home/.cursor/$dir; cp ~/.cursor/$dir/* ~/Code/dotfiles/home/.cursor/$dir; done; cp ~/.cursor/mcp.json ~/Code/dotfiles/home/.cursor; for dir in yazi kitty; do mkdir -p ~/Code/dotfiles/home/.config/$dir && cp -r ~/.config/$dir/* ~/Code/dotfiles/home/.config/$dir/ 2>/dev/null || true; cp ~/.config/starship.toml ~/Code/dotfiles/home/.config/; done'
+alias dotfiles.sync='find ~ -maxdepth 1 -type f | grep -e git -e bash -e rc -e .conf | grep -ve history -e extras | parallel cp {} ~/Code/dotfiles/home; cp ~/bin/*.sh ~/Code/dotfiles/home/bin; mkdir -p ~/Code/dotfiles/home/.config/Cursor/User && cp ~/.config/Cursor/User/{settings,keybindings}.json ~/Code/dotfiles/home/.config/Cursor/User;for dir in bin commands rules; do mkdir -p ~/Code/dotfiles/home/.cursor/$dir; cp ~/.cursor/$dir/* ~/Code/dotfiles/home/.cursor/$dir; done; cp ~/.cursor/mcp.json ~/Code/dotfiles/home/.cursor; for dir in yazi kitty; do mkdir -p ~/Code/dotfiles/home/.config/$dir && cp -r ~/.config/$dir/* ~/Code/dotfiles/home/.config/$dir/ 2>/dev/null || true; cp ~/.config/starship.toml ~/Code/dotfiles/home/.config/; done'
 alias rc='dotfiles.edit'
 
 # Extract prompt from an image

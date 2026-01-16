@@ -183,4 +183,4 @@ describe(toModule(__filename), () => {
 })
 ```
 
-Also follow [typescript.mdc](mdc:.cursor/rules/typescript.mdc) rules.
+Also follow [typescript.mdc](mdc:~/.cursor/rules/typescript.mdc) rules.
