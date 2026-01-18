@@ -136,11 +136,12 @@ alias ollama.logs='sudo journalctl -u ollama.service'
 alias ollama.update='curl -fsSL https://ollama.com/install.sh | sudo sh && ollama --version'
 
 # History (forget is in .bash_functions)
-alias history.restore='cp ~/.bash_history.bkp ~/.bash_history'
+alias history.restore='cp ~/.bash_history.bak ~/.bash_history'
 alias history.grep='history | grep -i --color=auto'
 alias history.forget='forget'
 alias history.edit='code ~/.bash_history'
 alias history.pop='sed -i "$ d" ~/.bash_history && history -c && history -r && tail -1 ~/.bash_history'
+alias hp='history.pop'
 
 # Keyboard
 alias keyboard.keys="xev | grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'"

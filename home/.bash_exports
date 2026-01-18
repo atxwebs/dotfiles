@@ -17,7 +17,13 @@ export EDITOR='code -w'
 
 # Flush to history on every command
 if [[ "$PROMPT_COMMAND" != *"history -a"* ]]; then
-	export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ;} history -a; "
+	# Remove trailing whitespace and semicolons
+	PROMPT_COMMAND="${PROMPT_COMMAND%"${PROMPT_COMMAND##*[![:space:];]}"}"
+	# Add separator if PROMPT_COMMAND exists and doesn't end with semicolon
+	if [[ -n "$PROMPT_COMMAND" && "$PROMPT_COMMAND" != *";" ]]; then
+		PROMPT_COMMAND="$PROMPT_COMMAND ;"
+	fi
+	export PROMPT_COMMAND="$PROMPT_COMMAND history -a; "
 fi
 
 # Use less command as a pager

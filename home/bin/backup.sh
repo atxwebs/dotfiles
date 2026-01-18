@@ -107,6 +107,15 @@ $BORG create       \
   --exclude '*.db' \
   --exclude '*.sqlite' \
   --exclude '*.sqlite3' \
+  --exclude '*.db-wal' \
+  --exclude '*.db-shm' \
+  --exclude '*.sqlite3-wal' \
+  --exclude '*.sqlite3-shm' \
+  --exclude '*.ibd' \
+  --exclude '*.frm' \
+  --exclude '**/ibdata*' \
+  --exclude '**/ib_logfile*' \
+  --exclude '**/ibtmp*' \
   --exclude '*.onnx' \
   --exclude '*.pth' \
   --exclude '*.ckpt' \
@@ -186,6 +195,7 @@ $BORG create       \
   --exclude '/var/run' \
   --exclude '/var/spool' \
   --exclude '/var/lib/docker' \
+  --exclude '/var/lib/containerd' \
   --exclude '/var/lib/flatpak' \
   --exclude '/var/lib/apt' \
   --exclude '/var/lib/snapd' \

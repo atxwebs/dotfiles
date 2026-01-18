@@ -192,8 +192,14 @@ function forget() {
   local filter="${*:-no_match}"
   local file=~/.bash_history
   local before=$(cat $file | wc -l)
-  tac $file | grep -vEe 'MFD-|archived|--help|chown|forget|ollama pull|ollama rm|duhs' -e '\b(stash|pop|cm|cd|cp|rrf?|code|alias|apt)\b' -e '^\w+:' -e '(g|git) (cob?|cmnv|clone|bd|bm|init)\b' \
-    | sed -r 's/ +$//g' | grep -vF "$filter" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
+  tac $file \
+    | sed -r 's/  +/ /g; s/ +$//g; s/git\b/g/g; s/npm run/r/g' \
+    | grep -vE \
+      -e '^\.{2,}$' -e '^\w+:' -e '^[a-z~]$' \
+      -e 'MFD-|archive|--help|--version' \
+      -e '^(ollama pull|ollama rm|npm init|npm ?i|npm install|npm ?rm|chown|forget|stash|duhs|pop|cm|cd|cp|rrf?|code|fkill|alias|apt|mkdir|mkc|cursor|code|time|sai|ls|t|z|touch|rbi [^H].*)\b'  \
+      -e '^g (cob?|cmnv|clone|bd|bm|init|revert|a|add|rbi)\b' \
+    | grep -vF "$filter" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then
     echo "Wiped all history, reverting..."
@@ -218,25 +224,37 @@ function calc() {
 
 # Archive file and/or dirs with tar+gzip
 function archive() {
-  local dir=$(dirname "$1")
-  local dest=$(basename "$1")
-  cd "$dir"
-  shift
-  tar -ac --exclude=node_modules --exclude=__pycache__ --exclude=venv --exclude-vcs -f "$dest.tar.xz" "$dest" "$@"
-  cd -
+  for path in "$@"; do
+    if [ ! -d "$path" ]; then
+      continue
+    fi
+    local dir=$(dirname "$path")
+    local dest=$(basename "$path")
+    cd "$dir"
+    tar -ac --exclude=node_modules --exclude=__pycache__ --exclude=venv --exclude-vcs -f "$dest.tar.xz" "$dest"
+    cd -
+  done
 }
 
 # Archive and then delete
 function archived() {
-  archive "$@"
-  rm -rf "$@"
+  for path in "$@"; do
+    if [ -d "$path" ]; then
+      archive "$path" && rm -rf "$path"
+    fi
+  done
 }
 
 # Recompresses a bz2 or xz to gz, without deleting the original
 function unarchive() {
-  local dest=${1/.tar*/}
-  mkdir -p "$dest"
-  tar -xaf "$1" -C . # "$dest"
+  for path in "$@"; do
+    if [[ "$path" != *.tar* ]]; then
+      continue
+    fi
+    local dest=${path/.tar*/}
+    mkdir -p "$dest"
+    tar -xaf "$path" -C .
+  done
 }
 
 function find.replace() {
