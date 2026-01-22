@@ -333,5 +333,23 @@
     "key": "ctrl+shift+f",
     "command": "-extension.formatJson",
     "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+e",
+    "command": "-cursor.toggleAgentWindowIDEUnification",
+    "when": "cursor.agentIdeUnification.featureGate && workbenchState != 'empty'"
+  },
+  {
+    "key": "ctrl+e",
+    "command": "-editor.action.toggleScreenReaderAccessibilityMode",
+    "when": "accessibilityHelpIsShown"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "debug.toggleAgentMode"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "workbench.action.openLayoutSwitcher"
   }
 ]

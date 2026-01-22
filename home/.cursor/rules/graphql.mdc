@@ -6,6 +6,7 @@ alwaysApply: false
 # Scalars
 - For numbers, use the right scalar. We have `PositiveX`, `NonNegativeX`, etc. Where "X" can be `Float`, `Integer`
 - In almost all cases, we use `NonEmptyString` for strings, can be null but not empty string
+- **Use `Email` scalar for email fields, `Phone` scalar for phone fields** (not `NonEmptyString`)
 - We have various custom scalars, you can find them in codegen.yml
 
 # Codegen
@@ -38,6 +39,13 @@ alwaysApply: false
 - Update inputs: entity ID + all optional fields (make everything nullable except ID)
 - Filter inputs: support `page`, `order`, `search`, plus entity-specific filters
 - Date ranges: `createdAt`/`updatedAt`/etc. are a `DateTimeFilter` or `DateFilter` (depending on the field type)
+
+## Update Mutation Patterns
+- Use `omitUnchanged` to compare current values with initial values and only include changed fields
+- Use `omitNils<UpdateEntityInput>` to clean up the update input object (removes undefined/null values)
+- Don't manually add `|| undefined` patterns - `omitNils` handles undefined/null removal
+- Type the `omitNils` call with the UpdateInput type: `omitNils<UpdateEntityInput>({ ... })`
+- Only send changed fields in update mutations to minimize payload size
 
 ## Query/Mutation Structure
 - Single entity query: `entity(entityId: ID!): Entity!`

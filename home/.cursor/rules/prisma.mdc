@@ -13,6 +13,7 @@ alwaysApply: false
 - Tables are named with TitleCase
 - Columns are named with camelCase
 - Tables are singular, e.g. "User" not "Users"
+- **Never use GraphQL built-in type names as tables** (e.g., `Subscription`, `Query`, `Mutation`)
 
 ## By type
 - Boolean: Start with `is`, `can`, `are` (e.g., `isActive`)

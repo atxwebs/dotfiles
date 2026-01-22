@@ -196,5 +196,7 @@
     "jupyter.askForKernelRestart": false,
     "[python]": {
       "diffEditor.ignoreTrimWhitespace": false
-    }
+    },
+    "prisma.hidePrisma6Prompts": true,
+    "workbench.statusBar.visible": false
 }
