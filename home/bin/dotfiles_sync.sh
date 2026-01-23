@@ -3,45 +3,71 @@ set -euo pipefail
 
 REPO=~/Code/dotfiles/home
 
-# Unified sync entries: files/globs from ~/ or directories
+# All paths are relative to ~
 # Format: "path" or "path:patterns"
-# - If path starts with ~/, it's a directory (or specific file path)
-# - Otherwise, it's a root file/glob from ~/
-# Patterns format:
-#   For root files: "glob:exclude1:exclude2:..." (exclusions)
-#   For directories: "source:include1,include2:exclude" (includes, then exclude)
+#   For files: just the path
+#   For directories: "path:include1,include2:exclude" (includes, then exclude)
 SYNC_ENTRIES=(
-    # Root files/globs
+    # Files/globs
     ".bash*:*history*:*extras*"
     ".*rc"
     ".profile"
     ".gitconfig"
-    ".cursor/mcp.json"
     ".config/starship.toml"
     ".config/Cursor/User/"{settings,keybindings}.json
     # Directories
-    "~/bin:*.sh,*.js:*"
-    "~/.cursor/"{bin,skills,rules}
-    "~/.config/"{yazi,kitty}
+    "bin:*.sh,*.js:*"
+    ".cursor/"{bin,skills,rules,mcp.json}
+    ".config/"{yazi,kitty}
 )
 
 rsync_output=""
-root_exclude_args=()
-root_include_args=()
 
 for entry in "${SYNC_ENTRIES[@]}"; do
     IFS=':' read -ra parts <<< "$entry"
     path="${parts[0]}"
+    source_path="$HOME/$path"
     
-    # Check if it's a directory (starts with ~/)
-    if [[ "$path" =~ ^~ ]]; then
-        # Directory sync
-        source_expanded="${path/#\~/$HOME}"
-        # Remove ~ prefix (handle both ~/path and ~path)
-        dest_relative="${path#\~}"
-        dest_relative="${dest_relative#/}"  # Remove leading / if present
-        dest_path="$REPO/$dest_relative"
+    # Check if it's a glob pattern (has * or {})
+    if [[ "$path" == *"*"* ]] || [[ "$path" == *"{"* ]]; then
+        # Use rsync's include/exclude for glob patterns
+        dest_dir="$REPO/$(dirname "$path")"
+        mkdir -p "$dest_dir"
         
+        include_args=("--include=$path")
+        exclude_args=()
+        
+        # Add exclusions if present
+        if [ ${#parts[@]} -gt 1 ]; then
+            for i in $(seq 1 $((${#parts[@]} - 1))); do
+                if [ -n "${parts[$i]}" ]; then
+                    exclude_args+=("--exclude=${parts[$i]}")
+                fi
+            done
+        fi
+        
+        # Expand braces for include pattern
+        if [[ "$path" == *"{"* ]]; then
+            # Handle brace expansion - create separate includes
+            include_args=()
+            for expanded in $source_path; do
+                rel_path="${expanded#$HOME/}"
+                include_args+=("--include=$rel_path")
+            done
+        fi
+        
+        rsync_output+=$(rsync -av "${exclude_args[@]}" "${include_args[@]}" --exclude="*" \
+            "$HOME/" "$REPO" 2>&1)
+        rsync_output+=$'\n'
+    elif [ -f "$source_path" ]; then
+        # Single file
+        dest_path="$REPO/$path"
+        mkdir -p "$(dirname "$dest_path")"
+        rsync_output+=$(rsync -av "$source_path" "$dest_path" 2>&1)
+        rsync_output+=$'\n'
+    elif [ -d "$source_path" ]; then
+        # Directory sync
+        dest_path="$REPO/$path"
         mkdir -p "$dest_path"
         
         include_patterns="${parts[1]:-}"
@@ -69,30 +95,15 @@ for entry in "${SYNC_ENTRIES[@]}"; do
             fi
             
             rsync_output+=$(rsync -av --delete --delete-excluded "${include_args[@]}" --exclude="$exclude_pattern" \
-                "$source_expanded/" "$dest_path/" 2>&1)
+                "$source_path/" "$dest_path/" 2>&1)
         else
-            rsync_output+=$(rsync -av --delete "$source_expanded/" "$dest_path/" 2>&1)
+            rsync_output+=$(rsync -av --delete "$source_path/" "$dest_path/" 2>&1)
         fi
         rsync_output+=$'\n'
     else
-        # Root file/glob - collect for single rsync
-        if [ ${#parts[@]} -gt 1 ]; then
-            # Has exclusions
-            for i in $(seq 1 $((${#parts[@]} - 1))); do
-                if [ -n "${parts[$i]}" ]; then
-                    root_exclude_args+=("--exclude=${parts[$i]}")
-                fi
-            done
-        fi
-        root_include_args+=("--include=$path")
+        echo "Warning: $source_path does not exist, skipping" >&2
     fi
 done
-
-# Sync all root files in one rsync call
-if [ ${#root_include_args[@]} -gt 0 ]; then
-    rsync_output+=$(rsync -av --delete "${root_exclude_args[@]}" "${root_include_args[@]}" --exclude="*" ~/ "$REPO" 2>&1)
-    rsync_output+=$'\n'
-fi
 
 # Filter and display output once
 echo "$rsync_output" | awk '/^sending incremental file list/{flag=1; next} 

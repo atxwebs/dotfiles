@@ -1,8 +1,5 @@
 {
   "mcpServers": {
-    "context7": {
-      "url": "https://mcp.context7.com/mcp"
-    },
     "mcp-files": {
       "command": "npx",
       "args": ["-y", "mcp-files"],
@@ -50,6 +47,10 @@
         "SLACK_MCP_XOXC_TOKEN": "$XOXC_TOKEN",
         "SLACK_MCP_XOXD_TOKEN": "$XOXD_TOKEN"
       }
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "note": "Replaced with a /context7 SKILL"
     }
   }
 }

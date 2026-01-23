@@ -1,6 +1,6 @@
 ---
 name: linear
-description: When creating or updating Linear issues
+description: Read when creating or updating Linear issues
 ---
 # Rules
 - **All issues must be part of a project** - Always specify `project` parameter when creating issues
