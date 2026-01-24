@@ -198,5 +198,6 @@
       "diffEditor.ignoreTrimWhitespace": false
     },
     "prisma.hidePrisma6Prompts": true,
+    "explorer.confirmPasteNative": false,
     "workbench.statusBar.visible": false
 }
