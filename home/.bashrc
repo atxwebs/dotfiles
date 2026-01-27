@@ -99,17 +99,19 @@ fi
 # Load cargo/env first so starship is available
 . "$HOME/.cargo/env"
 
-if [[ -n "$CURSOR_TRACE_ID" ]]; then
+if [[ -n "$CURSOR_TRACE_ID" || -n "$ANTIGRAVITY_AGENT" ]]; then
   # Runs only for the agent
   . ~/.bash_cursor
+else
+  # Starship Bash prompt
+  eval "$(starship init bash)"
 fi
 
 if [ -f './.nvmrc' ]; then
   nvm use >/dev/null
 fi
 
-# Starship Bash prompt
-eval "$(starship init bash)"
+
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
