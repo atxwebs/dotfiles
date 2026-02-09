@@ -22,6 +22,12 @@ gh <command> --json field1,field2 | jq '.field1'
 gh <command> --json items | jq '.items[] | select(.status == "completed")'
 ```
 
+## Helper Scripts
+
+Token-efficient scripts in `scripts/`: `status.sh`, `logs.sh`, `failed-logs.sh`
+- Use if they fit the task, otherwise use custom bash commands directly.
+- Create new scripts in `scripts/` if you notice recurring patterns.
+
 ## Use Case References
 
 For specific GitHub workflows, see:

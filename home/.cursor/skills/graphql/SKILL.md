@@ -2,10 +2,6 @@
 name: graphql
 description: Read when modifying *.graphql files
 ---
-
-# GraphQL Rules
-
-
 ## Scalars
 - For numbers, use the right scalar. We have `PositiveX`, `NonNegativeX`, etc. Where "X" can be `Float`, `Integer`
 - In almost all cases, we use `NonEmptyString` for strings, can be null but not empty string
@@ -47,3 +43,8 @@ description: Read when modifying *.graphql files
 - List query: `entities(input: EntitiesInput): EntitiesPayload!` (usually paginated and superadmin only)
 - Create mutation: `createEntity(input: CreateEntityInput!): Entity!`
 - Update mutation: `updateEntity(input: UpdateEntityInput!): Entity!`
+
+## Server
+
+- The GQL path is always `/_/gql`
+- Most endpoints are JWT protected, but `version` can be used to test without a token

@@ -18,6 +18,11 @@ if [[ "$PS1" != *🤖* ]]; then
   export RIPGREP_CONFIG_PATH=~/.ripgreprc
   export PROMPT_COMMAND=""
 
+  # Auto-switch AWS profile based on directory
+  if type -t aws_infer_profile >/dev/null 2>&1; then
+    aws_infer_profile
+  fi
+
   echo "🤖 Shell setup complete"
 else
   echo "🤖 Shell already configured"

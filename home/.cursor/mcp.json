@@ -1,6 +1,12 @@
 {
   "mcpServers": {
-    "mcp-files": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
+    }
+  },
+  "templates": {
+    "template-mcp-files": {
       "command": "npx",
       "args": ["-y", "mcp-files"],
       "env": {
@@ -8,12 +14,6 @@
         "COLLECT_MISMATCHES": "true"
       }
     },
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
-    }
-  },
-  "templates": {
     "template-postgres": {
       "command": "uv",
       "args": [

@@ -196,9 +196,10 @@ function forget() {
     | sed -r 's/  +/ /g; s/ +$//g; s/git\b/g/g; s/npm run/r/g' \
     | grep -vE \
       -e '^\.{2,}$' -e '^\w+:' -e '^[a-z~]$' \
-      -e 'MFD-|archive|--help|--version' \
+      -e 'MFD-|archive|--help|--version|encrypt.ts' \
       -e '^(ollama pull|ollama rm|npm init|npm ?i|npm install|npm ?rm|chown|forget|stash|duhs|pop|cm|cd|cp|rrf?|code|fkill|alias|apt|mkdir|mkc|cursor|code|time|sai|ls|t|z|touch|rbi [^H].*)\b'  \
-      -e '^g (cob?|cmnv|clone|bd|bm|init|revert|a|add|rbi)\b' \
+      -e '^g (cob?|cmnv|clone|bd|bm|init|revert|a|add|rbi|cm)\b' \
+      -e '^ollama (run|pull|rm)\b' \
     | grep -vF "$filter" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then
@@ -448,6 +449,8 @@ function transcribe_yt() {
 # Pull from HF but fix the name to be shorter
 function hf_ollama() {
   local tmp=/tmp/Modelfile
+  
+  # Handle "ollama" and "run" prefixes
   if [ "$1" = "ollama" ]; then
     shift
   fi
@@ -455,52 +458,97 @@ function hf_ollama() {
     shift
   fi
 
-  local repo=${1#"hf.co/"}
-  local path=hf.co/$repo
+  local input=$1
   local base=$2
-  local name=$(echo $repo | cut -d'/' -f2)
-  if [ -n "$base" ]; then
-    # @see https://huggingface.co/docs/hub/ollama#custom-quantization
-    ollama show --modelfile $base > $tmp
-    # Replace the FROM line with the base model (in some there's +1)
-    sed -i "/^#.*FROM/!{/^FROM /d;}; /^TEMPLATE/ i FROM $path" "$tmp"
-    echo "Creating $name from $base, pulling $repo from HF..."
-    ollama create $name -f $tmp
-  else
-    echo "No base model was provided for $repo, this was probably a mistake"
-    ollama pull $path
-    echo "Copying $path to $name"
-    ollama cp $path $name
-  fi
-  ollama rm $path
-}
-
-function hf_ollama2() {
-  local tmp=/tmp/Modelfile
-  local gguf_file=$1
-  local base=$2
-  if [ ! -f "$gguf_file" ]; then
-    echo "Error: GGUF file $gguf_file does not exist"
-    return 1
-  fi
-  if [ -n "$base" ]; then
-    # Use base model's Modelfile and replace FROM
-    ollama show --modelfile "$base" > "$tmp"
-    # Replace the FROM line with the base model (in some there's +1)
-    sed -i "/^#.*FROM/!{/^FROM /d;}; /^TEMPLATE/ i FROM $gguf_file" "$tmp"
-  else
-    # Create minimal Modelfile with just the GGUF file
-    echo "FROM $gguf_file" > "$tmp"
+  local custom_name=$3  # Optional custom name (3rd argument)
+  
+  # Detect if input is a local file path or HF repo
+  local is_local_file=false
+  if [[ "$input" =~ ^/ ]] || [[ "$input" =~ ^\./ ]] || [[ "$input" =~ ^~ ]] || [[ "$input" == *.gguf ]] || [ -f "$input" ]; then
+    is_local_file=true
   fi
 
-  # Extract model name from GGUF file (remove .gguf extension)
-   # Extract model name from GGUF file (remove .gguf extension)
-  local base_name=$(basename "$gguf_file" .gguf)
-  # Replace last dash with colon for name:tag format
-  local name=$(echo "$base_name" | sed 's/\(.*\)-\(.*\)/\1:\2/')
-  echo "Creating model $name from $gguf_file..."
-  ollama create "$name" -f "$tmp"
-  # rm -f "$tmp"
+  if [ "$is_local_file" = true ]; then
+    # Local GGUF file path
+    local gguf_file=$input
+    if [ ! -f "$gguf_file" ]; then
+      echo "Error: GGUF file $gguf_file does not exist"
+      return 1
+    fi
+    
+    if [ -n "$base" ]; then
+      # Use base model's Modelfile and replace FROM
+      ollama show --modelfile "$base" > "$tmp"
+      # Replace the FROM line with the base model (in some there's +1)
+      sed -i "/^#.*FROM/!{/^FROM /d;}; /^TEMPLATE/ i FROM $gguf_file" "$tmp"
+    else
+      # Create minimal Modelfile with just the GGUF file
+      echo "FROM $gguf_file" > "$tmp"
+    fi
+
+    # Use custom name if provided (preserves multiple colons), otherwise infer from filename
+    if [ -n "$custom_name" ]; then
+      local name="$custom_name"  # Use as-is, allows multiple colons
+    else
+      # Extract model name from GGUF file (remove .gguf extension)
+      local base_name=$(basename "$gguf_file" .gguf)
+      # Replace last dash with colon for name:tag format
+      local name=$(echo "$base_name" | sed -E 's/-(instruct|thinking|GGUF)//gi' | sed 's/\(.*\)-\(.*\)/\1:\2/')
+    fi
+    echo "Creating model $name from $gguf_file..."
+    ollama create "$name" -f "$tmp"
+  else
+    # Hugging Face repo path
+    local repo=${input#"hf.co/"}
+    local path=hf.co/$repo
+    
+    # Extract model name: get second part after /
+    local repo_part=$(echo $repo | cut -d'/' -f2)
+    
+    # Handle quantization tags (if there's a colon, split and process separately)
+    local name_part quant_part
+    if [[ "$repo_part" == *:* ]]; then
+      # Split on colon: part before colon is model name, after is quantization
+      name_part="${repo_part%%:*}"
+      quant_part="${repo_part#*:}"
+    else
+      name_part="$repo_part"
+      quant_part=""
+    fi
+    
+    # Use custom name if provided (preserves multiple colons), otherwise infer from repo
+    if [ -n "$custom_name" ]; then
+      local name="$custom_name"  # Use as-is, allows multiple colons
+    else
+      # Remove common suffixes from name part
+      name_part=$(echo "$name_part" | sed -E 's/-(instruct|thinking|GGUF)//gi')
+      
+      # If quantization tag exists, don't convert dash to colon (quantization is the tag)
+      # Otherwise, replace last dash with colon
+      if [ -n "$quant_part" ]; then
+        # Keep name_part as-is, quantization tag becomes the tag
+        name="${name_part}:${quant_part}"
+      else
+        # Replace last dash with colon
+        name=$(echo "$name_part" | sed 's/\(.*\)-\(.*\)/\1:\2/')
+      fi
+    fi
+    
+    if [ -n "$base" ]; then
+      # @see https://huggingface.co/docs/hub/ollama#custom-quantization
+      ollama show --modelfile $base > $tmp
+      # Replace the FROM line with the base model (in some there's +1)
+      sed -i "/^#.*FROM/!{/^FROM /d;}; /^TEMPLATE/ i FROM $path" "$tmp"
+      echo "Creating $name from $base, pulling $repo from HF..."
+      ollama create $name -f $tmp
+    else
+      echo "No base model was provided for $repo, this was probably a mistake"
+      ollama pull $path
+      echo "Copying $path to $name"
+      ollama cp $path $name
+    fi
+    ollama rm $path
+  fi
 }
 
 # Safe to prefix anything with `pi &&` command runs only in the Pi
@@ -596,4 +644,18 @@ function crypt() {
       fi
     fi
   done
+}
+
+# AWS Profile switching helpers
+function aws_profile() {
+  if [ -z "$1" ]; then
+    # Get profiles from credentials file (format: [profile-name])
+    local profiles=$(grep -E '^\[' ~/.aws/credentials | sed 's/\[\(.*\)\]/\1/' | tr '\n' ' ')
+    echo "Available profiles: $profiles"
+    echo "Current AWS_PROFILE: ${AWS_PROFILE:-default}"
+  else
+    export AWS_PROFILE="$1"
+    echo "Switched to profile: $AWS_PROFILE"
+  fi
+  aws sts get-caller-identity --query 'Arn' --output text 2>/dev/null || echo "Warning: Could not verify credentials"
 }

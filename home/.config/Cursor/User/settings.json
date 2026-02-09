@@ -198,5 +198,7 @@
       "diffEditor.ignoreTrimWhitespace": false
     },
     "prisma.hidePrisma6Prompts": true,
-    "explorer.confirmPasteNative": false
+    "explorer.confirmPasteNative": false,
+    "editor.multiCursorLimit": 100000,
+    "workbench.statusBar.visible": false
 }
