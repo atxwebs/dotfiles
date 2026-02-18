@@ -44,13 +44,15 @@ aws <service> <command> --query 'Items[].PropertyName'
 
 ## Helper Scripts
 
-Token-efficient scripts in `scripts/`: `eb-health.sh`, `logs-recent.sh`, `eb-events.sh`
+Token-efficient scripts in [scripts/](./scripts/): [eb-health.sh](./scripts/eb-health.sh), [logs-recent.sh](./scripts/logs-recent.sh), [eb-events.sh](./scripts/eb-events.sh)
 - Use if they fit the task, otherwise use custom bash commands directly.
-- Create new scripts in `scripts/` if you notice recurring patterns.
+- Create new scripts in [scripts/](./scripts/) if you notice recurring patterns.
 
 ## Use Case References
 
+This file is in `~/.cursor/skills/aws/` - take all paths as relative to it.
+
 For specific AWS service workflows, see:
-- **CloudWatch Logs**: [cloudwatch.md](cloudwatch.md) - Reading application logs, log streams, time-based filtering
-- **Elastic Beanstalk**: [elasticbeanstalk.md](elasticbeanstalk.md) - Environment health, deployment failures, instance issues
-- **IAM & Permissions**: [iam.md](iam.md) - Role checks, policy inspection, permission debugging
+- **CloudWatch Logs**: [cloudwatch-logs.md](./cloudwatch-logs.md) - Reading application logs, log streams, time-based filtering
+- **Elastic Beanstalk**: [elasticbeanstalk.md](./elasticbeanstalk.md) - Environment health, deployment failures, instance issues
+- **IAM & Permissions**: [iam.md](./iam.md) - Role checks, policy inspection, permission debugging

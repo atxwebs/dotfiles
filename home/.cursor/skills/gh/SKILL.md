@@ -1,6 +1,6 @@
 ---
 name: gh
-description: Use GitHub CLI (gh) for reading CI/CD logs, checking run status, and querying repository information. Use when debugging CI failures, monitoring deployments, or checking GitHub Actions workflows.
+description: Use GitHub CLI (gh) for reading CI/CD logs, checking run status, querying repository information, and reviewing PR comments. Use when debugging CI failures, monitoring deployments, or checking GitHub Actions workflows.
 disable-model-invocation: true
 ---
 # GitHub CLI Usage
@@ -24,11 +24,14 @@ gh <command> --json items | jq '.items[] | select(.status == "completed")'
 
 ## Helper Scripts
 
-Token-efficient scripts in `scripts/`: `status.sh`, `logs.sh`, `failed-logs.sh`
+Token-efficient scripts in [scripts/](./scripts/): [status.sh](./scripts/status.sh), [logs.sh](./scripts/logs.sh), [failed-logs.sh](./scripts/failed-logs.sh), [pr-comments.sh](./scripts/pr-comments.sh)
 - Use if they fit the task, otherwise use custom bash commands directly.
-- Create new scripts in `scripts/` if you notice recurring patterns.
+- Create new scripts in [scripts/](./scripts/) if you notice recurring patterns.
 
 ## Use Case References
 
+This file is in `~/.cursor/skills/gh/` - take all paths as relative to it.
+
 For specific GitHub workflows, see:
-- **CI/CD Deployments**: [ci-deployments.md](ci-deployments.md) - Monitoring deployments, comparing run timing, debugging CI failures, viewing logs
+- **CI/CD Deployments**: [ci-deployments.md](./ci-deployments.md) - Monitoring deployments, comparing run timing, debugging CI failures, viewing logs
+- **PR Comments**: [pr-comments.md](./pr-comments.md) - Reviewing PR comments, filtering Cursor bot comments, optimal review flow

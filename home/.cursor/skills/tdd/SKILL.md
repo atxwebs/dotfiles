@@ -110,6 +110,7 @@ it(`should ${expected ? 'accept' : 'reject'} ${desc}`, () => {
 
 ### ✅ Test These
 - Pure functions with deterministic input/output
+- Matching/validation logic: include negative cases (inputs that must NOT match or must fail)
 - Math, string formatting, validation logic
 - Data transformers and filters
 - Error factories with edge cases (empty, null, boundaries)
@@ -130,3 +131,4 @@ it(`should ${expected ? 'accept' : 'reject'} ${desc}`, () => {
 - Skip redundant type checks when comparing values: `.equal('value')` not `.be.a('string').and.equal('value')`
 - Keep type checks only when checking type without comparison: `.be.a('string')` or `.be.a('number')`
 - When asserting on object properties, use `.to.have.property('prop', value)` instead of `expect(obj.prop).toBe(value)` - this provides better error messages showing both the object and property name. For arrays/objects, use `.to.have.property('prop').that.deep.equals(value)`
+- Use `toMatchObject(expected)` when you only care about a subset of properties and want to ignore extra fields on the result (e.g. filter outputs, partial objects). Prefer `toEqual` when exact structure matters.

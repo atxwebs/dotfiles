@@ -33,3 +33,5 @@ bash ~/.cursor/skills/context7/scripts/fetch.sh facebook/react "useState hook" 2
 ```
 
 The script returns code examples, API signatures, and important notes.
+
+This file is in `~/.cursor/skills/context7/` - take all paths as relative to it. Script: [scripts/fetch.sh](./scripts/fetch.sh)

@@ -13,3 +13,5 @@ description: Read when running npm commands
   - Works relative to the current working directory (where you call it from)
 - **Package versioning**: Do NOT include version tags like `@latest` or `@^1.0.0` in package names. The script will automatically fetch and add the latest version. However, if you do include a version/tag (e.g., `package@latest` or `package@^1.0.0`), the script will use it as-is without adding another version specifier.
 - Never ever change code inside node_modules
+
+This file is in `~/.cursor/skills/npm/` - take all paths as relative to it. Script: [scripts/install.js](./scripts/install.js)

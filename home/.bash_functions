@@ -197,9 +197,10 @@ function forget() {
     | grep -vE \
       -e '^\.{2,}$' -e '^\w+:' -e '^[a-z~]$' \
       -e 'MFD-|archive|--help|--version|encrypt.ts' \
-      -e '^(ollama pull|ollama rm|npm init|npm ?i|npm install|npm ?rm|chown|forget|stash|duhs|pop|cm|cd|cp|rrf?|code|fkill|alias|apt|mkdir|mkc|cursor|code|time|sai|ls|t|z|touch|rbi [^H].*)\b'  \
-      -e '^g (cob?|cmnv|clone|bd|bm|init|revert|a|add|rbi|cm)\b' \
+      -e '^(chown|forget|stash|duhs|pop|cm|cd|cp|rrf?|code|fkill|alias|apt|mkdir|mkc|cursor|code|time|sai|ls|t|z|touch|rbi [^H].*)\b'  \
+      -e '^g (cob?|cmnv|clone|bd|bm|init|revert|a|add|rbi|cm|cp)\b' \
       -e '^ollama (run|pull|rm)\b' \
+      -e '^npm (i|rm|install|remove|init)\b' \
     | grep -vF "$filter" | awk '! seen[$0]++' | tac > /tmp/t && mvb /tmp/t $file
   local after=$(cat $file | wc -l)
   if [ "$after" = "0" ]; then
@@ -458,10 +459,20 @@ function hf_ollama() {
     shift
   fi
 
+  local argc=$#
   local input=$1
   local base=$2
+  [ "$base" = "-" ] && base=""
   local custom_name=$3  # Optional custom name (3rd argument)
-  
+  local base_needs_cleanup=false
+
+  _ensure_base() {
+    [ -z "$base" ] && return
+    ollama list 2>/dev/null | awk 'NR>1 {print $1}' | grep -qxF "$base" && return
+    ollama pull "$base"
+    base_needs_cleanup=true
+  }
+
   # Detect if input is a local file path or HF repo
   local is_local_file=false
   if [[ "$input" =~ ^/ ]] || [[ "$input" =~ ^\./ ]] || [[ "$input" =~ ^~ ]] || [[ "$input" == *.gguf ]] || [ -f "$input" ]; then
@@ -477,6 +488,7 @@ function hf_ollama() {
     fi
     
     if [ -n "$base" ]; then
+      _ensure_base
       # Use base model's Modelfile and replace FROM
       ollama show --modelfile "$base" > "$tmp"
       # Replace the FROM line with the base model (in some there's +1)
@@ -497,6 +509,7 @@ function hf_ollama() {
     fi
     echo "Creating model $name from $gguf_file..."
     ollama create "$name" -f "$tmp"
+    [ "$base_needs_cleanup" = true ] && ollama rm "$base"
   else
     # Hugging Face repo path
     local repo=${input#"hf.co/"}
@@ -535,14 +548,17 @@ function hf_ollama() {
     fi
     
     if [ -n "$base" ]; then
+      _ensure_base
       # @see https://huggingface.co/docs/hub/ollama#custom-quantization
       ollama show --modelfile $base > $tmp
       # Replace the FROM line with the base model (in some there's +1)
       sed -i "/^#.*FROM/!{/^FROM /d;}; /^TEMPLATE/ i FROM $path" "$tmp"
       echo "Creating $name from $base, pulling $repo from HF..."
       ollama create $name -f $tmp
-    else
-      echo "No base model was provided for $repo, this was probably a mistake"
+    fi
+    [ "$base_needs_cleanup" = true ] && ollama rm "$base"
+    if [ -z "$base" ]; then
+      [ "$argc" -eq 1 ] && echo "No base model was provided for $repo, this was probably a mistake"
       ollama pull $path
       echo "Copying $path to $name"
       ollama cp $path $name

@@ -6,6 +6,8 @@ disable-model-invocation: true
 To read the DB, use `mcp-postgres` MCP tools.
 
 **Plan B - If MCP tools unavailable or timeout:**
-- Use `psql` CLI as fallback. The project's connection string can be extracted with `cat .cursor/mcp.json | grep -oP '(?<="DATABASE_URI": ")[^"]*' | head -n1`
-Then execute queries with: `psql "$DATABASE_URI" -c "SELECT ..."`
+- Use `scripts/sql.sh "SELECT ..."` from this skill dir. Runs from project dir (or any subdir); finds .cursor/mcp.json upward.
+- If arg ends with `.sql`, uses `psql -f` (e.g. for migration files).
+- Or manually: `DATABASE_URI=$(grep -oP '"DATABASE_URI"\s*:\s*"\K[^"]*' .cursor/mcp.json | head -n1)` then `psql "$DATABASE_URI" -c "SELECT ..."`
+- With the script or psql you can pipe to grep, tail, jq for further processing, better than the MCP in that regard.
 - Most DATABASE_URI from mcp.json include the search_path in the options parameter. Keep it implicit.

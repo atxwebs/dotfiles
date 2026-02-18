@@ -40,11 +40,14 @@
   pf = push --force-with-lease
   pr = pull --rebase
   st = stash
-  stu = stash save --keep-index
   stl = stash list
   stc = stash clear
   std = stash show -p
   pop = stash pop
+  # Only un-staged
+  stu = stash push --keep-index
+  # Only staged, can do ss -m "message"
+  ss = stash push --staged
   b = branch
   bm = branch -m
   bd = branch -D

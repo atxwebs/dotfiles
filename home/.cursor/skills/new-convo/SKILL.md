@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 We'll start a new chat, so you will lose context.
 
-Write here:
+Write to a ./tmp/*.md file:
 1. What was done: Concise paragraph with key files, changes, relevant data/IDs
 2. What's missing: Remaining tasks, key info needed (IDs, configs, context)
 3. Tips & tricks: Workarounds, gotchas, non-obvious patterns you learned from the conversation

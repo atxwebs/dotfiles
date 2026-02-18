@@ -12,7 +12,7 @@ description: Read when writing raw SQL queries
 ## Naming Conventions
 - Use uppercase for SQL reserved words
 - Tables are named with "TitleCase", need quotes
-- Columns are named with "camelCase"
+- Columns are named with "camelCase" (quote in raw SQL: `"isHallucination"` not `isHallucination`)
 - CTEs and table aliases use very short names, usually 1 or 2 characters (the initials)
 - Tables are singular, e.g. "User" not "Users"
 - Tables are aliased to a single character

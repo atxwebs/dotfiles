@@ -56,6 +56,17 @@ aws logs get-log-events \
   --start-time $(($(date +%s - 3600)*1000))
 ```
 
+## Cross-Stream Search (filter-log-events)
+```bash
+# Dump last 24h across all streams (no stream name needed)
+aws logs filter-log-events \
+  --log-group-name "/aws/elasticbeanstalk/hwg-hub-api-prod-1/var/log/web.stdout.log" \
+  --start-time $(($(date +%s -d '24 hours ago')*1000)) \
+  --query 'events[*].message' --output text > /tmp/cw.log
+# Then grep locally: rg "pattern" /tmp/cw.log
+```
+Note: Log streams are per-instance. When EB replaces an instance, a new stream starts; old streams may retain history but describe-log-streams shows current instance only. Retention can be long (3653 days) but current stream may only cover recent days.
+
 ## JSON Parsing Examples
 ```bash
 # Extract log messages with jq

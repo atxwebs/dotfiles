@@ -50,3 +50,16 @@ Requires a new line after each group
 3. One group per relation: xId field first, then x relation field, blank line before next relation
 4. All list relations (users[], payments[], etc.)
 5. @@unique lines, then @@index lines come last
+
+## Migrations
+
+### Create and edit (dry run)
+1. Edit `schema.prisma`
+2. `npm run db:migrate:dryrun` — creates migration without applying
+3. Edit project's `prisma/migrations/<name>/migration.sql` (backfill, fix quoted column names per sql skill)
+4. **Ask user to confirm** before applying (migrations are hard to roll back)
+5. `npm run db:migrate` — applies, generates client, enums, etc.
+
+### Amending a migration in-place
+This file is in `~/.cursor/skills/prisma/`, take the next paths as relative to it
+When consolidating changes into an existing migration (not pushed yet), see [amend-migration.md](amend-migration.md).

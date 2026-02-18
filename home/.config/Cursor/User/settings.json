@@ -12,9 +12,10 @@
     "editor.autoIndent": "full",
     "explorer.openEditors.visible": 1,
     "files.associations": {
-        "*.txt": "plaintext",
-        "*.pug": "jade",
-        "*.toml": "ini"
+      "*.txt": "plaintext",
+      "*.pug": "jade",
+      "*.toml": "ini",
+      "*.njk": "html"
     },
     "files.exclude": {
         "**/node_modules": true,

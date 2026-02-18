@@ -19,3 +19,5 @@ Available CLI tools, use when suitable:
 - duckdb (PREFERRED, analytical database)
 - jq (JSON processor)
 - mlr (miller, CSV/TSV processor)
+
+This file is in `~/.cursor/skills/installed-clis/` - take all paths as relative to it.

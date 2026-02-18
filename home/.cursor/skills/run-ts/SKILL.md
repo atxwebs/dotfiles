@@ -8,3 +8,5 @@ You can create temp scripts at `bin/test/*.ts` and run them. No need to delete t
 You can also use `npm run exec <code>` for ad-hoc code.
 
 **Important**: Always add `process.exit(0)` at the end of scripts to ensure they terminate promptly and don't hang waiting for async operations.
+
+This file is in `~/.cursor/skills/run-ts/` - take all paths as relative to it.

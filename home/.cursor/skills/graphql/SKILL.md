@@ -48,3 +48,9 @@ description: Read when modifying *.graphql files
 
 - The GQL path is always `/_/gql`
 - Most endpoints are JWT protected, but `version` can be used to test without a token
+
+## Playground Examples
+
+- See `docs/playground.graphql` for working examples
+- Keep new examples minimal: essential fields only, maximize single-line format, inline values
+- Limit parameters: only use variables for key IDs (e.g., `$orgId`, `$userId`), inline other values
