@@ -55,7 +55,7 @@ Requires a new line after each group
 
 ### Create and edit (dry run)
 1. Edit `schema.prisma`
-2. `npm run db:migrate:dryrun` — creates migration without applying
+2. `npm run db:migrate:dryrun -- --name <descriptive_name>` — creates migration without applying (e.g. `--name webhook`, `--name add_patient_avatar`). Never create nameless migrations.
 3. Edit project's `prisma/migrations/<name>/migration.sql` (backfill, fix quoted column names per sql skill)
 4. **Ask user to confirm** before applying (migrations are hard to roll back)
 5. `npm run db:migrate` — applies, generates client, enums, etc.

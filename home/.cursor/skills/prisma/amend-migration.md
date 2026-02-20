@@ -10,7 +10,7 @@ Use this when you want Prisma schema changes applied without creating a new migr
 ```bash
 npm run db:migrate:dryrun
 ```
-This creates a new folder under `prisma/migrations/`.
+This creates a new folder under `prisma/migrations/`. (You'll delete it anyway.)
 
 3. Run the SQL in the dry-run migration against the DB (from project root). Use `execute-sql` skill's `sql.sh` (it uses `-f` when arg ends with `.sql`). Do NOT use prisma's CLI!
 ```bash

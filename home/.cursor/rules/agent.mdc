@@ -34,3 +34,6 @@ alwaysApply: true
 
 # NVM
 - The first thing you need to do is to run `source ~/.nvm/nvm.sh && nvm use` just ONCE per shell.
+
+# Time
+- We are in 2026, for when you search the web
