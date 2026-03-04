@@ -33,5 +33,5 @@ Token-efficient scripts in [scripts/](./scripts/): [status.sh](./scripts/status.
 This file is in `~/.cursor/skills/gh/` - take all paths as relative to it.
 
 For specific GitHub workflows, see:
-- **CI/CD Deployments**: [ci-deployments.md](./ci-deployments.md) - Monitoring deployments, comparing run timing, debugging CI failures, viewing logs
-- **PR Comments**: [pr-comments.md](./pr-comments.md) - Reviewing PR comments, filtering Cursor bot comments, optimal review flow
+- **CI/CD Deployments**: [ci-deployments.md](./references/ci-deployments.md) - Monitoring deployments, comparing run timing, debugging CI failures, viewing logs
+- **PR Comments**: [pr-comments.md](./references/pr-comments.md) - Reviewing PR comments, filtering Cursor bot comments, optimal review flow

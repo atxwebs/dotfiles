@@ -62,4 +62,54 @@ Requires a new line after each group
 
 ### Amending a migration in-place
 This file is in `~/.cursor/skills/prisma/`, take the next paths as relative to it
-When consolidating changes into an existing migration (not pushed yet), see [amend-migration.md](amend-migration.md).
+When consolidating changes into an existing migration (not pushed yet), see [amend-migration.md](./references/amend-migration.md).
+
+## Helpers
+
+Helpers in `src/model/prisma.ts` simplify common Prisma operations.
+
+### Pagination
+
+```typescript
+// Convert GraphQL PageInput to Prisma args
+const page = model.prisma.mapPageInput(input.page, defaultCount)
+
+// Fetch paginated list with total
+const result = await model.prisma.fetchWithTotal(
+  db.patient, input.page, info, orderBy, where,
+)
+```
+
+### Ordering
+
+```typescript
+// Convert GraphQL OrderInput[] to Prisma orderBy
+const orderBy = model.prisma.mapOrderInput<Patient>(input.order, {
+  Name: 'name',
+  CreatedAt: 'createdAt',
+})
+
+// Common orders
+model.prisma.orderAsc   // { orderBy: { id: 'asc' } }
+model.prisma.orderDesc  // { orderBy: { id: 'desc' } }
+```
+
+### Relations
+
+```typescript
+// Connect/disconnect by ID
+model.prisma.connect(id)         // { connect: { id } } or { disconnect: true } if null
+model.prisma.set(ids)            // { set: ids.map(id => ({ id })) }
+model.prisma.connectToSet(data)  // Converts connect to set
+```
+
+### Filters
+
+```typescript
+model.prisma.mapDateTimeFilter(input) // DateTimeFilter → Prisma.DateTimeFilter
+model.prisma.mapIntFilter(input)      // IntFilter → Prisma.IntFilter
+model.prisma.and(...filters)          // Combine with AND
+model.prisma.or(...filters)           // Combine with OR
+```
+
+See `src/model/prisma.ts` for all helpers.

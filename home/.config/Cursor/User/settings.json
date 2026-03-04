@@ -201,6 +201,5 @@
     "prisma.hidePrisma6Prompts": true,
     "explorer.confirmPasteNative": false,
     "editor.multiCursorLimit": 100000,
-    "git.confirmNoVerifyCommit": false,
-    "workbench.statusBar.visible": false
+    "git.confirmNoVerifyCommit": false
 }

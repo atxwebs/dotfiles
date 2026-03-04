@@ -17,4 +17,4 @@ disable-model-invocation: true
 This file is in `~/.cursor/skills/heroku/` - take all paths as relative to it.
 
 For specific Heroku workflows, see:
-- **Logs**: [logs.md](./logs.md) - Reading application logs, filtering by time/pattern, debugging production issues
+- **Logs**: [logs.md](./references/logs.md) - Reading application logs, filtering by time/pattern, debugging production issues

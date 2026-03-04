@@ -15,6 +15,13 @@ Skills are inserted into the agent's context window. Always be extremely concise
 - Primary: `~/.cursor/skills/` (user home) - most skills are here
 - Secondary: `.cursor/skills/` (project root) - rare, but check both locations
 
+## Skill Structure (when creating/updating)
+
+- Extra docs (sub-skills, reference material): `references/<file>.md` — link from SKILL.md as `./references/<file>.md`
+- Scripts: `scripts/` — link as `./scripts/<file>`
+- Description: what + when, slightly pushy (Claude undertriggers)
+- Repeated helpers across runs → bundle in scripts/
+
 ## Workflow
 
 ### Step 1: Assess (Do Not Modify Yet)

@@ -21,6 +21,8 @@
   d1 = diff HEAD^
   dh = diff HEAD
   ds = diff --staged
+  # The original git diff we overrode
+  dff = diff --no-ext-diff
   a = add -A
   cm = commit -m
   cma = commit -am

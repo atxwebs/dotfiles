@@ -13,6 +13,14 @@ if [[ "$PS1" != *🤖* ]]; then
   PS1="🤖\n\$ "
   export GIT_PAGER=""
   export PAGER="cat"
+  # Use native git diff (bypass diff.external/difft)
+  git() {
+    if [[ "$1" == "diff" ]]; then
+      command git diff --no-ext-diff "${@:2}"
+    else
+      command git "$@"
+    fi
+  }
   export EDITOR="nano"
   # Simplify formatting for cursor
   export RIPGREP_CONFIG_PATH=~/.ripgreprc

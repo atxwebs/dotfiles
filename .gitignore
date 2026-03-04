@@ -7,3 +7,5 @@ home/.xinputrc
 home/.yarnrc
 home/.npmrc
 home/sources.json
+.agents/
+skills-lock.json

@@ -9,4 +9,6 @@ You can also use `npm run exec <code>` for ad-hoc code.
 
 **Important**: Always add `process.exit(0)` at the end of scripts to ensure they terminate promptly and don't hang waiting for async operations.
 
+**Imports**: Bin scripts use the `src` path alias (`import x from 'src/util/foo'`), not relative paths like `../../src/`.
+
 This file is in `~/.cursor/skills/run-ts/` - take all paths as relative to it.
