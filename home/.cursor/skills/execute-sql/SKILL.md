@@ -1,7 +1,6 @@
 ---
 name: execute-sql
 description: To read the DB, use mcp-postgres MCP tools
-disable-model-invocation: true
 ---
 To read the DB, use `mcp-postgres` MCP tools.
 

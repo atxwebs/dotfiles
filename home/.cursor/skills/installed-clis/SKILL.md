@@ -13,6 +13,7 @@ Available CLI tools, use when suitable:
 - fzf (fuzzy finder)
 - gh (github CLI)
 - aws (AWS CLI)
+- gws (Google Workspace CLI)
 
 ## Working on JSON, CSV, TSV
 

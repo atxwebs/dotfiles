@@ -1,7 +1,6 @@
 ---
 name: commit
 description: Commit current work with standardized message format
-disable-model-invocation: true
 ---
 **IMPORTANT: Only stage and commit changes when the user explicitly asks you to commit. Do not stage or commit automatically.**
 

@@ -1,20 +1,11 @@
 ---
 name: heroku
 description: Read before using Heroku CLI
-disable-model-invocation: true
 ---
-# Heroku CLI Usage
+# Heroku CLI
 
-## 🚨 CRITICAL RULE
-**NEVER make Heroku changes via CLI without explicit user approval each time.** Only use for read-only debugging and information gathering.
+**🚨 NEVER make changes without explicit approval.** Read-only only.
 
-## App Context
-- The `--app` flag is not needed - Heroku CLI uses implicit app context from git remote or `heroku git:remote` configuration
-- Always work from the project directory with Heroku git remote configured
+**Context:** `--app` not needed; uses git remote. Work from project dir.
 
-## Use Case References
-
-This file is in `~/.cursor/skills/heroku/` - take all paths as relative to it.
-
-For specific Heroku workflows, see:
-- **Logs**: [logs.md](./references/logs.md) - Reading application logs, filtering by time/pattern, debugging production issues
+References: [logs](./references/logs.md)

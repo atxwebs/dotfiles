@@ -1,7 +1,6 @@
 ---
 name: learn
 description: Read when the user asks if there's anything to learn from the conversation or to capture learnings
-disable-model-invocation: true
 ---
 
 # Learn from Conversation
@@ -17,10 +16,18 @@ Skills are inserted into the agent's context window. Always be extremely concise
 
 ## Skill Structure (when creating/updating)
 
-- Extra docs (sub-skills, reference material): `references/<file>.md` — link from SKILL.md as `./references/<file>.md`
+- Extra docs: `references/<file>.md` — link as `./references/<file>.md` (one level deep)
 - Scripts: `scripts/` — link as `./scripts/<file>`
-- Description: what + when, slightly pushy (Claude undertriggers)
-- Repeated helpers across runs → bundle in scripts/
+- Description: what + when, third person, slightly pushy (Claude undertriggers)
+- Service-specific details → references; keep main SKILL tight
+- Repeated helpers → scripts/
+
+**When creating a NEW skill:** Read `~/.cursor/skills-cursor/create-skill/SKILL.md` first. For updates/tweaks, mimic the existing skill.
+
+**Reference skills by pattern** (read only what fits):
+- CLI + references/*, concise: `~/.cursor/skills/gws/SKILL.md`
+- CLI + references/*, critical rules: `~/.cursor/skills/aws/SKILL.md`
+- General structure: `~/.cursor/skills-cursor/create-skill/SKILL.md`
 
 ## Workflow
 
@@ -63,8 +70,9 @@ For existing skills:
 - Avoid verbosity - add only essential information
 
 For new skills:
-- Read and follow the create-skill workflow or mimic other skills
-- Keep it concise, the description should be brief and focus on WHEN to read the skill
+- Read ~/.cursor/skills-cursor/create-skill/SKILL.md
+- Pick reference from table above; read that skill's SKILL.md + one references/* for pattern
+- Description: brief, WHEN to read
 
 ## Principles
 

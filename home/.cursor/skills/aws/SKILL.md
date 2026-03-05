@@ -1,58 +1,18 @@
 ---
 name: aws
 description: Use AWS CLI for read-only operations and debugging. Use when working with AWS services, checking status, reading logs, or querying resources.
-disable-model-invocation: true
 ---
-# AWS CLI Usage
+# AWS CLI
 
-## 🚨 CRITICAL RULE
-**NEVER make AWS changes via CLI without explicit user approval each time.** Only use for read-only debugging and information gathering.
+**🚨 NEVER make changes without explicit approval.** Read-only only.
 
-## ⚠️ MULTI-PROFILE SETUP
-**This system uses multiple AWS profiles for different accounts/users.** The active profile is controlled by the `AWS_PROFILE` environment variable.
+**Profile:** `aws_profile` — check before any command. `aws_profile <name>` to switch. `aws_infer_profile` for PWD-based switch.
 
-**BEFORE running any AWS command:**
-1. **ALWAYS check the current profile** using `aws_profile` (no arguments)
-2. **Verify it's the correct profile** for the task at hand
-3. **If unsure which profile to use, STOP and ask the user explicitly**
-4. **Never assume** - using the wrong profile could affect the wrong AWS account
+**Output:** `--output json|table|text`, `--query 'path'`. Pipe to jq.
 
-### Profile Management Functions
-- `aws_profile` - List current and available profiles
-- `aws_profile <name>` - Switch to profile (e.g., `aws_profile flesler`)
-- `aws_infer_profile` - On-demand profile switch based on current `$PWD` directory
+**Scripts:** [eb-health.sh](./scripts/eb-health.sh), [logs-recent.sh](./scripts/logs-recent.sh), [eb-events.sh](./scripts/eb-events.sh)
 
-### Profile Auto-Switching
-Profiles automatically switch on shell startup based on the working directory. You can run `aws_infer_profile` once to switch, your shell should already auto-switch
-
-**If you're unsure which profile is correct, always ask the user before proceeding.**
-
-## Output Formats
-- `--output table` - Human readable tables
-- `--output text` - Plain text (good for scripts)
-- `--output json` - Full JSON (pipe to jq)
-- Use `--query` to filter fields and minimize output
-
-## JSON Parsing Tips
-```bash
-# Use jq for complex JSON parsing
-aws <service> <command> --output json | jq '.Field.Path'
-
-# Use --query for simple filtering
-aws <service> <command> --query 'Items[].PropertyName'
-```
-
-## Helper Scripts
-
-Token-efficient scripts in [scripts/](./scripts/): [eb-health.sh](./scripts/eb-health.sh), [logs-recent.sh](./scripts/logs-recent.sh), [eb-events.sh](./scripts/eb-events.sh)
-- Use if they fit the task, otherwise use custom bash commands directly.
-- Create new scripts in [scripts/](./scripts/) if you notice recurring patterns.
-
-## Use Case References
-
-This file is in `~/.cursor/skills/aws/` - take all paths as relative to it.
-
-For specific AWS service workflows, see:
-- **CloudWatch Logs**: [cloudwatch-logs.md](./references/cloudwatch-logs.md) - Reading application logs, log streams, time-based filtering
-- **Elastic Beanstalk**: [elasticbeanstalk.md](./references/elasticbeanstalk.md) - Environment health, deployment failures, instance issues
-- **IAM & Permissions**: [iam.md](./references/iam.md) - Role checks, policy inspection, permission debugging
+This file is in `~/.cursor/skills/aws/`. References:
+- [cloudwatch-logs](./references/cloudwatch-logs.md)
+- [elasticbeanstalk](./references/elasticbeanstalk.md)
+- [iam](./references/iam.md)
