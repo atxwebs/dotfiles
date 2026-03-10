@@ -190,6 +190,9 @@ $BORG create       \
   --exclude '/home/*/.kube' \
   --exclude '/home/*/.eclipse' \
   --exclude '/home/*/SteamLibrary' \
+  --exclude '/home/*/Android/Sdk' \
+  --exclude '/home/*/.android' \
+  --exclude '/home/*/.gradle' \
   --exclude '/var/crash' \
   --exclude '/var/lock' \
   --exclude '/var/run' \
@@ -201,6 +204,7 @@ $BORG create       \
   --exclude '/var/lib/snapd' \
   --exclude '/var/lib/dpkg' \
   --exclude '/var/lib/swcatalog' \
+  --exclude '/var/lib/ghostscript' \
   --exclude '/var/backups' \
   --exclude '/var/cache' \
   --exclude '/var/tmp' \

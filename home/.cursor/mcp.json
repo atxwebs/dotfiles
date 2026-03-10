@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
-    }
   },
   "templates": {
+    "template-linear": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
+    },
     "template-mcp-files": {
       "command": "npx",
       "args": ["-y", "mcp-files"],

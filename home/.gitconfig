@@ -61,9 +61,11 @@
   lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%G?%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
   lgt = lg --since='midnight'
   lgy = lg --since='yesterday midnight' --until='midnight'
-  lm = ! git log --no-merges --reverse -n 20 --author $(git config --get user.email) --pretty=format:'%s' # only mine, just the commit messages
+  lm = ! git log --no-merges --reverse -n 40 --author $(git config --get user.email) --pretty=format:'%s' # only mine, just the commit messages
   lmt = lm --since='midnight'
+  lmtf = !git lmt | grep -v '^v[0-9]' | awk '{printf \"%s\", NR==1?$0:\". \"$0} END{print \"\"}' | sed 's/[.][.]*/./g'
   lmy = lm --since='yesterday midnight' --until='midnight'
+  lmyf = !git lmy | grep -v '^v[0-9]' | awk '{printf \"%s\", NR==1?$0:\". \"$0} END{print \"\"}' | sed 's/[.][.]*/./g'
   l1 = log --format=%B -n1 # used to see a single commit (g l1 f64632c, defaults to HEAD)
   ld = lm dev.. # Commits not in dev
   lpd = log --format=%s --reverse origin/prod..origin/dev # Commits in dev and not in prod

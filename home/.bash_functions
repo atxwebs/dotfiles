@@ -448,9 +448,10 @@ function transcribe_yt() {
 }
 
 # Pull from HF but fix the name to be shorter
+# USAGE: hf_ollama <input> [base] [custom_name]
 function hf_ollama() {
   local tmp=/tmp/Modelfile
-  
+
   # Handle "ollama" and "run" prefixes
   if [ "$1" = "ollama" ]; then
     shift
@@ -560,8 +561,13 @@ function hf_ollama() {
     if [ -z "$base" ]; then
       [ "$argc" -eq 1 ] && echo "No base model was provided for $repo, this was probably a mistake"
       ollama pull $path
-      echo "Copying $path to $name"
-      ollama cp $path $name
+      if [ -n "$no_think" ]; then
+        printf "FROM %s\nPARAMETER think false\n" "$path" > "$tmp"
+        ollama create "$name" -f "$tmp"
+      else
+        echo "Copying $path to $name"
+        ollama cp $path $name
+      fi
     fi
     ollama rm $path
   fi
@@ -569,26 +575,20 @@ function hf_ollama() {
 
 # Safe to prefix anything with `pi &&` command runs only in the Pi
 function pi() {
-  if [[ "$USER" == "pi" ]]; then
+  if [[ "$USER" != "pi" ]]; then
+    # Connect to Pi and run the command
+    ssh pi@pi.local "$@"
+    return 1  # Prevents `&&` command from running on the host
+  elif [[ "$#" == 0 ]]; then
+    echo "Already on the Pi"
     return 0  # Already on the Pi, continue
   else
-    if [ $# -gt 0 ]; then
-      echo "Connecting to the PI, re-run again"
-    fi
-    ssh pi@pi.local
-    return 1  # Prevents `&&` command from running on the host
+    "$@"
   fi
 }
 
-# Run commands on the Pi via SSH and return output (non-interactive)
-function pi.ssh() {
-  if [[ "$USER" == "pi" ]]; then
-    # Already on the Pi, just run the command
-    "$@"
-  else
-    # Connect to Pi and run the command
-    ssh pi@pi.local "$@"
-  fi
+function pi.remote() {
+  ssh -p 22622 pi@home.rovetia.com
 }
 
 # Copy files to the PI with scp
