@@ -60,11 +60,16 @@ cd ~/Applications/tabbyAPI
 
 **Location:** `~/.cursor/skills/tabbyapi/scripts/`
 
+**Base script:**
+- `tabbyapi.sh <method> <endpoint> [json_body]` - Base script that handles authentication and API calls. Always uses admin_key (works for all endpoints).
+
+**Model management:**
 - `load_model.sh [model] [max_seq] [cache_size] [cache_mode]` - Load model
 - `unload_model.sh` - Unload current model
-- `reload_model.sh [model] [max_seq] [cache_size] [cache_mode]` - Reload model
+- `reload_model.sh [model] [max_seq] [cache_size] [cache_mode]` - Reload model (unload then load)
 - `swap_model.sh [9b|14b]` - Swap between Qwen3.5-9B and Qwen3-14B
-- `test_no_think.sh` - Test if thinking tokens are disabled
+
+All scripts use Bearer token authentication via the base `tabbyapi.sh` script.
 
 ## Configuration
 
@@ -85,9 +90,16 @@ cd ~/Applications/tabbyAPI
 
 ## API Endpoints
 
+**Authentication:**
+- Use Bearer token: `Authorization: Bearer <admin_key>` or `Authorization: Bearer <api_key>`
+- Admin key works for all endpoints (admin + regular API)
+- API key works for regular endpoints only
+- Legacy headers: `X-Admin-Key` (admin endpoints only), `X-Api-Key` (regular endpoints)
+
+**Endpoints:**
 - Chat: `POST /v1/chat/completions`
 - Models: `GET /v1/models`
-- Load: `POST /v1/model/load` (requires `model_name`)
+- Load: `POST /v1/model/load` (requires `model_name` in JSON body)
 - Unload: `POST /v1/model/unload`
 - Docs: `http://127.0.0.1:5000/redoc`
 

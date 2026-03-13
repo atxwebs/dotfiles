@@ -20,3 +20,5 @@ This file is in `~/.cursor/skills/gws/`. References:
 - [slides](./references/slides.md) — presentations
 - [chat](./references/chat.md) — spaces, messages (needs chat scope)
 - [keep](./references/keep.md) — notes (needs keep scope)
+
+See `gcloud` skill (~/.cursor/skills/gcloud/) for Google Cloud CLI, service accounts, APIs.

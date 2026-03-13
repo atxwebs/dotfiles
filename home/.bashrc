@@ -111,7 +111,7 @@ if [ -f './.nvmrc' ]; then
   nvm use >/dev/null
 fi
 
-
+source ~/google-cloud-sdk/path.bash.inc
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
