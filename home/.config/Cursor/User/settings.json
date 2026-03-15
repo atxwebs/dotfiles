@@ -12,10 +12,10 @@
     "editor.autoIndent": "full",
     "explorer.openEditors.visible": 1,
     "files.associations": {
-      "*.txt": "plaintext",
-      "*.pug": "jade",
-      "*.toml": "ini",
-      "*.njk": "html"
+        "*.txt": "plaintext",
+        "*.pug": "jade",
+        "*.toml": "ini",
+        "*.njk": "html"
     },
     "files.exclude": {
         "**/node_modules": true,
@@ -34,7 +34,7 @@
         "local"
     ],
     "gitProjectManager.baseProjectsFolders": [
-        "/home/flesler/Code",
+        "/home/flesler/Code"
     ],
     "gitProjectManager.storeRepositoriesBetweenSessions": true,
     "gitProjectManager.maxDepthRecursion": 2,
@@ -161,20 +161,20 @@
     "cursor.cmdk.useThemedDiffBackground": true,
     "cursor.composer.cmdPFilePicker2": true,
     "cursor.cpp.disabledLanguages": [
-      "CSV",
-      "TSV",
-      "Plain Text",
-      "Text Plain",
-      "Log",
-      "log",
-      "properties",
-      "untitled"
+        "CSV",
+        "TSV",
+        "Plain Text",
+        "Text Plain",
+        "Log",
+        "log",
+        "properties",
+        "untitled"
     ],
     "cursor.composer.shouldShowMarkdownHoverParticipantActions": false,
     "workbench.editor.enablePreview": false,
     "git.confirmForcePush": false,
     "[typescript]": {
-      "editor.defaultFormatter": "vscode.typescript-language-features"
+        "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "merge-conflict.autoNavigateNextConflict.enabled": true,
     "cursor.composer.collapsePaneInputBoxPills": true,
@@ -183,7 +183,7 @@
     "diffEditor.renderSideBySide": false,
     "terminal.integrated.defaultProfile.linux": "bash",
     "workbench.editorAssociations": {
-      "*.mdc": "default"
+        "*.mdc": "default"
     },
     "cursor.composer.backspaceRemoveContext": false,
     "zenMode.centerLayout": false,
@@ -191,16 +191,22 @@
     "json.schemaDownload.enable": true,
     "window.confirmSaveUntitledWorkspace": false,
     "[json]": {
-      "editor.defaultFormatter": "vscode.json-language-features"
+        "editor.defaultFormatter": "vscode.json-language-features"
     },
     "cursor.composer.usageSummaryDisplay": "always",
     "jupyter.askForKernelRestart": false,
     "[python]": {
-      "diffEditor.ignoreTrimWhitespace": false
+        "diffEditor.ignoreTrimWhitespace": false
     },
     "prisma.hidePrisma6Prompts": true,
     "explorer.confirmPasteNative": false,
     "editor.multiCursorLimit": 100000,
     "git.confirmNoVerifyCommit": false,
-    "workbench.statusBar.visible": false
+    "security.workspace.trust.emptyWindow": true,
+    "security.workspace.trust.banner": "always",
+    "security.allowedUnsafeExtensions": [],
+    "security.restrictSecretAccess": false,
+    "editor.inlineSuggest.suppressSuggestions": false,
+    "editor.suggest.preview": true,
+    "github.copilot.enabled": false
 }

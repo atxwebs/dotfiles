@@ -1,0 +1,1 @@
+/home/flesler/.cursor/skills/gws/SKILL.md

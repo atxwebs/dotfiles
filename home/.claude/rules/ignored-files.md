@@ -1,0 +1,1 @@
+/home/flesler/.cursor/skills/ignored-files/SKILL.md

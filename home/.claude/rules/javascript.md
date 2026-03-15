@@ -1,0 +1,1 @@
+/home/flesler/.cursor/skills/javascript/SKILL.md

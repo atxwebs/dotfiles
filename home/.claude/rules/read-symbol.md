@@ -1,0 +1,1 @@
+/home/flesler/.cursor/skills/read-symbol/SKILL.md
