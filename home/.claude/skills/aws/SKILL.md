@@ -12,7 +12,7 @@ description: Use AWS CLI for read-only operations and debugging. Use when workin
 
 **Scripts:** [eb-health.sh](./scripts/eb-health.sh), [logs-recent.sh](./scripts/logs-recent.sh), [eb-events.sh](./scripts/eb-events.sh)
 
-This file is in `~/.cursor/skills/aws/`. References:
+This file is in `~/.claude/skills/aws/`. References:
 - [cloudwatch-logs](./references/cloudwatch-logs.md)
 - [elasticbeanstalk](./references/elasticbeanstalk.md)
 - [iam](./references/iam.md)

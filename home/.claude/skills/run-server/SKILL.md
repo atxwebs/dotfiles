@@ -8,4 +8,4 @@ If available in the project, prepend: `npm run ts -- bin/kill-watch.ts &&` to ki
 Check logs: `sleep 5 && tail /tmp/server.log`
 Read skill [query-graphql](./query-graphql) for how to test with GraphQL.
 
-This file is in `~/.cursor/skills/run-server/` - take all paths as relative to it.
+This file is in `~/.claude/skills/run-server/` - take all paths as relative to it.

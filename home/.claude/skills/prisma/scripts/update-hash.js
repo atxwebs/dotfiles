@@ -3,7 +3,7 @@
  * Updates _prisma_migrations checksum after manually editing a migration file.
  * Run from project root. Delegates to execute-sql skill's sql.sh.
  *
- * Usage: node ~/.cursor/skills/prisma/scripts/update-hash.js [migration_name]
+ * Usage: node ~/.claude/skills/prisma/scripts/update-hash.js [migration_name]
  * If no name given, uses the latest migration folder.
  */
 

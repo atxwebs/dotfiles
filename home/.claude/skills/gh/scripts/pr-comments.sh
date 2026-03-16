@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Get PR review comments efficiently
-# Usage: ~/.cursor/skills/gh/scripts/pr-comments.sh [PR_NUMBER] [--cursor-only] [REPO]
-# Example: ~/.cursor/skills/gh/scripts/pr-comments.sh 1 --cursor-only
-#          ~/.cursor/skills/gh/scripts/pr-comments.sh 1 "" OWNER/REPO
+# Usage: ~/.claude/skills/gh/scripts/pr-comments.sh [PR_NUMBER] [--cursor-only] [REPO]
+# Example: ~/.claude/skills/gh/scripts/pr-comments.sh 1 --cursor-only
+#          ~/.claude/skills/gh/scripts/pr-comments.sh 1 "" OWNER/REPO
 
 set -euo pipefail
 
@@ -45,5 +45,5 @@ fi
 
 # Output each comment as a single line (compact JSON) with essential fields only
 # Strips Cursor links (Fix in Cursor/Web buttons) to save tokens
-# Example: ~/.cursor/skills/gh/scripts/pr-comments.sh 1 --cursor-only | tail -n1
+# Example: ~/.claude/skills/gh/scripts/pr-comments.sh 1 --cursor-only | tail -n1
 gh api "$ENDPOINT" --jq "$JQ_EXPR" | jq -c .

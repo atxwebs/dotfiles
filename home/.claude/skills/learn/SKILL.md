@@ -11,8 +11,8 @@ Skills are inserted into the agent's context window. Always be extremely concise
 
 ## Skill Locations
 
-- Primary: `~/.cursor/skills/` (user home) - most skills are here
-- Secondary: `.cursor/skills/` (project root) - rare, but check both locations
+- Primary: `~/.claude/skills/` (user home) - most skills are here
+- Secondary: `.claude/skills/` (project root) - rare, but check both locations
 
 ## Skill Structure (when creating/updating)
 
@@ -22,12 +22,12 @@ Skills are inserted into the agent's context window. Always be extremely concise
 - Service-specific details → references; keep main SKILL tight
 - Repeated helpers → scripts/
 
-**When creating a NEW skill:** Read `~/.cursor/skills-cursor/create-skill/SKILL.md` first. For updates/tweaks, mimic the existing skill.
+**When creating a NEW skill:** Read `~/.claude/skills-cursor/create-skill/SKILL.md` first. For updates/tweaks, mimic the existing skill.
 
 **Reference skills by pattern** (read only what fits):
-- CLI + references/*, concise: `~/.cursor/skills/gws/SKILL.md`
-- CLI + references/*, critical rules: `~/.cursor/skills/aws/SKILL.md`
-- General structure: `~/.cursor/skills-cursor/create-skill/SKILL.md`
+- CLI + references/*, concise: `~/.claude/skills/gws/SKILL.md`
+- CLI + references/*, critical rules: `~/.claude/skills/aws/SKILL.md`
+- General structure: `~/.claude/skills-cursor/create-skill/SKILL.md`
 
 ## Workflow
 
@@ -42,7 +42,7 @@ Skills are inserted into the agent's context window. Always be extremely concise
 The following only applies if told to learn in general. If the user asked to create a specific skill, just focus on that one.
 
 2. List existing skills (check both locations):
- - Get skill names/descriptions: `head -n 3 ~/.cursor/skills/*/SKILL.md`
+ - Get skill names/descriptions: `head -n 3 ~/.claude/skills/*/SKILL.md`
  - If already in your context window, use that instead
  - Do not read full skill files yet
 
@@ -70,7 +70,7 @@ For existing skills:
 - Avoid verbosity - add only essential information
 
 For new skills:
-- Read ~/.cursor/skills-cursor/create-skill/SKILL.md
+- Read ~/.claude/skills-cursor/create-skill/SKILL.md
 - Pick reference from table above; read that skill's SKILL.md + one references/* for pattern
 - Description: brief, WHEN to read
 

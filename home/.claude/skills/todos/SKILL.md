@@ -1,13 +1,13 @@
 ---
 name: todos
-description: Process pasted notes into .cursor/local/TODO.md. Use when user pastes /todos followed by raw notes or tasks.
+description: Process pasted notes into .claude/local/TODO.md. Use when user pastes /todos followed by raw notes or tasks.
 ---
 
 # Todos
 
 When user pastes `/todos` + raw notes:
 
-1. Read `.cursor/local/TODO.md`
+1. Read `.claude/local/TODO.md`
 2. Merge new tasks with existing ones
 3. Polish each task: retain all words, fill gaps only. Don't rewrite much
 4. Translate Spanish to English

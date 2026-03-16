@@ -10,7 +10,7 @@ description: Use Google Workspace CLI for Drive, Gmail, Calendar, Sheets, Docs, 
 
 **Pagination:** `--page-all` for NDJSON stream. `--page-limit N`, `--page-delay MS`.
 
-This file is in `~/.cursor/skills/gws/`. References:
+This file is in `~/.claude/skills/gws/`. References:
 - [drive](./references/drive.md) — files, search, upload
 - [gmail](./references/gmail.md) — messages, labels, send
 - [calendar](./references/calendar.md) — events, calendarList
@@ -21,4 +21,4 @@ This file is in `~/.cursor/skills/gws/`. References:
 - [chat](./references/chat.md) — spaces, messages (needs chat scope)
 - [keep](./references/keep.md) — notes (needs keep scope)
 
-See `gcloud` skill (~/.cursor/skills/gcloud/) for Google Cloud CLI, service accounts, APIs.
+See `gcloud` skill (~/.claude/skills/gcloud/) for Google Cloud CLI, service accounts, APIs.

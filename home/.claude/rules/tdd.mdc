@@ -4,4 +4,4 @@ globs: *.test.ts
 alwaysApply: false
 ---
 
-Read the [TDD skill](~/.cursor/skills/tdd/SKILL.md).
+Read the [TDD skill](~/.claude/skills/tdd/SKILL.md).

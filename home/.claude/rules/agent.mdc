@@ -27,6 +27,7 @@ alwaysApply: true
 - NEVER pivot from the user's instructions without asking for permission. If your refactor is getting messy and you want to revert or pivot, ask for permission first.
 - Generally, use braces even for single line blocks (like if)
 - Don't include `sudo` in commands, the user will be asked for the password if needed.
+- Don't claim "fixed" before reproducing the user's exact command sequence.
 
 # TLDR
 - When you output a VERY long text, I won't read it all. So:

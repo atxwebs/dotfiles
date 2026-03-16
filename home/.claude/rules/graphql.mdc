@@ -54,5 +54,5 @@ alwaysApply: false
 - Update mutation: `updateEntity(input: UpdateEntityInput!): Entity!`
 
 ## Useful Commands to read once
-- `.cursor/commands/read_symbol.md`: While reading code
-- `.cursor/commands/query_graphql.md`: Once you get to the testing phase
+- `.claude/commands/read_symbol.md`: While reading code
+- `.claude/commands/query_graphql.md`: Once you get to the testing phase

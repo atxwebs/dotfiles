@@ -11,4 +11,4 @@ You can also use `npm run exec <code>` for ad-hoc code.
 
 **Imports**: Bin scripts use the `src` path alias (`import x from 'src/util/foo'`), not relative paths like `../../src/`.
 
-This file is in `~/.cursor/skills/run-ts/` - take all paths as relative to it.
+This file is in `~/.claude/skills/run-ts/` - take all paths as relative to it.

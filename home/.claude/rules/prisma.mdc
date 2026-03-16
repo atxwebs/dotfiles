@@ -51,6 +51,6 @@ Requires a new line after each group
 5. @@unique lines, then @@index lines come last
 
 # Useful Commands to read once
-- `.cursor/commands/read_symbol.md`: While reading code
-- `.cursor/commands/execute_sql.md`: If you need to run DB queries
-- `.cursor/commands/db_validate.md`: When you finish updating schema.prisma
+- `.claude/commands/read_symbol.md`: While reading code
+- `.claude/commands/execute_sql.md`: If you need to run DB queries
+- `.claude/commands/db_validate.md`: When you finish updating schema.prisma

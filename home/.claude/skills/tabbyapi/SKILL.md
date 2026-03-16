@@ -58,7 +58,7 @@ cd ~/Applications/tabbyAPI
 
 ## Scripts
 
-**Location:** `~/.cursor/skills/tabbyapi/scripts/`
+**Location:** `~/.claude/skills/tabbyapi/scripts/`
 
 **Base script:**
 - `tabbyapi.sh <method> <endpoint> [json_body]` - Base script that handles authentication and API calls. Always uses admin_key (works for all endpoints).

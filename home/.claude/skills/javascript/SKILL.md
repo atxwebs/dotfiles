@@ -62,4 +62,4 @@ description: Read when working with *.js files
 - TODO comments: `// TODO: Description`
 - FIXME comments: `// FIXME: This is not the logic`
 
-This file is in `~/.cursor/skills/javascript/` - take all paths as relative to it.
+This file is in `~/.claude/skills/javascript/` - take all paths as relative to it.

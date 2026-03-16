@@ -61,7 +61,7 @@ Requires a new line after each group
 5. `npm run db:migrate` — applies, generates client, enums, etc.
 
 ### Amending a migration in-place
-This file is in `~/.cursor/skills/prisma/`, take the next paths as relative to it
+This file is in `~/.claude/skills/prisma/`, take the next paths as relative to it
 When consolidating changes into an existing migration (not pushed yet), see [amend-migration.md](./references/amend-migration.md).
 
 ## Helpers

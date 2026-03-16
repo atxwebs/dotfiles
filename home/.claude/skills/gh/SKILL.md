@@ -12,6 +12,6 @@ description: Use GitHub CLI for reading CI/CD logs, run status, PR comments. Use
 
 **Scripts:** [status.sh](./scripts/status.sh), [logs.sh](./scripts/logs.sh), [failed-logs.sh](./scripts/failed-logs.sh), [pr-comments.sh](./scripts/pr-comments.sh)
 
-This file is in `~/.cursor/skills/gh/`. References:
+This file is in `~/.claude/skills/gh/`. References:
 - [ci-deployments](./references/ci-deployments.md)
 - [pr-comments](./references/pr-comments.md)
