@@ -12,6 +12,7 @@ Available CLI tools, use when suitable:
 - tldr (tealdeer, simplified man pages)
 - fzf (fuzzy finder)
 - gh (github CLI)
+- hf (Hugging Face CLI)
 - aws (AWS CLI)
 - gcloud (Google Cloud CLI)
 - gws (Google Workspace CLI)
