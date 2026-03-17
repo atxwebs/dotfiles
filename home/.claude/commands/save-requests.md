@@ -1,5 +1,7 @@
-We get charged by requests, not tokens. So you must make a BIG effort to minimize the amount of reuqests
-You can do so by sending all the tool calls you need in a single response, even if slightly speculative or inefficient
+We are charged strictly per request (every model response = 1 request), not tokens.
 
-When you read a file, don't read it speculatively in small chunks, read it big or read it full.
-When sending edits, try to send them all at once, if worth it, re-write the file instead in one go
+Minimize requests ruthlessly:
+- Batch maximum parallel tool calls in one response (even if slightly speculative)
+- Always read full files or large complete sections — never small chunks
+- Batch every edit at once; rewrite the entire file in one go when practical
+- Plan thoroughly and execute multiple steps per turn

@@ -9,3 +9,4 @@ home/.npmrc
 home/sources.json
 .agents/
 skills-lock.json
+.firecrawl/
