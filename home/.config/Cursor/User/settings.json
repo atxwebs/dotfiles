@@ -208,6 +208,5 @@
     "security.restrictSecretAccess": false,
     "editor.inlineSuggest.suppressSuggestions": false,
     "editor.suggest.preview": true,
-    "github.copilot.enabled": false,
-    "workbench.statusBar.visible": false
+    "github.copilot.enabled": false
 }

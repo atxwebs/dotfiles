@@ -102,7 +102,7 @@ $BORG create       \
   --exclude '*.log' \
   --exclude '*.backup' \
   --exclude '*.old' \
-  --exclude '*.vscdb' \
+  --exclude '*.vscdb*' \
   --exclude '*.cache' \
   --exclude '*.db' \
   --exclude '*.sqlite' \
@@ -112,6 +112,7 @@ $BORG create       \
   --exclude '*.sqlite3-wal' \
   --exclude '*.sqlite3-shm' \
   --exclude '*.ibd' \
+  --exclude '*.ldb' \
   --exclude '*.frm' \
   --exclude '**/ibdata*' \
   --exclude '**/ib_logfile*' \
@@ -139,6 +140,7 @@ $BORG create       \
   --exclude '/home/*/bin/*.AppImage' \
   --exclude '/home/*/.ccache' \
   --exclude '/home/*/.rustup' \
+  --exclude '/home/*/.rbenv' \
   --exclude '/home/*/.lmstudio' \
   --exclude '/home/*/.config/Code/*Cache*' \
   --exclude '/home/*/.config/Code/User' \
@@ -149,19 +151,19 @@ $BORG create       \
   --exclude '/home/*/.config/joplin-desktop' \
   --exclude '/home/*/.config/VirtualBox' \
   --exclude '/home/*/.config/GraphQL*' \
-  --exclude '/home/*/.config/Cursor/User/History' \
-  --exclude '/home/*/.config/Cursor/User/workspaceStorage' \
-  --exclude '/home/*/.config/Cursor/CachedExtensions' \
-  --exclude '/home/*/.config/Cursor/logs' \
+  --exclude '/home/*/.config/Cursor' \
   --exclude '/home/*/.config/discord' \
   --exclude '/home/*/.config/zoom' \
   --exclude '/home/*/.config/teams' \
+  --exclude '/home/*/.config/calibre' \
   --exclude '/home/*/Code/manufactured/mfd-logs' \
   --exclude '/home/*/Code/manufactured/mfd-client/public/webviewer' \
   --exclude '/home/*/Code/dictation/downloads/' \
+  --exclude '/home/*/Code/pi/ssd/' \
   --exclude '/home/*/.local/share' \
   --exclude '/home/*/.local/bin' \
   --exclude '/home/*/.local/lib' \
+  --exclude '/home/*/.local/kitty.app' \
   --exclude '/home/*/.node-gyp' \
   --exclude '/home/*/.npm/_cacache' \
   --exclude '/home/*/.nvm/versions' \

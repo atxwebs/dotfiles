@@ -1,4 +1,4 @@
-We are charged strictly per request (every model response = 1 request), not tokens.
+We are charged strictly per request (every model response = 1 request), not tokens. Also there's high latency to the server.
 
 Minimize requests ruthlessly:
 - Batch maximum parallel tool calls in one response (even if slightly speculative)

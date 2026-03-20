@@ -16,6 +16,7 @@ Available CLI tools, use when suitable:
 - aws (AWS CLI)
 - gcloud (Google Cloud CLI)
 - gws (Google Workspace CLI)
+- yq (YAML processor)
 
 ## Working on JSON, CSV, TSV
 
