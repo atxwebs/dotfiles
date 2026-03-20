@@ -1,3 +1,4 @@
+# Non-interactive nvm (SSH one-shots, etc.) is loaded in ~/.bashrc before the interactive guard.
 alias code=nano
 # Username color change to red for pi user is handled in starship config
 # via custom.username_pi module (no action needed here)

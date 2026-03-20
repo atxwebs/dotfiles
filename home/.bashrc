@@ -2,6 +2,15 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Pi: nvm before interactive guard so non-interactive SSH (rsync, remote commands) sees node.
+if [ "$USER" = "pi" ]; then
+  . ~/.bash_pi
+fi
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -77,10 +86,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 # [ -f ~/.bash_git ] && . ~/.bash_git  # commented out - __git_ps1 no longer needed
 . ~/.bash_exports
 . ~/.bash_options
@@ -89,12 +94,6 @@ export NVM_DIR="$HOME/.nvm"
 . ~/.bash_functions
 # Not versioned, includes the local/private things
 [ -f ~/.bash_extras ] && . ~/.bash_extras
-
-# Colorize the prompt if not on the PI
-if [ "$USER" = "pi" ]; then
-  . ~/.bash_pi
-fi
-
 
 # Load cargo/env first so starship is available
 . "$HOME/.cargo/env"
@@ -107,11 +106,18 @@ else
   eval "$(starship init bash)"
 fi
 
+if [[ "$USER" == "flesler" ]]; then
+  # rbenv
+  export PATH="$HOME/.rbenv/bin:$PATH"
+  eval "$(rbenv init -)"
+
+  source ~/google-cloud-sdk/path.bash.inc
+fi
+
 if [ -f './.nvmrc' ]; then
   nvm use >/dev/null
 fi
 
-source ~/google-cloud-sdk/path.bash.inc
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
