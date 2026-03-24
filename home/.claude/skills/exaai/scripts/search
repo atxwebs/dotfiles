@@ -1,0 +1,107 @@
+#!/bin/bash
+# Exa.ai search with optional category and domain filtering
+# Usage: search "query" [--category "category"] [--domains "domain1.com,domain2.com"] [--limit N] [--highlights N] [--raw]
+#
+# Options:
+#   --raw  Output raw JSON to stdout (for piping)
+
+YEAR=$(date +%Y)
+
+QUERY=""
+CATEGORY=""
+DOMAINS=""
+LIMIT=10
+HIGHLIGHTS_MAX=4000
+RAW="false"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --category)
+      CATEGORY="$2"
+      shift 2
+      ;;
+    --domains)
+      DOMAINS="$2"
+      shift 2
+      ;;
+    --limit)
+      LIMIT="$2"
+      shift 2
+      ;;
+    --highlights)
+      HIGHLIGHTS_MAX="$2"
+      shift 2
+      ;;
+    --raw)
+      RAW="true"
+      shift
+      ;;
+    -*)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+    *)
+      if [[ -z "$QUERY" ]]; then
+        QUERY="$1"
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$QUERY" ]]; then
+  echo "Usage: search \"query\" [--category \"category\"] [--domains \"domain1.com,domain2.com\"] [--limit N] [--highlights N] [--raw]"
+  echo "Example: search \"geriatric joint dysplasia\" --category \"research paper\" --domains \"pubmed.ncbi.nlm.nih.gov,mayoclinic.org\""
+  exit 1
+fi
+
+# Normalize query: Fix stale years
+QUERY=$(echo "$QUERY" | sed "s/ 202[456]/ $YEAR/")
+
+# Sanitize query for filename
+SAFE_QUERY=$(echo "$QUERY" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g' | cut -c1-120)
+DIR="${EXA_AI_CACHE:-$HOME/.exaai}"
+OUTPUT_FILE="${DIR}/search-${SAFE_QUERY}.json"
+mkdir -p "$DIR"
+
+if [[ ! -f "$OUTPUT_FILE" ]]; then
+  # Build JSON payload
+  PAYLOAD=$(jq -n \
+    --arg query "$QUERY" \
+    --arg category "$CATEGORY" \
+    --arg domains "$DOMAINS" \
+    --argjson limit "$LIMIT" \
+    --argjson highlights_max "$HIGHLIGHTS_MAX" \
+    '{
+      query: $query,
+      type: "auto",
+      useAutoprompt: true,
+      numResults: $limit,
+      contents: {
+        text: true,
+        highlights: {
+          maxCharacters: $highlights_max
+        }
+      }
+    } |
+    if $category != "" then .category = $category else . end |
+    if $domains != "" then 
+      .includeDomains = ($domains | split(","))
+    else . end')
+
+  # Make API call - always save to file
+  curl -s -X POST 'https://api.exa.ai/search' \
+    -H "x-api-key: $EXA_AI_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -d "$PAYLOAD" \
+    -o "$OUTPUT_FILE"
+fi
+
+if [[ "$RAW" == "true" ]]; then
+  cat "$OUTPUT_FILE"
+else
+  echo "Results: $OUTPUT_FILE"
+  echo "URLs:"
+  jq -r '.results[].url' "$OUTPUT_FILE" 2>/dev/null || cat "$OUTPUT_FILE"
+fi

@@ -506,7 +506,7 @@ function hf_ollama() {
       # Extract model name from GGUF file (remove .gguf extension)
       local base_name=$(basename "$gguf_file" .gguf)
       # Replace last dash with colon for name:tag format
-      local name=$(echo "$base_name" | sed -E 's/-(instruct|thinking|GGUF)//gi' | sed 's/\(.*\)-\(.*\)/\1:\2/')
+      local name=$(echo "$base_name" | sed -E 's/-(instruct|thinking|GGUF|Distill)//gi' | sed 's/\(.*\)-\(.*\)/\1:\2/')
     fi
     echo "Creating model $name from $gguf_file..."
     ollama create "$name" -f "$tmp"

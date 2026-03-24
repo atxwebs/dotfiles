@@ -19,8 +19,11 @@ cd ~/Applications/tabbyAPI && ./start.sh
 ```
 
 **Systemd service (auto-start on login):**
+
+**CURRENT STATUS: DISABLED** (not auto-starting)
+
 ```bash
-# Enable and start service
+# Enable and start service (re-enable auto-start)
 systemctl --user enable tabbyapi.service
 systemctl --user start tabbyapi.service
 
@@ -33,6 +36,10 @@ journalctl --user -u tabbyapi.service -f
 # Stop/restart
 systemctl --user stop tabbyapi.service
 systemctl --user restart tabbyapi.service
+
+# Disable auto-start (if needed again)
+systemctl --user disable tabbyapi.service
+systemctl --user stop tabbyapi.service
 ```
 
 **Service file:** `~/.config/systemd/user/tabbyapi.service`
