@@ -1,8 +1,18 @@
 #!/bin/bash
 
-# Backup Cursor projects folder (agent-transcripts, terminals, etc.)
-cd ~/.cursor/projects && zip -ru -9 ~/Backup/Cursor/projects.zip .
-echo "Cursor projects backup created at $HOME/Backup/Cursor/projects.zip"
+# Backup Cursor projects folder (agent-transcripts only)
+# Excludes: terminals/, agent-tools/, mcps/, mcp-cache.json (noise, not useful for fine-tuning)
+# Uses -u to update existing archive safely (won't delete files no longer on disk)
+OUT=$HOME/Backup/Cursor/cursor-projects.zip
+cd ~/.cursor/projects
+
+zip -ru -9 "$OUT" . -x "*/terminals/*" -x "*/agent-tools/*" -x "*/mcps/*" -x "*/mcp-cache.json"
+echo "Cursor projects backup created at $OUT (agent-transcripts only)"
+
+# Backup Claude Code projects folder (conversation transcripts)
+OUT=$HOME/Backup/Cursor/claude-projects.zip
+cd ~/.claude/projects && zip -ru -9 "$OUT" .
+echo "Claude Code projects backup created at $OUT"
 
 # Export historical SQL chat conversations (Jan 2024 - May 2025)
 # Default: false (already exported once, historical data doesn't change)

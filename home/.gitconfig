@@ -57,7 +57,7 @@
   rbc = rebase --continue
   rba = rebase --abort
   rbi = rebase --interactive
-  rbm = rebase master
+  rbm = rebase main
   lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%G?%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
   lgt = lg --since='midnight'
   lgy = lg --since='yesterday midnight' --until='midnight'
@@ -91,7 +91,7 @@
   enabled = 1
 [help]
   # Automatically correct and execute mistyped commands
-  autocorrect = 1
+	autocorrect = 1
 [stash]
   showPatch = true
 [tag]

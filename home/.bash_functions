@@ -233,7 +233,7 @@ function archive() {
     local dir=$(dirname "$path")
     local dest=$(basename "$path")
     cd "$dir"
-    tar -ac --exclude=node_modules --exclude=__pycache__ --exclude=venv --exclude-vcs -f "$dest.tar.xz" "$dest"
+    tar -ac --exclude=node_modules --exclude=__pycache__ --exclude=dist --exclude=build --exclude=.next --exclude=venv --exclude-vcs -f "$dest.tar.xz" "$dest"
     cd -
   done
 }

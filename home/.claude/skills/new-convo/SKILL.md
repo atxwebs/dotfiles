@@ -15,3 +15,5 @@ Write to a ./tmp/*.md file:
 4. Relevant files: Key files to read first, important locations (file:line)
 5. Code snippets: Essential snippets only (queries, configs, patterns)
 6. Recurring user instructions: Preferences, corrections, workflow patterns
+
+Do not write things that can be read in existing files, just point the agent to read them if needed.
