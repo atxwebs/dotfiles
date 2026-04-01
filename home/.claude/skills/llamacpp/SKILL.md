@@ -20,9 +20,10 @@ journalctl --user -u llamacpp-server.service -f
 
 **Quick commands:**
 ```bash
-~/Applications/llamacpp/scripts/restart.sh    # Restart + verify health
-~/Applications/llamacpp/scripts/models.sh     # List all models (like ollama list)
-~/Applications/llamacpp/scripts/ps.sh         # Show loaded models (like ollama ps)
+~/Applications/llamacpp/scripts/restart.sh        # Restart + verify health
+~/Applications/llamacpp/scripts/models.sh         # List all models (like ollama list)
+~/Applications/llamacpp/scripts/ps.sh             # Show loaded models (like ollama ps)
+~/Applications/llamacpp/scripts/remove-model.sh   # Remove a model by slug
 ```
 
 **Server:** `http://127.0.0.1:58261` (0.0.0.0 = reachable from LAN)  
@@ -42,9 +43,9 @@ llama-cli -m ~/Applications/llamacpp/models/model.gguf -p "Hello"
 
 **Download models:**
 ```bash
-~/Applications/llamacpp/scripts/hf.sh unsloth/Qwen3.5-9B-GGUF IQ3_XXS
-~/Applications/llamacpp/scripts/hf.sh unsloth/Qwen3.5-9B-GGUF:Q4_K_XL  # quant in path
-~/Applications/llamacpp/scripts/hf.sh unsloth/Qwen3.5-9B-GGUF IQ3_XXS CustomName:Tag  # custom name
+~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS
+~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF:Q4_K_XL  # quant in path
+~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS CustomName:Tag  # custom name
 ```
 
 ## Scripts
@@ -54,8 +55,9 @@ llama-cli -m ~/Applications/llamacpp/models/model.gguf -p "Hello"
 - `restart.sh` — Restart service via systemd, verify health
 - `models.sh` — List all models (mimics `ollama list`)
 - `ps.sh` — Show loaded models (mimics `ollama ps`)
+- `remove-model.sh <slug>` — Remove model by name (deletes GGUF + preset entry)
 - `logs.js [N]` — Show last N lines of server logs (default 80)
-- `hf.sh <owner/project> [quant] [custom_name]` — Download GGUF from HF (like hf_ollama)
+- `hf.py <owner/project> [quant] [custom_name]` — Download GGUF from HF (like hf_ollama, auto-cleans cache)
 - `chat.js -m MODEL -p PROMPT` — One-shot chat
 - `chat-tools.js [MODEL]` — Tool-call test
 - `chat-vision.js -m MODEL -p PROMPT -f IMAGE_PATH` — Vision (OCR, describe)
@@ -77,3 +79,18 @@ OpenAI-compatible. Use with any OpenAI client: `base_url="http://127.0.0.1:58261
 - Router mode: starts empty, loads on-demand, unloads after 5min idle
 - `--models-max 1`: only 1 model in VRAM at a time (auto-evicts)
 - Format: GGUF only
+
+## Configuration
+
+**Server flags** (`~/.config/systemd/user/llamacpp-server.service`):
+```bash
+--reasoning off    # Disable thinking/reasoning by default
+```
+
+Models use their embedded GGUF chat templates automatically. For models with thinking support (Qwen3, Qwen3.5), pass `"chat_template_kwargs":{"enable_thinking":false}` per-request to disable thinking.
+
+**Cache locations:**
+- `LLAMA_CACHE=~/Applications/llamacpp/.cache` - llama.cpp download cache (on disk, not tmpfs)
+- `~/.cache/huggingface/hub` - HF download cache (auto-cleaned by `hf.py` after copying to models dir)
+
+**Auto-cleanup:** `hf.py` removes HF cache files after successful download (saves ~6GB per model)

@@ -1,5 +1,11 @@
 # Useful commands
 
+## Git
+
+### Remove a file from index
+
+git update-index --skip-worktree home/.npmrc
+
 ## ImageMagick
 
 ### Overlay 2 images with transparency

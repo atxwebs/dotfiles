@@ -1,10 +1,12 @@
 #!/bin/bash
 # Show running models (mimics 'ollama ps')
+# Filters out ggml-vocab-* tokenizer-only files
 
 curl -s http://127.0.0.1:58261/v1/models | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
-loaded = [m for m in data['data'] if m['status']['value'] == 'loaded']
+# Filter out ggml-vocab-* files (tokenizer-only files)
+loaded = [m for m in data['data'] if m['status']['value'] == 'loaded' and not m['id'].startswith('ggml-vocab-') and not m['id'].startswith('mmproj-')]
 if not loaded:
     print('No models loaded')
     sys.exit(0)

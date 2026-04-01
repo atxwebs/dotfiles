@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-model: gpt-5.2
+model: qwen3-coder-next
 description: Invoke when user request a final code review. Instruct which files/features to review. Can reject each recommendation but justify.
 readonly: true
 ---
