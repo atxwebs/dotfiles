@@ -18,6 +18,7 @@ SYNC_ENTRIES=(
     # Directories
     "bin:*.sh,*.js:*"
     ".claude/"{skills,rules,commands,mcp.json,agents,.archived-skills}
+    ".cursor/"{scripts,hooks.json}
     ".config/"{yazi,kitty}
 )
 

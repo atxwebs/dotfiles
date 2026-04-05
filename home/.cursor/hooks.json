@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "command": "~/.cursor/scripts/agent-stop.sh",
+        "allow_concurrency": false
+      }
+    ]
+  }
+}

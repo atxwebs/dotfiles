@@ -11,12 +11,12 @@
   # Remember credentials when cloning over HTTPS
   # helper = wincred
 [diff]
-    external = difft
   # Detect copies as well as renames
   renames = copies
 [alias]
   s = status -s
   d = diff
+  difft = "!difft"
   dw = diff --word-diff
   d1 = diff HEAD^
   dh = diff HEAD
@@ -104,6 +104,7 @@
 # https://git-scm.com/docs/git-config
 [safe]
   directory = /etc
+	directory = /opt/dnscrypt-proxy
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
@@ -115,4 +116,4 @@
 # [credential "https://gist.github.com"]
 #   helper = !/usr/bin/gh auth git-credential
 [init]
-  defaultBranch = main
+	defaultBranch = main
