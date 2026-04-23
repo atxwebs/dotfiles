@@ -11,7 +11,7 @@ QUERY=""
 CATEGORY=""
 DOMAINS=""
 LIMIT=10
-HIGHLIGHTS_MAX=4000
+HIGHLIGHTS_MAX=2500
 RAW="false"
 
 # Parse arguments
@@ -61,8 +61,8 @@ QUERY=$(echo "$QUERY" | sed "s/ 202[456]/ $YEAR/")
 
 # Sanitize query for filename
 SAFE_QUERY=$(echo "$QUERY" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g' | cut -c1-120)
-DIR="${EXA_AI_CACHE:-$HOME/.exaai}"
-OUTPUT_FILE="${DIR}/search-${SAFE_QUERY}.json"
+DIR="${EXA_AI_CACHE:-$HOME/.exaai/search}"
+OUTPUT_FILE="${DIR}/${SAFE_QUERY}.json"
 mkdir -p "$DIR"
 
 if [[ ! -f "$OUTPUT_FILE" ]]; then
