@@ -1,1 +1,0 @@
-/home/flesler/.cursor/skills/sql/SKILL.md

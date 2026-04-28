@@ -1,0 +1,13 @@
+---
+description: General rules for all JavaScript files
+globs: *.js
+alwaysApply: false
+---
+
+Read the [JavaScript skill](~/.claude/skills/javascript/SKILL.md).
+
+# Useful skills to read once
+- [read-symbol](~/.claude/skills/read-symbol/SKILL.md): While reading code
+- [npm](~/.claude/skills/npm/SKILL.md): When running npm commands
+- [lint](~/.claude/skills/lint/SKILL.md): After modifying files
+- [ignored-files](~/.claude/skills/ignored-files/SKILL.md): If you try to modify an ignored file

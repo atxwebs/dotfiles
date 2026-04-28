@@ -1,1 +1,0 @@
-/home/flesler/.cursor/skills/context7/SKILL.md

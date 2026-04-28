@@ -1,1 +1,0 @@
-/home/flesler/.cursor/skills/linear/SKILL.md
