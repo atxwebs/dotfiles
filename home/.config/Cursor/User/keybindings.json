@@ -1,5 +1,14 @@
 // Place your key bindings in this file to overwrite the defaults
 [
+	// Ubuntu-style chords on macOS (additive with Cmd+*). editorTextFocus so Ctrl+C stays SIGINT in terminal.
+	{ "key": "ctrl+c", "command": "editor.action.clipboardCopyAction", "when": "editorTextFocus" },
+	{ "key": "ctrl+v", "command": "editor.action.clipboardPasteAction", "when": "editorTextFocus && !editorReadonly" },
+	{ "key": "ctrl+x", "command": "editor.action.clipboardCutAction", "when": "editorTextFocus && !editorReadonly" },
+	{ "key": "ctrl+a", "command": "editor.action.selectAll", "when": "editorTextFocus" },
+	{ "key": "ctrl+z", "command": "undo", "when": "editorTextFocus && !editorReadonly" },
+	{ "key": "ctrl+y", "command": "redo", "when": "editorTextFocus && !editorReadonly" },
+	{ "key": "ctrl+s", "command": "workbench.action.files.save", "when": "editorTextFocus && !editorReadonly" },
+	{ "key": "ctrl+f", "command": "actions.find", "when": "editorTextFocus" },
 	{ "key": "ctrl+r","command": "workbench.action.gotoSymbol" },
 	{ "key": "shift+enter","command": "editor.action.insertLineAfter","when": "editorTextFocus" },
 	{ "key": "ctrl+k","command": "editor.action.moveSelectionToNextFindMatch","when": "editorFocus" },
@@ -38,7 +47,7 @@
   {
     "key": "ctrl+.",
     "command": "eslint.executeAutofix",
-    "when": "editorTextFocus && !editorReadonly && (editorLangId == 'javascript' || editorLangId == ''typescript')"
+    "when": "editorTextFocus && !editorReadonly && (editorLangId == 'javascript' || editorLangId == 'typescript')"
   },
 	{
 		"key": "ctrl+shift+,",

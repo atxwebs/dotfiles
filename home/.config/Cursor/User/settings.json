@@ -34,7 +34,7 @@
         "local"
     ],
     "gitProjectManager.baseProjectsFolders": [
-        "/home/flesler/Code"
+        "~/Code"
     ],
     "gitProjectManager.storeRepositoriesBetweenSessions": true,
     "gitProjectManager.maxDepthRecursion": 2,
@@ -182,6 +182,8 @@
     "cursor.composer.shouldChimeAfterChatFinishes": true,
     "diffEditor.renderSideBySide": false,
     "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.macOptionIsMeta": true,
     "workbench.editorAssociations": {
         "*.mdc": "default"
     },
