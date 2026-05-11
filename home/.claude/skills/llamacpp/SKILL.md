@@ -20,10 +20,10 @@ journalctl --user -u llamacpp-server.service -f
 
 **Quick commands:**
 ```bash
-~/Applications/llamacpp/scripts/restart.sh        # Restart + verify health
-~/Applications/llamacpp/scripts/models.sh         # List all models (like ollama list)
-~/Applications/llamacpp/scripts/ps.sh             # Show loaded models (like ollama ps)
-~/Applications/llamacpp/scripts/remove-model.sh   # Remove a model by slug
+~/.claude/skills/llamacpp/scripts/restart.sh        # Restart + verify health
+~/.claude/skills/llamacpp/scripts/models.sh         # List all models (like ollama list)
+~/.claude/skills/llamacpp/scripts/ps.sh             # Show loaded models (like ollama ps)
+~/.claude/skills/llamacpp/scripts/remove-model.sh   # Remove a model by slug
 ```
 
 **Server:** `http://127.0.0.1:58261` (0.0.0.0 = reachable from LAN)  
@@ -43,9 +43,9 @@ llama-cli -m ~/Applications/llamacpp/models/model.gguf -p "Hello"
 
 **Download models:**
 ```bash
-~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS
-~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF:Q4_K_XL  # quant in path
-~/Applications/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS CustomName:Tag  # custom name
+~/.claude/skills/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS
+~/.claude/skills/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF:Q4_K_XL  # quant in path
+~/.claude/skills/llamacpp/scripts/hf.py unsloth/Qwen3.5-9B-GGUF IQ3_XXS CustomName:Tag  # custom name
 ```
 
 ## Scripts

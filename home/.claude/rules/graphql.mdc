@@ -53,6 +53,6 @@ alwaysApply: false
 - Create mutation: `createEntity(input: CreateEntityInput!): Entity!`
 - Update mutation: `updateEntity(input: UpdateEntityInput!): Entity!`
 
-## Useful skills to read once
-- [read-symbol](~/.claude/skills/read-symbol/SKILL.md): While reading code
-- [query-graphql](~/.claude/skills/query-graphql/SKILL.md): Once you get to the testing phase
+## Useful Commands to read once
+- `.claude/commands/read_symbol.md`: While reading code
+- `.claude/commands/query_graphql.md`: Once you get to the testing phase

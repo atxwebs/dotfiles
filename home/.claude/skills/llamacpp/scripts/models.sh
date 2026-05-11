@@ -7,7 +7,7 @@ import sys, json
 data = json.load(sys.stdin)
 models = data['data']
 # Filter out ggml-vocab-* files (tokenizer-only files)
-models = [m for m in models if not m['id'].startswith('ggml-vocab-') and not m['id'].startswith('mmproj-')]
+models = [m for m in models if not m['id'].startswith('ggml-vocab-') and m['id'] != 'mmproj' and not m['id'].startswith('mmproj-')]
 if not models:
     print('No models available')
     sys.exit(0)

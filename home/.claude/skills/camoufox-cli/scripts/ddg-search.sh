@@ -2,7 +2,7 @@
 # DuckDuckGo HTML search via camoufox-cli (free, unlimited, no CAPTCHAs)
 #
 # Usage: ddg-search.sh "search query" [--min-seconds N]
-# Saves results to $DDG_SEARCH_OUTPUT_DIR (default: /tmp) as {YYYY-MM-DD-HH}-{slug}.jsonl
+# Saves results to $DDG_SEARCH_OUTPUT_DIR/YYYY-MM-DD (default: /tmp/YYYY-MM-DD) as {HH}-{slug}.jsonl
 # Prints summary + top results to stdout
 
 set -euo pipefail
@@ -34,11 +34,12 @@ ENCODED=$(printf '%s' "$QUERY" | jq -sRr @uri)
 # Create slug from query
 SLUG=$(printf '%s' "$QUERY" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-//;s/-$//')
 
-# Include date+hour to avoid collisions
-HOUR=$(date +%Y-%m-%d-%H)
+# Group files by date directory with hour prefix
+DATE_DIR=$(date +%Y-%m-%d)
+HOUR=$(date +%H)
 OUTPUT_DIR="${DDG_SEARCH_OUTPUT_DIR:-/tmp}"
-mkdir -p "$OUTPUT_DIR"
-OUTPUT_FILE="$OUTPUT_DIR/${HOUR}-${SLUG}.jsonl"
+mkdir -p "$OUTPUT_DIR/$DATE_DIR"
+OUTPUT_FILE="$OUTPUT_DIR/$DATE_DIR/${HOUR}-${SLUG}.jsonl"
 
 # Check cache first, otherwise fetch
 if [ -f "$OUTPUT_FILE" ]; then
@@ -54,11 +55,13 @@ else
       var href = (r.querySelector(".result__a") || {}).href || "";
       var m = href.match(re);
       var url = m ? decodeURIComponent(m[1]) : href;
+      if (!url) return null;
       var title = ((r.querySelector(".result__a") || {}).textContent || "").trim();
       var snippet = ((r.querySelector(".result__snippet") || {}).textContent || "").trim();
       return JSON.stringify({title: title, url: url, snippet: snippet});
-    }).join("\n")' 2>&1)
-
+    })
+    .filter(function(line) { return !!line; })
+    .join("\n")' 2>&1)
   # Save results as JSONL (one result per line)
   echo "$RESULT" > "$OUTPUT_FILE"
 

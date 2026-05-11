@@ -86,8 +86,8 @@ alwaysApply: false
 - Never read/write files in sync mode, this is a server
 - The linter removes unused imports on save, so if you are adding an import make sure it is used before you add it
 
-# Useful skills to read once
-- [read-symbol](~/.claude/skills/read-symbol/SKILL.md): While reading code
-- [run-ts](~/.claude/skills/run-ts/SKILL.md): If you need to run test scripts
-- [lint](~/.claude/skills/lint/SKILL.md): After modifying files
-- [ignored-files](~/.claude/skills/ignored-files/SKILL.md): If you try to modify an ignored file
+# Useful Commands to read once
+- `.claude/commands/read_symbol.md`: While reading code
+- `.claude/commands/run_ts.md`: If you need to run test scripts
+- `.claude/commands/lint.md`: After modifying files
+- `.claude/commands/ignored_files.md`: In case you try to modify an ignored file

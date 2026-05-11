@@ -50,7 +50,7 @@ Requires a new line after each group
 4. All list relations (users[], payments[], etc.)
 5. @@unique lines, then @@index lines come last
 
-# Useful skills to read once
-- [read-symbol](~/.claude/skills/read-symbol/SKILL.md): While reading code
-- [execute-sql](~/.claude/skills/execute-sql/SKILL.md): If you need to run DB queries
-- [prisma](~/.claude/skills/prisma/SKILL.md): Migrations and schema workflow when you finish updating `schema.prisma`
+# Useful Commands to read once
+- `.claude/commands/read_symbol.md`: While reading code
+- `.claude/commands/execute_sql.md`: If you need to run DB queries
+- `.claude/commands/db_validate.md`: When you finish updating schema.prisma
