@@ -47,7 +47,7 @@
   {
     "key": "ctrl+.",
     "command": "eslint.executeAutofix",
-    "when": "editorTextFocus && !editorReadonly && (editorLangId == 'javascript' || editorLangId == 'typescript')"
+    "when": "editorTextFocus && !editorReadonly && (editorLangId == 'javascript' || editorLangId == ''typescript')"
   },
 	{
 		"key": "ctrl+shift+,",

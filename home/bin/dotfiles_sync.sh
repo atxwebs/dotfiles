@@ -17,7 +17,7 @@ SYNC_ENTRIES=(
     ".config/Cursor/User/"{settings,keybindings}.json
     # Directories
     "bin:*.sh,*.js:*"
-    ".claude/"{skills,rules,commands,mcp.json,agents,.skills}
+    ".claude/"{skills,rules,commands,mcp.json,agents,.archive}
     ".cursor/"{scripts,hooks.json}
     ".config/"{yazi,kitty}
 )
