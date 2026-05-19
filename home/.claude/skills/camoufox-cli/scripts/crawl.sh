@@ -8,6 +8,8 @@ fi
 
 CLI="camoufox-cli --session crawl-$$"
 
+trap '$CLI close 2>/dev/null || true' EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Optional crawl output dir (same pattern as DDG_SEARCH_OUTPUT_DIR)

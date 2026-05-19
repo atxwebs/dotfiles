@@ -21,30 +21,25 @@ Strips noise, unwraps links inline, returns clean text. Output saved to `CLOAKBR
 ~/.claude/skills/cloakbrowser/scripts/ddg-search.py "your query"
 ```
 
-Free, unlimited DuckDuckGo search. Saves JSON to `$DDG_SEARCH_OUTPUT_DIR` (default `/tmp`).
-
-## Direct agent-browser Usage
-
-```bash
-AB=~/.claude/skills/cloakbrowser/scripts/ab.sh
-$AB open https://example.com
-$AB snapshot -i
-$AB eval "document.title"
-$AB close
-```
+Free, unlimited DuckDuckGo search. Saves JSONL to `$DDG_SEARCH_OUTPUT_DIR` (default `/tmp`).
 
 ## Key Concepts
 
-- **CloakBrowser binary** — `~/.cloakbrowser/chromium-*/chrome` with 57 C++ patches
-- **agent-browser daemon** — auto-starts on first command, persists between commands
-- **Idle timeout** — set `AGENT_BROWSER_IDLE_TIMEOUT_MS` (e.g. `300000` for 5min) for auto-shutdown
-- **Concurrent crawls** — `agent-browser` is single-session; chain commands in one invocation
+- **CloakBrowser binary** — `~/.cloakbrowser/chromium-*/chrome` with 57 C++ fingerprint patches (canvas, WebGL, WebRTC, etc.)
+- **agent-browser daemon** — auto-starts on first command, persists across CLI calls, auto-shutdowns after idle
+- **Tab-per-call** — each invocation opens a tab, works, closes it. Daemon stays alive
+- **Concurrency** — multiple calls share one browser instance (~600MB), each gets its own tab
+- **RAM lifecycle** — 0MB idle → ~600MB active → 0MB after 5min idle
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
 | `CLOAK_BIN` | `~/.cloakbrowser/chromium-*/chrome` | Override browser binary |
-| `AGENT_BROWSER_IDLE_TIMEOUT_MS` | unset | Auto-shutdown daemon after N ms of inactivity |
+| `AGENT_BROWSER_IDLE_TIMEOUT_MS` | `300000` (5min) | Auto-shutdown daemon after N ms of inactivity |
 | `CLOAKBROWSER_CRAWL_OUTPUT_DIR` | unset | Save crawl output files |
 | `DDG_SEARCH_OUTPUT_DIR` | `/tmp` | Save DDG search results |
+
+## References
+
+See `references/usage.md` for detailed usage patterns, gotchas, and ad-hoc snippets.

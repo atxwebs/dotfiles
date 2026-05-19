@@ -8,9 +8,9 @@ if [ -d "$HOME/.cloakbrowser/chromium-"* ]; then
     echo "Already installed:"
     ls -d "$HOME/.cloakbrowser/chromium-"*
 else
-    pip install cloakbrowser
+    pip install --break-system-packages cloakbrowser
     python3 -m cloakbrowser install
-    pip uninstall -y cloakbrowser
+    pip uninstall -y --break-system-packages cloakbrowser
 fi
 
 echo ""
@@ -26,4 +26,3 @@ echo ""
 echo "Setup complete."
 echo "  Crawl:    $SCRIPT_DIR/crawl.py https://example.com"
 echo "  DDG:      $SCRIPT_DIR/ddg-search.py 'your query'"
-echo "  Direct:   $SCRIPT_DIR/ab.sh open https://example.com"
