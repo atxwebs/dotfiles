@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""DuckDuckGo HTML search via agent-browser + CloakBrowser binary."""
+import sys, os, re, json, time, subprocess
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import quote
+
+CLOAK_BIN = os.environ.get("CLOAK_BIN") or next(
+    (str(p) for p in Path.home().glob(".cloakbrowser/chromium-*/chrome")), ""
+)
+
+def ab(*args, **kwargs):
+    return subprocess.run(
+        ["agent-browser", "--executable-path", CLOAK_BIN] + list(args),
+        capture_output=True, text=True, **kwargs,
+    )
+
+def read_jsonl(path):
+    return [json.loads(line) for line in path.read_text().strip().splitlines() if line.strip()]
+
+def main():
+    query, min_seconds = "", None
+    i = 1
+    while i < len(sys.argv):
+        if sys.argv[i] == "--min-seconds" and i + 1 < len(sys.argv):
+            min_seconds = int(sys.argv[i + 1]); i += 2
+        elif not query:
+            query = sys.argv[i]; i += 1
+        else:
+            i += 1
+
+    if not query:
+        print('Usage: ddg-search.py "search query" [--min-seconds N]', file=sys.stderr)
+        sys.exit(1)
+
+    start = time.time()
+    url = f"https://html.duckduckgo.com/html/?q={quote(query)}"
+
+    slug = re.sub(r"[^a-z0-9]", "-", query.lower()).strip("-")
+    date_dir = datetime.now().strftime("%Y-%m-%d")
+    hour = datetime.now().strftime("%H")
+    out_dir = os.environ.get("DDG_SEARCH_OUTPUT_DIR", "/tmp")
+    out_file = Path(out_dir) / date_dir / f"{hour}-{slug}.jsonl"
+
+    if out_file.exists():
+        results = read_jsonl(out_file)
+    else:
+        if min_seconds: start = time.time()
+
+        ab("open", url, "--load", "networkidle", "--timeout", "15000")
+        raw = ab("eval", """
+(() => {
+  const re = /[?&]uddg=([^&]+)/;
+  return [...document.querySelectorAll('.result')]
+    .filter(r => !r.classList.contains('result--ad'))
+    .map(r => {
+      const a = r.querySelector('.result__a');
+      const href = (a || {}).href || '';
+      const m = href.match(re);
+      const url = m ? decodeURIComponent(m[1]) : href;
+      if (!url) return null;
+      return { title: (a ? a.textContent : '').trim(), url, snippet: ((r.querySelector('.result__snippet') || {}).textContent || '').trim() };
+    }).filter(Boolean);
+})()
+""")
+        results = json.loads(raw.stdout.strip()) if raw.stdout.strip() else []
+        ab("close")
+
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_file, "w") as f:
+            for r in results:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+        if min_seconds:
+            remaining = min_seconds - (time.time() - start)
+            if remaining > 0:
+                time.sleep(remaining)
+
+    print(f"Saved to: {out_file}\n")
+    for r in results:
+        print(f"[{r['title']}]({r['url']})\n> {r['snippet']}\n")
+
+if __name__ == "__main__":
+    main()

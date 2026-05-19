@@ -56,7 +56,7 @@ for url in "$@"; do
     OUTPUT_FILE="$OUTPUT_DIR/$DATE_DIR/${HOUR}-${SLUG}.txt"
   fi
 
-  if ! $CLI open --timeout 120 "$url" >/dev/null 2>&1; then
+  if ! timeout 30 $CLI open --timeout 60 "$url" >/dev/null 2>&1; then
     echo "URL: $url"
     echo "[BLOCKED] Failed to open $url"
     echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (open-failed)" >> "$BLOCKED_LOG"
@@ -70,13 +70,17 @@ for url in "$@"; do
     continue
   fi
 
+  # Helper: eval with timeout so a hanging eval doesn't block the whole crawl
+  cli_eval() { timeout 10 $CLI eval "$@" 2>/dev/null || echo ""; }
+
   # Handle JS-based redirects: wait if page is empty (no title, minimal body text)
-  body_check=$($CLI eval 'document.body ? document.body.innerText.trim().length : 0' 2>/dev/null || echo "0")
-  if [ "$body_check" -le 5 ]; then
+  body_check=$(cli_eval 'document.body ? document.body.innerText.trim().length : 0')
+  if [ -n "$body_check" ] && [ "$body_check" -le 5 ] 2>/dev/null; then
     $CLI wait 3000 >/dev/null 2>&1
   fi
 
-  title=$($CLI eval 'document.title' 2>/dev/null || echo 'Unknown')
+  title=$(cli_eval 'document.title')
+  [ -z "$title" ] && title="Unknown"
 
   # Check for Cloudflare challenge page title
   is_cf_challenge="0"
@@ -93,7 +97,11 @@ for url in "$@"; do
     $CLI scroll down 200 >/dev/null 2>&1
   fi
 
-  text=$($CLI eval '
+  # Pre-check: capture raw HTML length BEFORE text extraction strips the DOM.
+  # Used to detect login walls (massive HTML, zero visible text after extraction).
+  raw_html_len=$(cli_eval 'document.body ? document.body.innerHTML.length : 0')
+
+  text=$(cli_eval '
 (function() {
 if (!document.body) return "";
 
@@ -155,17 +163,38 @@ return "";
   echo "$text"
 
   # Get navigation status
-  status=$($CLI eval 'var n = performance.getEntriesByType("navigation")[0]; n ? (n.responseStatus || n.type || "unknown") : "no-nav-entry"' 2>/dev/null || echo "unknown")
+  status=$(cli_eval 'var n = performance.getEntriesByType("navigation")[0]; n ? (n.responseStatus || n.type || "unknown") : "no-nav-entry"')
+  [ -z "$status" ] && status="unknown"
 
-  # ---- BLOCKED DETECTION ----
+  # Determine block category (empty = no block, just print output above)
+  block_category=""
+  block_label=""
 
-  # 1. Cloudflare challenge (title-based, caught above)
-  if [ "$is_cf_challenge" = "1" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (cloudflare)" >> "$BLOCKED_LOG"
+  # 1. HTTP error status (4xx/5xx) — check status code FIRST, before content heuristics
+  if echo "$status" | grep -qE '^[45][0-9][0-9]$'; then
+    block_category="http-error"
+    # Special labels for common codes
+    case "$status" in
+      403) block_label="403 forbidden" ;;
+      404) block_label="404: $title" ;;
+      5*)  block_label="status: $status" ;;
+      *)   block_label="status: $status" ;;
+    esac
 
-  # 2. Cloudflare/WAF via HTML patterns (for pages with minimal text)
+  # 2. Cloudflare challenge (title-based)
+  elif [ "$is_cf_challenge" = "1" ]; then
+    block_category="cloudflare"
+    block_label="cloudflare"
+
+  # 3. Text-based Cloudflare/WAF detection
+  elif echo "$text" | grep -qiE 'just a moment|performing security verification|security service to protect|ddos protection'; then
+    block_category="cloudflare"
+    block_label="cloudflare"
+
+  # 4. Empty or near-empty text — check for specific causes
   elif [ -z "$text" ] || [ ${#text} -lt 100 ]; then
-    is_blocked=$($CLI eval '(function() {
+    # 4a. Cloudflare/WAF via HTML patterns
+    is_blocked=$(cli_eval '(function() {
       var html = (document.body && document.body.innerHTML) || "";
       var patterns = [
         "challenge-container", "cf-challenge", "cf-turnstile",
@@ -179,29 +208,37 @@ return "";
         if (lower.includes(patterns[i].toLowerCase())) return "1";
       }
       return "0";
-    })()' 2>/dev/null || echo "0")
+    })()')
+    [ -z "$is_blocked" ] && is_blocked="0"
     if [ "$is_blocked" = "1" ]; then
-      echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (cloudflare)" >> "$BLOCKED_LOG"
-    elif [ "$status" != "200" ] && [ "$status" != "202" ]; then
-      echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (status: $status)" >> "$BLOCKED_LOG"
+      block_category="cloudflare"
+      block_label="cloudflare"
+    # 4b. Login wall: substantial HTML but zero text
+    elif [ ${#text} -lt 10 ] && [ "$raw_html_len" -gt 50000 ]; then
+      block_category="login-wall"
+      block_label="login-wall"
+    # 4c. Parked/abandoned domain: tiny HTML, no content
+    elif [ ${#text} -lt 10 ] && [ "$raw_html_len" -lt 2000 ]; then
+      block_category="empty"
+      block_label="empty (parked/no content)"
     fi
+  fi
 
-  # 3. Text-based Cloudflare/WAF detection (pages with enough text to bypass <100 check)
-  elif echo "$text" | grep -qiE 'just a moment|performing security verification|security service to protect|ddos protection'; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (cloudflare)" >> "$BLOCKED_LOG"
-
-  # 4. HTTP error pages in text (403, 404, 503, WAF blocks rendered as HTML)
-  elif echo "$text" | grep -qiE '^(403 forbidden|access (denied|unavailable)|forbidden|request is blocked|service unavailable)' || echo "$title" | grep -qiE '^(403|404|503|forbidden|blocked)'; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (status: ${status}-text-block)" >> "$BLOCKED_LOG"
-
-  # 5. Cloudflare 5xx errors (status 520-530) even when text is non-empty
-  elif echo "$status" | grep -qE '^5[0-9][0-9]$'; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (status: $status)" >> "$BLOCKED_LOG"
+  # Log blocked pages
+  if [ -n "$block_category" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url ($block_label)" >> "$BLOCKED_LOG"
+    # Print block marker in stdout for agent visibility
+    echo ""
+    echo "[BLOCKED: $block_label]"
+    # Skip saving .txt file only for HTTP errors (real 4xx/5xx status codes)
+    if [ "$block_category" = "http-error" ]; then
+      OUTPUT_FILE=""
+    fi
   fi
 
   if [ "$total" -gt 1 ]; then echo "\\n---END---"; fi
 
-  # Save crawl output to file with source URL
+  # Save crawl output to file with source URL (skipped if blocked — OUTPUT_FILE cleared above)
   if [ -n "$OUTPUT_FILE" ]; then
     {
       echo "Source: $url"
