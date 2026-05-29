@@ -1,124 +1,89 @@
-#!/usr/bin/env python3
-"""Shared browser utilities for cloakbrowser scripts.
+"""Shared Playwright CDP + CloakBrowser library.
 
-Provides agent-browser CLI helpers, CloakBrowser binary resolution,
-stealth flags, and JS eval extraction — used by crawl.py, ddg-search.py,
-mercadolibre.py and other scripts.
+All cloakbrowser scripts should use this. Provides:
+  - ensure_daemon(url)      → Start agent-browser daemon with CloakBrowser, return CDP WebSocket URL
+  - connect_cdp(ws_url)     → Connect Playwright, apply humanize patches, return (pw, browser, context, page)
+  - disconnect_cdp(pw, br)  → Cleanly disconnect Playwright; daemon keeps browser alive
+  - idle(sec)               → Human-like pause with micro-movement between actions
+  - CLOAK_BIN               → Resolved CloakBrowser binary path
 """
-import os, re, json, subprocess
+import os
+import random
+import subprocess
+import time
 from pathlib import Path
 
-FLAGS = [
-    "--disable-blink-features=AutomationControlled",
-    "--no-first-run",
-    "--no-default-browser-check",
-    "--disable-infobars",
-    "--blink-settings=imagesEnabled=false",
-]
+from playwright.sync_api import sync_playwright
 
-CLOAK_BIN = os.environ.get("AGENT_BROWSER_EXECUTABLE_PATH") or next(
+from cloakbrowser.human import patch_browser, resolve_config
+
+# ─── Configuration ──────────────────────────────────────────────────────────
+
+CLOAK_BIN = os.environ.get("CLOAKBROWSER_BINARY_PATH") or next(
     (str(p) for p in Path.home().glob(".cloakbrowser/chromium-*/chrome")), ""
 )
 
-IDLE_TIMEOUT = os.environ.get("AGENT_BROWSER_IDLE_TIMEOUT_MS", "180000")
+IDLE_TIMEOUT = os.environ.get("AGENT_BROWSER_IDLE_TIMEOUT_MS", "180000")  # 3 min
+
+# ─── Daemon lifecycle ───────────────────────────────────────────────────────
+
+def ensure_daemon(url: str) -> str:
+    """Start agent-browser daemon with CloakBrowser, return CDP WebSocket URL."""
+    env = {
+        **os.environ,
+        "AGENT_BROWSER_EXECUTABLE_PATH": CLOAK_BIN,
+        "AGENT_BROWSER_ARGS": "--no-sandbox,--fingerprint=12345,--fingerprint-platform=windows",
+        "AGENT_BROWSER_IDLE_TIMEOUT_MS": IDLE_TIMEOUT,
+    }
+    cmd = ["agent-browser", "open", url]
+    if os.environ.get("AGENT_BROWSER_HEADED", "0") in ("1", "true"):
+        cmd.insert(1, "--headed")
+    subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
+    ws_url = subprocess.run(
+        ["agent-browser", "get", "cdp-url"],
+        capture_output=True, text=True, env=env, timeout=10,
+    ).stdout.strip()
+    return ws_url
 
 
-def _cmd(flags=None):
-    """Build agent-browser CLI command."""
-    f = flags if flags is not None else FLAGS
-    return [
-        "agent-browser",
-        "--executable-path", CLOAK_BIN,
-        "--args", ",".join(f),
-    ]
+# ─── CDP connection ─────────────────────────────────────────────────────────
+
+def connect_cdp(ws_url: str, idle_delays: bool = False):
+    """Connect Playwright to CDP, apply humanize patches, return (pw, browser, context, page)."""
+    pw = sync_playwright().start()
+    browser = pw.chromium.connect_over_cdp(ws_url)
+    context = browser.contexts[0]
+    page = context.pages[0] if context.pages else context.new_page()
+    cfg = resolve_config("default", {"idle_between_actions": idle_delays})
+    patch_browser(browser, cfg)
+    page.set_viewport_size({"width": 1280, "height": 720})
+    return pw, browser, context, page
 
 
-def ab(*args, flags=None, **kwargs):
-    """Run a single agent-browser CLI command."""
-    env = {**os.environ, "AGENT_BROWSER_IDLE_TIMEOUT_MS": IDLE_TIMEOUT}
-    return subprocess.run(_cmd(flags) + list(args), capture_output=True, text=True, env=env, **kwargs)
+def disconnect_cdp(pw, browser):
+    """Cleanly disconnect Playwright; daemon keeps browser alive for idle timeout."""
+    try:
+        browser.close()
+    except Exception:
+        pass
+    try:
+        pw.stop()
+    except Exception:
+        pass
 
 
-def ab_batch(*cmds, flags=None, **kwargs):
-    """Run batch commands via agent-browser batch --json."""
-    env = {**os.environ, "AGENT_BROWSER_IDLE_TIMEOUT_MS": IDLE_TIMEOUT}
-    return subprocess.run(
-        _cmd(flags) + ["batch", "--json"],
-        input=json.dumps([list(c) for c in cmds]),
-        capture_output=True, text=True, env=env, **kwargs,
-    )
+# ─── Human-like behavior ────────────────────────────────────────────────────
 
+def idle(seconds: float | tuple[float, float] = None):
+    """Pause with human-like idle movement. Use between raw mouse.move() calls.
 
-def _eval_result(r):
-    """Extract string result from a batch eval output entry (JSON dict)."""
-    if isinstance(r, str):
-        # Already a string (from raw ab('eval', ...) output)
-        if len(r) > 2 and r[0] == '"' and r[-1] == '"':
-            return r[1:-1].encode().decode("unicode_escape")
-        return r
-    v = r.get("result", {})
-    if isinstance(v, dict):
-        v = v.get("result", "")
-    if isinstance(v, str) and len(v) > 2 and v[0] == '"' and v[-1] == '"':
-        return v[1:-1].encode().decode("unicode_escape")
-    return str(v) if v else ""
-
-
-def is_url(s):
-    return bool(re.match(r"^https?://", s)) and "." in s
-
-
-def eval_from_subprocess(result):
-    """Extract string result from a subprocess run stdout (raw CLI eval output)."""
-    v = result.stdout.strip()
-    if not v:
-        return ""
-    if len(v) > 2 and v[0] == '"' and v[-1] == '"':
-        return v[1:-1].encode().decode("unicode_escape")
-    return v
-
-
-def _get_tab_id(results, index=0):
-    """Extract tabId from a batch tab/new result."""
-    return results[index].get("result", {}).get("tabId")
-
-
-def close_tab(tab_id):
-    """Close a specific tab if valid."""
-    if tab_id:
-        ab("tab", "close", tab_id)
-
-
-def close_all():
-    """Close all browser sessions."""
-    ab("close")
-
-
-def open_tab(url):
-    """Open a URL in a new tab. Returns tab_id."""
-    r = ab_batch(["tab", "new", url])
-    results = json.loads(r.stdout.strip())
-    return _get_tab_id(results)
-
-
-def wait_networkidle(timeout=15000):
-    """Wait for network idle."""
-    ab("wait", "--load", "networkidle", "--timeout", str(timeout))
-
-
-def scroll_down(px=800):
-    """Scroll down by px pixels."""
-    ab("scroll", "down", str(px))
-
-
-def eval_js(js):
-    """Run eval and return the string result."""
-    return _eval_result(json.loads(ab("eval", js).stdout.strip()))
-
-
-def eval_batch(js, *pre_cmds, post_cmds=()):
-    """Batch: pre_cmds → eval(js) → post_cmds. Returns eval result."""
-    cmds = [list(c) for c in pre_cmds] + [["eval", js]] + [list(c) for c in post_cmds]
-    r = ab_batch(*(cmds))
-    results = json.loads(r.stdout.strip())
-    return _eval_result(results[len(pre_cmds)])
+    Args:
+        seconds: Fixed duration, or a (min, max) tuple. Default: (0.3, 0.8).
+    """
+    if seconds is None:
+        duration = 0.3 + random.random() * 0.5
+    elif isinstance(seconds, tuple):
+        duration = seconds[0] + random.random() * (seconds[1] - seconds[0])
+    else:
+        duration = seconds
+    time.sleep(duration)

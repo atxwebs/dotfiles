@@ -10,18 +10,14 @@ Usage:
 Outputs clean JSON (array of product objects) to stdout.
 Saves raw JSON to $MERCADOLIBRE_OUTPUT_DIR if set.
 
-Delegates to browser_lib for agent-browser management.
-Crawls one product at a time within the same tab.
+Uses Playwright CDP with humanize patches via browser_lib.
 """
 import sys, os, re, json, time
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import quote
 
-from browser_lib import (
-    ab, ab_batch, _eval_result, _get_tab_id, close_tab, close_all,
-    is_url as _is_url,
-)
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp
 
 EXTRACT_JSONLD_JS = """
 (function() {
@@ -63,7 +59,7 @@ EXTRACT_LISTING_URLS_JS = """
         var href = links[i].href || '';
         if (!href.includes('mercadolibre.com.ar')) continue;
         if (href.includes('listado') || href.includes('click1') || href.includes('/ads/')) continue;
-        var idMatch = href.match(/\\/(ML[AU]\\d+)/);
+        var idMatch = href.match(/\/(ML[AU]\d+)/);
         if (!idMatch) continue;
         var productId = idMatch[1];
         if (seen[productId]) continue;
@@ -98,6 +94,10 @@ DEFAULT_LIMIT = 5
 OUTPUT_DIR = Path(os.environ.get("MERCADOLIBRE_OUTPUT_DIR", "/tmp"))
 
 
+def is_url(s):
+    return bool(re.match(r"^https?://", s)) and "." in s
+
+
 def is_listing_url(url):
     return bool(re.search(r"/listado[./]", url))
 
@@ -123,49 +123,36 @@ def parse_limit(args):
     return limit, remaining
 
 
-def get_listing_products(query_or_url, limit):
+def get_listing_products(query_or_url, limit, pw, browser, context, page):
     """Get product URLs from a ML listing (URL or search query)."""
-    if _is_url(query_or_url):
+    if is_url(query_or_url):
         url = query_or_url
     else:
         url = f"https://listado.mercadolibre.com.ar/{quote(query_or_url)}"
 
-    r = ab_batch(
-        ["tab", "new", url],
-        ["wait", "--load", "networkidle", "--timeout", "30000"],
-    )
-    results = json.loads(r.stdout.strip())
-    tab_id = _get_tab_id(results)
+    page.goto(url, wait_until="domcontentloaded", timeout=30000)
+    page.wait_for_timeout(3000)
 
     # Lazy-load: 3 scrolls
     for _ in range(3):
-        ab("scroll", "down", "800")
-        ab("wait", "3000")
+        page.evaluate("window.scrollBy(0, 800)")
+        time.sleep(1)
 
-    eval_r = _eval_result(json.loads(ab("eval", EXTRACT_LISTING_URLS_JS).stdout.strip()))
-    close_tab(tab_id)
-
+    raw = page.evaluate(EXTRACT_LISTING_URLS_JS)
     try:
-        products = json.loads(eval_r) if isinstance(eval_r, str) else eval_r
+        products = json.loads(raw) if isinstance(raw, str) else raw
         return (products if isinstance(products, list) else [])[:limit]
     except (json.JSONDecodeError, TypeError):
         return []
 
 
-def crawl_product(url):
+def crawl_product(url, pw, browser, context, page):
     """Crawl a single product page, extract JSON-LD + price."""
-    r = ab_batch(
-        ["tab", "new", url],
-        ["wait", "--load", "networkidle", "--timeout", "15000"],
-        ["eval", EXTRACT_JSONLD_JS],
-        ["eval", EXTRACT_PRICES_JS],
-    )
-    results = json.loads(r.stdout.strip())
-    tab_id = _get_tab_id(results)
+    page.goto(url, wait_until="domcontentloaded", timeout=15000)
+    page.wait_for_timeout(3000)
 
-    ld_raw = _eval_result(results[2])
-    price_raw = _eval_result(results[3])
-    close_tab(tab_id)
+    ld_raw = page.evaluate(EXTRACT_JSONLD_JS)
+    price_raw = page.evaluate(EXTRACT_PRICES_JS)
 
     product = {"url": url}
 
@@ -207,48 +194,54 @@ def main():
     query_or_url = args[0]
     products = []
 
-    if _is_url(query_or_url):
-        if is_listing_url(query_or_url):
-            products = get_listing_products(query_or_url, limit)
-        elif is_product_url(query_or_url):
-            m = re.search(r"(ML[AU]\d+)", query_or_url)
-            products = [{"id": m.group(), "url": query_or_url.split('#')[0]}] if m else []
+    pw, browser, context, page = None, None, None, None
+    try:
+        ws_url = ensure_daemon("about:blank")
+        pw, browser, context, page = connect_cdp(ws_url)
+
+        if is_url(query_or_url):
+            if is_listing_url(query_or_url):
+                products = get_listing_products(query_or_url, limit, pw, browser, context, page)
+            elif is_product_url(query_or_url):
+                m = re.search(r"(ML[AU]\d+)", query_or_url)
+                products = [{"id": m.group(), "url": query_or_url.split('#')[0]}] if m else []
+            else:
+                print(f"Unrecognized ML URL type: {query_or_url}", file=sys.stderr)
+                sys.exit(1)
         else:
-            print(f"Unrecognized ML URL type: {query_or_url}", file=sys.stderr)
+            products = get_listing_products(query_or_url, limit, pw, browser, context, page)
+
+        if not products:
+            print("[]", file=sys.stderr)
             sys.exit(1)
-    else:
-        products = get_listing_products(query_or_url, limit)
 
-    if not products:
-        print("[]", file=sys.stderr)
+        # Deduplicate by product ID, take first N
+        seen = {}
+        unique = []
+        for p in products:
+            pid = p.get("id", "")
+            if pid and pid not in seen:
+                seen[pid] = True
+                unique.append(p)
+            elif not pid:
+                unique.append(p)
+        unique = unique[:limit]
+
+        # Crawl each product sequentially
+        results = []
+        for p in unique:
+            url = p.get("url", "")
+            if not url or not is_url(url):
+                continue
+            product_data = crawl_product(url, pw, browser, context, page)
+            results.append(product_data)
+
+    except Exception as e:
+        print(f"[ERROR] {e}", file=sys.stderr)
         sys.exit(1)
-
-    # Deduplicate by product ID, take first N
-    seen = {}
-    unique = []
-    for p in products:
-        pid = p.get("id", "")
-        if pid and pid not in seen:
-            seen[pid] = True
-            unique.append(p)
-        elif not pid:
-            unique.append(p)
-    unique = unique[:limit]
-
-    # Clean start
-    close_all()
-    time.sleep(1)
-
-    # Crawl each product sequentially
-    results = []
-    for p in unique:
-        url = p.get("url", "")
-        if not url or not _is_url(url):
-            continue
-        product_data = crawl_product(url)
-        results.append(product_data)
-
-    close_all()
+    finally:
+        if pw:
+            disconnect_cdp(pw, browser)
 
     # Save output
     date_dir = datetime.now().strftime("%Y-%m-%d")
