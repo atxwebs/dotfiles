@@ -10,3 +10,4 @@ home/sources.json
 .agents/
 skills-lock.json
 .firecrawl/
+__pycache__

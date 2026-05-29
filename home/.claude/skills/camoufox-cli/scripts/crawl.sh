@@ -15,13 +15,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Optional crawl output dir (same pattern as DDG_SEARCH_OUTPUT_DIR)
 DATE_DIR=$(date +%Y-%m-%d)
 HOUR=$(date +%H)
-OUTPUT_DIR="${CAMOUFOX_CRAWL_OUTPUT_DIR:-}"
-if [ -n "$OUTPUT_DIR" ]; then
-  mkdir -p "$OUTPUT_DIR/$DATE_DIR"
-  BLOCKED_LOG="$OUTPUT_DIR/$DATE_DIR/blocked.log"
-else
-  BLOCKED_LOG="/dev/null"
-fi
+OUTPUT_DIR="${CRAWL_OUTPUT_DIR:-/tmp}"
+mkdir -p "$OUTPUT_DIR/$DATE_DIR"
+BLOCKED_LOG="$OUTPUT_DIR/$DATE_DIR/blocked.log"
 
 # Check if a string looks like a valid URL
 is_url() {
@@ -32,9 +28,7 @@ total=0
 for url in "$@"; do
   # Skip non-URL args (common AI hallucination: DDG flags leaking into crawl)
   if ! is_url "$url"; then
-    if [ -n "$OUTPUT_DIR" ]; then
-      echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] SKIPPING non-URL arg: $url" >> "$BLOCKED_LOG"
-    fi
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] SKIPPING non-URL arg: $url" >> "$BLOCKED_LOG"
     continue
   fi
   total=$((total + 1))
@@ -53,22 +47,26 @@ for url in "$@"; do
 
   # Create slug from URL for output filename
   SLUG=$(printf '%s' "$url" | sed 's|https\?://||' | sed 's|^www\.||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//' | cut -c1-80)
-  OUTPUT_FILE=""
-  if [ -n "$OUTPUT_DIR" ]; then
-    OUTPUT_FILE="$OUTPUT_DIR/$DATE_DIR/${HOUR}-${SLUG}.txt"
+  OUTPUT_FILE="$OUTPUT_DIR/$DATE_DIR/${HOUR}-${SLUG}.txt"
+
+  # Check cache first
+  if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
+    cat "$OUTPUT_FILE"
+    if [ "$total" -gt 1 ]; then echo "\n---END---"; fi
+    continue
   fi
 
   if ! timeout 30 $CLI open --timeout 60 "$url" >/dev/null 2>&1; then
     echo "URL: $url"
     echo "[BLOCKED] Failed to open $url"
     echo "[$(date -u +%Y-%m-%dT%H:%M:%S)] $url (open-failed)" >> "$BLOCKED_LOG"
-    if [ -n "$OUTPUT_FILE" ]; then
-      echo "Source: $url" > "$OUTPUT_FILE"
-      echo "" >> "$OUTPUT_FILE"
-      echo "# Failed to open" >> "$OUTPUT_FILE"
-      echo "" >> "$OUTPUT_FILE"
-      echo "[BLOCKED] Failed to open $url" >> "$OUTPUT_FILE"
-    fi
+    {
+      echo "Source: $url"
+      echo ""
+      echo "# Failed to open"
+      echo ""
+      echo "[BLOCKED] Failed to open $url"
+    } > "$OUTPUT_FILE"
     continue
   fi
 
@@ -232,16 +230,12 @@ return "";
     # Print block marker in stdout for agent visibility
     echo ""
     echo "[BLOCKED: $block_label]"
-    # Skip saving .txt file only for HTTP errors (real 4xx/5xx status codes)
-    if [ "$block_category" = "http-error" ]; then
-      OUTPUT_FILE=""
-    fi
   fi
 
   if [ "$total" -gt 1 ]; then echo "\\n---END---"; fi
 
-  # Save crawl output to file with source URL (skipped if blocked — OUTPUT_FILE cleared above)
-  if [ -n "$OUTPUT_FILE" ]; then
+  # Save crawl output to file with source URL (skip for HTTP errors)
+  if [ "$block_category" != "http-error" ]; then
     {
       echo "Source: $url"
       echo ""

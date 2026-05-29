@@ -78,6 +78,7 @@ done
 
 alias stpll='st && pr && pop'
 alias stpsh='st && pr && p && pop'
+alias mgd='git co dev && pr && git co - && git merge dev'
 # alias rbm='_br_=$(git rev-parse --abbrev-ref HEAD) && git co master && pr && git co $_br_ && git rebase master'
 # alias rbm='git fetch -p && git rebase origin/master'
 alias rbd='git co dev && pr && git co - && git rb dev'

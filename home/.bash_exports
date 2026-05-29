@@ -48,3 +48,15 @@ export LIBGL_ALWAYS_SOFTWARE=1
 
 # Force correct TERM for SSH compatibility (Kitty reports xterm-kitty by default)
 export TERM=xterm-256color
+
+export PRISMA_HIDE_UPDATE_MESSAGE=1
+export LIGHTPANDA_DISABLE_TELEMETRY=true
+
+# Skip git reading /etc/gitconfig, Cursor can't
+export GIT_CONFIG_NOSYSTEM=1
+
+# === CloakBrowser + agent-browser for Hermes. Just `agent-browser` uses the correct flags and binary ===
+for f in ~/.cloakbrowser/chromium-*/chrome; do export AGENT_BROWSER_EXECUTABLE_PATH="$f"; done
+export AGENT_BROWSER_ARGS=--disable-blink-features=AutomationControlled,--no-first-run,--no-default-browser-check,--disable-infobars,--blink-settings=imagesEnabled=false
+export AGENT_BROWSER_IDLE_TIMEOUT_MS=180000   # 3 minutes exactly like your current setup
+export BROWSER_INACTIVITY_TIMEOUT=180         # optional — syncs Hermes cleanup
