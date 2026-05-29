@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Crawl URLs with agent-browser daemon + Playwright CDP + CloakBrowser humanize.
+"""Crawl URLs with agent-browser + CloakBrowser binary.
 
 Tab-per-call model:
   - First call spawns the daemon (~600MB), reuses it on subsequent calls
-  - Each URL gets a Playwright page connected via CDP with humanize patches
-  - Daemon auto-shutdowns after idle (AGENT_BROWSER_IDLE_TIMEOUT_MS)
+  - Each URL opens a new tab, works on it, then closes the tab
+  - Daemon auto-shutdowns after 5 min idle (AGENT_BROWSER_IDLE_TIMEOUT_MS)
+  - Concurrent calls share one browser instance, each gets its own tab
 """
-import sys, os, re
-from datetime import datetime, timezone
+import sys, os, re, json
 from pathlib import Path
+from datetime import datetime, timezone
 
-from _common import ensure_daemon, connect_cdp, disconnect_cdp
-
-CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
+from browser_lib import ab, _eval_result, eval_from_subprocess
 
 BLOCKED_LOG = None
+CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
 
 EXTRACT_JS = r"""
 (function() {
@@ -58,22 +58,14 @@ return "";
 })()
 """
 
-
 def init_blocked_log():
     global BLOCKED_LOG
     d = CRAWL_OUTPUT_DIR / datetime.now().strftime("%Y-%m-%d")
     d.mkdir(parents=True, exist_ok=True)
     BLOCKED_LOG = str(d / "blocked.log")
 
-
-def make_slug(url):
-    s = re.sub(r"^https?://", "", url).split("/")[0].split("?")[0]
-    return re.sub(r"[^a-z0-9]", "-", s.lower())[:80]
-
-
 def output_path(url):
     return CRAWL_OUTPUT_DIR / datetime.now().strftime("%Y-%m-%d") / f"{datetime.now().strftime('%H')}-{make_slug(url)}.txt"
-
 
 def log_blocked(url, reason):
     if BLOCKED_LOG:
@@ -81,10 +73,15 @@ def log_blocked(url, reason):
         with open(BLOCKED_LOG, "a") as f:
             f.write(f"[{ts}] {url} ({reason})\n")
 
-
 def is_url(s):
     return bool(re.match(r"^https?://", s)) and "." in s
 
+def make_slug(url):
+    s = re.sub(r"^https?://", "", url).split("/")[0].split("?")[0]
+    return re.sub(r"[^a-z0-9]", "-", s.lower())[:80]
+
+def output_path(url):
+    return CRAWL_OUTPUT_DIR / datetime.now().strftime("%Y-%m-%d") / f"{datetime.now().strftime('%H')}-{make_slug(url)}.txt"
 
 def read_cached(url):
     p = output_path(url)
@@ -92,6 +89,9 @@ def read_cached(url):
         return content
     return None
 
+def _eval_raw(r):
+    """Extract string result from eval output."""
+    return eval_from_subprocess(r)
 
 def crawl(url, total_urls):
     cached = read_cached(url)
@@ -101,37 +101,34 @@ def crawl(url, total_urls):
             print("\n---END---")
         return
 
-    pw, browser, context, page = None, None, None, None
-    try:
-        ws_url = ensure_daemon("about:blank")
-        pw, browser, context, page = connect_cdp(ws_url)
+    r = ab("tab", "new", url)
+    if r.returncode != 0:
+        print(f"[BLOCKED] Failed to open {url}")
+        log_blocked(url, "open-failed")
+        return
 
-        page.goto(url, wait_until="networkidle", timeout=30000)
-        title = page.evaluate("document.title")
-        text = page.evaluate(EXTRACT_JS) or ""
+    ab("wait", "--load", "networkidle", "--timeout", "30000")
+    title = _eval_raw(ab("eval", "document.title"))
+    text = _eval_raw(ab("eval", EXTRACT_JS))
 
-        if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
-            log_blocked(url, "cloudflare")
-            print("[BLOCKED: cloudflare]")
-            return
+    if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
+        log_blocked(url, "cloudflare")
+        print(f"[BLOCKED: cloudflare]")
+        ab("tab", "close")
+        return
 
-        content = f"URL: {url}\n# {title}\n\n{text}"
-        print(content)
+    content = f"URL: {url}\n# {title}\n\n{text}"
+    print(content)
 
-        p = output_path(url)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(f"Source: {url}\n\n# {title}\n\n{text}\n")
+    p = output_path(url)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(f"Source: {url}\n\n# {title}\n\n{text}\n")
 
-    except Exception as e:
-        print(f"[ERROR] {url}: {e}")
-        log_blocked(url, f"exception: {e}")
-    finally:
-        if pw:
-            disconnect_cdp(pw, browser)
+    # Close our tab — daemon stays alive for next call
+    ab("tab", "close")
 
     if total_urls > 1:
         print("\n---END---")
-
 
 def main():
     urls = [a for a in sys.argv[1:] if is_url(a)]
@@ -142,7 +139,6 @@ def main():
     init_blocked_log()
     for u in urls:
         crawl(u, len(urls))
-
 
 if __name__ == "__main__":
     main()

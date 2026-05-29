@@ -10,6 +10,7 @@ if [ -d "$HOME/.cloakbrowser/chromium-"* ]; then
 else
     pip install --break-system-packages cloakbrowser
     python3 -m cloakbrowser install
+    pip uninstall -y --break-system-packages cloakbrowser
 fi
 
 echo ""
