@@ -16,6 +16,34 @@ CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
 
 BLOCKED_LOG = None
 
+EXTRACT_JSONLD_JS = r"""
+(function() {
+  var SKIP_TYPES = ['Organization', 'BreadcrumbList', 'WebSite', 'WebPage'];
+  var scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  var results = [];
+  for (var i = 0; i < scripts.length; i++) {
+    try {
+      var d = JSON.parse(scripts[i].textContent);
+      if (Array.isArray(d)) {
+        for (var j = 0; j < d.length; j++) {
+          var t = d[j]['@type'] || '';
+          if (SKIP_TYPES.indexOf(t) === -1 && t) results.push(JSON.stringify(d[j]));
+        }
+      } else if (d['@graph']) {
+        for (var k = 0; k < d['@graph'].length; k++) {
+          var t = d['@graph'][k]['@type'] || '';
+          if (SKIP_TYPES.indexOf(t) === -1 && t) results.push(JSON.stringify(d['@graph'][k]));
+        }
+      } else {
+        var t = d['@type'] || '';
+        if (SKIP_TYPES.indexOf(t) === -1 && t) results.push(JSON.stringify(d));
+      }
+    } catch(e) {}
+  }
+  return results.length ? results.join('\n') : '';
+})()
+"""
+
 EXTRACT_JS = r"""
 (function() {
 if (!document.body) return "";
@@ -108,6 +136,7 @@ def crawl(url, total_urls):
 
         page.goto(url, wait_until="networkidle", timeout=30000)
         title = page.evaluate("document.title")
+        jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
         text = page.evaluate(EXTRACT_JS) or ""
 
         if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
@@ -115,12 +144,15 @@ def crawl(url, total_urls):
             print("[BLOCKED: cloudflare]")
             return
 
-        content = f"URL: {url}\n# {title}\n\n{text}"
+        content = f"URL: {url}\n# {title}\n"
+        if jsonld:
+            content += f"\n## JSON-LD\n\n{jsonld}\n"
+        content += f"\n{text}"
         print(content)
 
         p = output_path(url)
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(f"Source: {url}\n\n# {title}\n\n{text}\n")
+        p.write_text(f"Source: {url}\n\n# {title}\n" + (f"\n## JSON-LD\n\n{jsonld}\n" if jsonld else "") + f"\n{text}\n")
 
     except Exception as e:
         print(f"[ERROR] {url}: {e}")
