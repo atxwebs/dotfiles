@@ -165,6 +165,8 @@ $BORG create       \
   --exclude '/home/*/.local/lib' \
   --exclude '/home/*/.local/kitty.app' \
   --exclude '/home/*/.node-gyp' \
+  --exclude '/home/*/.agent-browser' \
+  --exclude '/home/*/.cloakbrowser' \
   --exclude '/home/*/.npm/_cacache' \
   --exclude '/home/*/.nvm/versions' \
   --exclude '/home/*/.vscode' \

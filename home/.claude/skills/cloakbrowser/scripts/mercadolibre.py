@@ -50,43 +50,13 @@ EXTRACT_JSONLD_JS = """
 })()
 """
 
-EXTRACT_LISTING_URLS_JS = """
+EXTRACT_LISTING_JSONLD_JS = """
 (function() {
-    var links = document.querySelectorAll('a');
-    var seen = {};
-    var products = [];
-    for (var i = 0; i < links.length; i++) {
-        var href = links[i].href || '';
-        if (!href.includes('mercadolibre.com.ar')) continue;
-        if (href.includes('listado') || href.includes('click1') || href.includes('/ads/')) continue;
-        var idMatch = href.match(/\/(ML[AU]\d+)/);
-        if (!idMatch) continue;
-        var productId = idMatch[1];
-        if (seen[productId]) continue;
-        seen[productId] = true;
-        var title = (links[i].textContent || '').trim();
-        if (title.length < 5) continue;
-        var cleanUrl = href.split('#')[0];
-        products.push({id: productId, title: title.substring(0, 120), url: cleanUrl});
-        if (products.length >= 50) break;
-    }
-    return JSON.stringify(products);
-})()
-"""
-
-EXTRACT_PRICES_JS = """
-(function() {
-    var result = {};
-    var priceEl = document.querySelector('[itemprop="price"]');
-    if (priceEl) result.price = parseFloat(priceEl.getAttribute('content'));
-    if (!result.price) {
-        var amounts = document.querySelectorAll('.andes-money-amount__fraction');
-        if (amounts.length > 0) {
-            var raw = amounts[0].textContent.replace(/[^0-9.,]/g, '').replace(',', '.');
-            result.price = parseFloat(raw);
-        }
-    }
-    return JSON.stringify(result);
+    try {
+        var ld = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
+        var graph = ld['@graph'] || [];
+        return JSON.stringify(graph.filter(function(x) { return x['@type'] === 'Product'; }));
+    } catch(e) { return '[]'; }
 })()
 """
 
@@ -124,21 +94,14 @@ def parse_limit(args):
 
 
 def get_listing_products(query_or_url, limit, pw, browser, context, page):
-    """Get product URLs from a ML listing (URL or search query)."""
+    """Get products from a ML listing (URL or search query) via JSON-LD @graph."""
     if is_url(query_or_url):
         url = query_or_url
     else:
         url = f"https://listado.mercadolibre.com.ar/{quote(query_or_url)}"
 
     page.goto(url, wait_until="domcontentloaded", timeout=30000)
-    page.wait_for_timeout(3000)
-
-    # Lazy-load: 3 scrolls
-    for _ in range(3):
-        page.evaluate("window.scrollBy(0, 800)")
-        time.sleep(1)
-
-    raw = page.evaluate(EXTRACT_LISTING_URLS_JS)
+    raw = page.evaluate(EXTRACT_LISTING_JSONLD_JS)
     try:
         products = json.loads(raw) if isinstance(raw, str) else raw
         return (products if isinstance(products, list) else [])[:limit]
@@ -152,7 +115,6 @@ def crawl_product(url, pw, browser, context, page):
     page.wait_for_timeout(3000)
 
     ld_raw = page.evaluate(EXTRACT_JSONLD_JS)
-    price_raw = page.evaluate(EXTRACT_PRICES_JS)
 
     product = {"url": url}
 
@@ -171,14 +133,6 @@ def crawl_product(url, pw, browser, context, page):
                 product["availability"] = offers.get("availability", "")
             product["image"] = ld.get("image", "")
             product["sku"] = ld.get("sku", "")
-        except json.JSONDecodeError:
-            pass
-
-    if price_raw:
-        try:
-            prices = json.loads(price_raw)
-            if prices.get("price"):
-                product["price"] = prices["price"]
         except json.JSONDecodeError:
             pass
 
@@ -201,40 +155,19 @@ def main():
 
         if is_url(query_or_url):
             if is_listing_url(query_or_url):
-                products = get_listing_products(query_or_url, limit, pw, browser, context, page)
+                # Listing JSON-LD has everything — no per-page crawl needed
+                results = get_listing_products(query_or_url, limit, pw, browser, context, page)
             elif is_product_url(query_or_url):
-                m = re.search(r"(ML[AU]\d+)", query_or_url)
-                products = [{"id": m.group(), "url": query_or_url.split('#')[0]}] if m else []
+                results = [crawl_product(query_or_url.split('#')[0], pw, browser, context, page)]
             else:
                 print(f"Unrecognized ML URL type: {query_or_url}", file=sys.stderr)
                 sys.exit(1)
         else:
-            products = get_listing_products(query_or_url, limit, pw, browser, context, page)
+            results = get_listing_products(query_or_url, limit, pw, browser, context, page)
 
-        if not products:
+        if not results:
             print("[]", file=sys.stderr)
             sys.exit(1)
-
-        # Deduplicate by product ID, take first N
-        seen = {}
-        unique = []
-        for p in products:
-            pid = p.get("id", "")
-            if pid and pid not in seen:
-                seen[pid] = True
-                unique.append(p)
-            elif not pid:
-                unique.append(p)
-        unique = unique[:limit]
-
-        # Crawl each product sequentially
-        results = []
-        for p in unique:
-            url = p.get("url", "")
-            if not url or not is_url(url):
-                continue
-            product_data = crawl_product(url, pw, browser, context, page)
-            results.append(product_data)
 
     except Exception as e:
         print(f"[ERROR] {e}", file=sys.stderr)
