@@ -35,28 +35,33 @@ def read_jsonl(path):
 
 
 def main():
-    query, min_seconds = "", None
+    query, min_seconds, page = "", None, None
     i = 1
     while i < len(sys.argv):
         if sys.argv[i] == "--min-seconds" and i + 1 < len(sys.argv):
             min_seconds = int(sys.argv[i + 1]); i += 2
+        elif sys.argv[i] == "--page" and i + 1 < len(sys.argv):
+            page = int(sys.argv[i + 1]); i += 2
         elif not query:
             query = sys.argv[i]; i += 1
         else:
             i += 1
 
     if not query:
-        print('Usage: ddg-search.py "search query" [--min-seconds N]', file=sys.stderr)
+        print('Usage: ddg-search.py "search query" [--min-seconds N] [--page N]', file=sys.stderr)
         sys.exit(1)
 
     start = time.time()
-    url = f"https://html.duckduckgo.com/html/?q={quote(query)}"
+    ddg_url = f"https://html.duckduckgo.com/html/?q={quote(query)}"
+    if page and page > 1:
+        ddg_url += f"&s={(page - 1) * 20}"
 
     slug = re.sub(r"[^a-z0-9]", "-", query.lower()).strip("-")
+    page_suffix = f"-page{page}" if page and page > 1 else ""
     date_dir = datetime.now().strftime("%Y-%m-%d")
     hour = datetime.now().strftime("%H")
     out_dir = os.environ.get("DDG_SEARCH_OUTPUT_DIR", "/tmp")
-    out_file = Path(out_dir) / date_dir / f"{hour}-{slug}.jsonl"
+    out_file = Path(out_dir) / date_dir / f"{hour}-{slug}{page_suffix}.jsonl"
 
     if out_file.exists() and (lines := out_file.read_text().strip()):
         results = read_jsonl(out_file)
@@ -64,13 +69,13 @@ def main():
         if min_seconds:
             start = time.time()
 
-        pw, browser, context, page = None, None, None, None
+        pw, browser, context, pw_page = None, None, None, None
         try:
-            ws_url = ensure_daemon(url)
-            pw, browser, context, page = connect_cdp(ws_url)
+            ws_url = ensure_daemon(ddg_url)
+            pw, browser, context, pw_page = connect_cdp(ws_url)
 
-            page.wait_for_load_state("networkidle")
-            raw = page.evaluate(EXTRACT_JS)
+            pw_page.wait_for_load_state("networkidle")
+            raw = pw_page.evaluate(EXTRACT_JS)
 
             try:
                 results = raw if isinstance(raw, list) else json.loads(raw)

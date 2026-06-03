@@ -23,6 +23,11 @@ Strips noise, unwraps links inline, returns clean text. Output saved to `CRAWL_O
 
 Free, unlimited DuckDuckGo search. Saves JSONL to `$DDG_SEARCH_OUTPUT_DIR` (default `/tmp`).
 
+```bash
+~/.claude/skills/cloakbrowser/scripts/ddg-search.py "your query"        # page 1
+~/.claude/skills/cloakbrowser/scripts/ddg-search.py "your query" --page 2  # page 2
+```
+
 ## Custom Exploration
 
 Ad-hoc browser exploration with full Playwright API + humanize patches.
