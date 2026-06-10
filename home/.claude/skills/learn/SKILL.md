@@ -1,82 +1,140 @@
 ---
 name: learn
-description: Read when the user asks if there's anything to learn from the conversation or to capture learnings
+description: Read when the user asks to learn from a conversation, capture learnings, improve skills, or cement recurring work into scripts.
 ---
 
 # Learn from Conversation
 
-## Critical Reminder
+## Critical reminder
 
-Skills are inserted into the agent's context window. Always be extremely concise to save tokens. Every word counts.
+Skills load into context. Be concise. Every word costs tokens.
 
-## Skill Locations
+## What `/learn` means
 
-- Primary: `~/.claude/skills/` (user home) - most skills are here
-- Secondary: `.claude/skills/` (project root) - rare, but check both locations
+Do not only hunt for user complaints. **Replay what you did in this session:**
 
-## Skill Structure (when creating/updating)
+1. Sequence of steps (commands, reads, branches)
+2. Which steps are **deterministic** vs need **judgment**
+3. What to cement as scripts vs what stays in SKILL.md
+4. What to remove (superseded scripts, duplicated logic)
 
-- Extra docs: `references/<file>.md` — link as `./references/<file>.md` (one level deep)
-- Scripts: `scripts/` — link as `./scripts/<file>`
-- Description: what + when, third person, slightly pushy (Claude undertriggers)
-- Service-specific details → references; keep main SKILL tight
-- Repeated helpers → scripts/
+Most learnings update an **existing** skill. New skills are rare.
 
-**When creating a NEW skill:** Read `~/.claude/skills-cursor/create-skill/SKILL.md` first. For updates/tweaks, mimic the existing skill.
+## Deterministic → scripts | Judgment → SKILL.md
 
-**Reference skills by pattern** (read only what fits):
-- CLI + references/*, concise: `~/.claude/skills/gws/SKILL.md`
-- CLI + references/*, critical rules: `~/.claude/skills/aws/SKILL.md`
-- General structure: `~/.claude/skills-cursor/create-skill/SKILL.md`
+| Deterministic (script)         | Judgment (skill glue)              |
+| ------------------------------ | ---------------------------------- |
+| Stable API calls, fixed flags  | When to run which script           |
+| Parse/merge into JSON          | Approve / skip / comment verdicts  |
+| Filters, counts, bot detection | User-facing wording and tone rules |
+| Read-only fetches              | Interpreting diff meaning          |
+| Idempotent transforms          | Branching on ambiguous risk        |
+
+**Scripts:** `scripts/*.sh` (or `.py`/`.js`), shared `scripts/lib/*.jq`. One bundle script beats many ad-hoc calls. Extract shared libs; delete superseded wrappers.
+
+**SKILL.md:** when to invoke scripts, how to read output, NEVER rules, report format, explicit approval before mutations.
+
+Detail: [workflow-decomposition](./references/workflow-decomposition.md)
+
+## Script output format
+
+When structured output helps the agent (not required when plain text is natural):
+
+- **Single object** → one compact JSON object on stdout (`jq -c .` or `jq -n` builder). No pretty-print.
+- **List of records** (items, comments, rows) → **JSONL**: one minified JSON object per line, no wrapping array.
+- **Schema lives in the script** (header comment or `--help`). SKILL.md wires sample `jq` extracts only — do not duplicate field lists.
 
 ## Workflow
 
-### Step 1: Assess (Do Not Modify Yet)
+### 1. Assess (do not edit yet)
 
-1. Review conversation history for:
- - Times the user didn't like something and requested changes
- - Patterns or preferences that should become automatic
- - Recurring corrections or clarifications
- - Implicit patterns you followed, like files you recurringly read, grep's you ran, etc.
+**Session replay**
 
-The following only applies if told to learn in general. If the user asked to create a specific skill, just focus on that one.
+Same chat: prior tool calls and outputs are usually **still in context**. Start there.
 
-2. List existing skills (check both locations):
- - Get skill names/descriptions: `head -n 3 ~/.claude/skills/*/SKILL.md`
- - If already in your context window, use that instead
- - Do not read full skill files yet
+Fallback when history is thin (summarized thread, past chat): search **session logs or transcripts** the user points at — format varies by tool. `rg` first, `jq` once you know the shape:
 
-3. Identify candidates:
- - Which existing skills were involved in the conversation?
- - Would a new skill be needed? (New skills are rare)
+```bash
+rg -n 'gh |curl |jq |scripts/' <session-log-or-transcript>
+rg -n 'tool_use|command|Shell' <session-log-or-transcript>
+```
 
-### Step 2: Report to User
+Do not assume a fixed log path or schema.
 
-Present findings:
-- Which existing skills should be updated (and why)
-- If a new skill is needed, describe its purpose
-- Do not make changes yet
+**Replay checklist**
 
-### Step 3: Get Confirmation
+- Tool/command sequence you actually ran
+- User corrections and preferences
+- Implicit patterns (files always read, greps always run)
 
-Wait for user approval
+**Classify each step** → script candidate or skill rule?
 
-### Step 4: Execute (After Confirmation)
+**Inventory skills:**
 
-For existing skills:
-- Read only the skills that need updates
-- Make minimal, targeted additions
-- Preserve existing structure and style
-- Avoid verbosity - add only essential information
+```bash
+head -n 3 ~/.claude/skills/*/SKILL.md
+head -n 3 .claude/skills/*/SKILL.md   # project checkout, if any
+```
 
-For new skills:
-- Read ~/.claude/skills-cursor/create-skill/SKILL.md
-- Pick reference from table above; read that skill's SKILL.md + one references/* for pattern
-- Description: brief, WHEN to read
+Read full files only for skills you will change.
+
+**Consolidation check:** Can new script replace N ad-hoc calls? Shared lib instead of copy-paste? Lighter list script vs full bundle?
+
+**Graduation check:** One-liner → script → skill glue. Don't create a new skill when extending an existing one suffices. Detail: [workflow-decomposition](./references/workflow-decomposition.md).
+
+### 2. Report
+
+- Skills to update (and why)
+- New scripts: name, replaces what, sample invocation
+- SKILL.md deltas: rules/wiring only (not re-documenting JSON fields)
+- Artifacts to remove
+- **Test plan** per new/changed script
+
+Wait for user approval.
+
+### 3. Execute (after approval)
+
+- Minimal edits; match existing skill style
+- Add scripts + update SKILL script table
+- Run script tests before marking done
+- New skill only if user asked or nothing fits: read `~/.claude/skills-cursor/create-skill/SKILL.md`
+- Rewrite skill **`description`** only if trigger scenarios changed (see below)
+
+## Script testing (required)
+
+Every new or changed script gets tested before the task is done. Inputs are usually **live** (IDs, URLs) — run against a real safe target, not saved fixtures.
+
+**Read-only / idempotent:** run for real. Verify exit code and output shape (`jq -c` spot-check).
+
+**Mutating:** add `--dry-run` — same reads and branching, no mutations; preview on stderr. Real run only with explicit user approval.
+
+Detail: [script-testing](./references/script-testing.md)
+
+## Skill layout
+
+| Piece                    | Location                           |
+| ------------------------ | ---------------------------------- |
+| When + glue + rules      | `SKILL.md`                         |
+| Deterministic automation | `scripts/`                         |
+| Shared jq/helpers        | `scripts/lib/`                     |
+| Long examples            | `references/*.md` (one level deep) |
+
+**Locations:** `~/.claude/skills/` (primary), `.claude/skills/` (project checkout).
+
+### Skill `description` — WHEN only
+
+The YAML `description` is the **trigger** — when to read, not what the skill does.
+
+- ✅ "Read when the user pastes a Jira URL or asks about a ticket."
+- ❌ "Parses Jira URLs and fetches issue metadata via API."
+
+Slightly pushy phrasing helps under-triggering. After adding scripts, update WHEN only if **new trigger scenarios** exist — never list script names in `description`.
 
 ## Principles
 
-- Minimal changes: Extend existing skills slightly, don't rewrite them
-- Token efficiency: Skills consume context - every addition must justify its cost
-- Selective reading: Only read skills that clearly need updates
-- New skills are rare: Most learnings fit into existing skills. Unless the user explicitly asks to create a new skill
+- Scripts for repetition; skill for taste and branching
+- Token efficiency: references over bloated SKILL.md
+- One concern per script; compose in skill workflow
+- Delete superseded scripts when merged
+- Project-repo conventions → that repo's rules/docs; personal automation → `~/.claude/skills/`
+- Never encode domain rules in `learn` — teach the split, apply in target skill
