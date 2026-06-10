@@ -6,7 +6,7 @@ Tab-per-call model:
   - Each URL gets a Playwright page connected via CDP with humanize patches
   - Daemon auto-shutdowns after idle (AGENT_BROWSER_IDLE_TIMEOUT_MS)
 """
-import sys, os, re
+import sys, os, re, time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -122,6 +122,7 @@ def read_cached(url):
 
 
 def crawl(url, total_urls):
+    start_time = time.time()
     cached = read_cached(url)
     if cached:
         print(cached)
@@ -134,7 +135,10 @@ def crawl(url, total_urls):
         ws_url = ensure_daemon("about:blank")
         pw, browser, context, page = connect_cdp(ws_url)
 
-        page.goto(url, wait_until="networkidle", timeout=30000)
+        start_time = time.time()
+        page.goto(url, wait_until="load", timeout=30000)
+        elapsed = time.time() - start_time
+        print(f"[TIMING] {url}: {elapsed:.2f}s", file=sys.stderr)
         title = page.evaluate("document.title")
         jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
         text = page.evaluate(EXTRACT_JS) or ""
@@ -155,6 +159,8 @@ def crawl(url, total_urls):
         p.write_text(f"Source: {url}\n\n# {title}\n" + (f"\n## JSON-LD\n\n{jsonld}\n" if jsonld else "") + f"\n{text}\n")
 
     except Exception as e:
+        elapsed = time.time() - start_time
+        print(f"[TIMING] {url}: {elapsed:.2f}s (FAILED)", file=sys.stderr)
         print(f"[ERROR] {url}: {e}")
         log_blocked(url, f"exception: {e}")
     finally:
