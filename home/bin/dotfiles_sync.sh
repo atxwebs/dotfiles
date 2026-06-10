@@ -8,18 +8,8 @@ REPO=~/Code/dotfiles/home
 #   For files: just the path
 #   For directories: "path:include1,include2:exclude" (includes, then exclude)
 SYNC_ENTRIES=(
-    # Files/globs
-    ".bash*:*history*:*extras*"
-    ".*rc"
-    ".profile"
-    ".gitconfig"
-    ".config/starship.toml"
-    ".config/Cursor/User/"{settings,keybindings}.json
     # Directories
     "bin:*.sh,*.js:*"
-    ".claude/"{skills,rules,commands,mcp.json,agents,.archive}
-    ".cursor/"{scripts,hooks.json}
-    ".config/"{yazi,kitty}
 )
 
 rsync_output=""

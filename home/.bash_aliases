@@ -178,7 +178,7 @@ alias rs.dry='rs.cp --dry-run'
 alias rs.mv='rs --remove-source-files'
 
 # For the RaspberryPI
-alias pi.home='rsync -av --progress --no-owner --no-group --open-noatime --human-readable --acls ~/.{bash_{aliases,functions,profile,options,exports,prompt,login,logout,extras,cursor,pi},profile,gitconfig,npmrc,bashrc} rsync://pi.local/home/ 2>&1 | awk '\''/^sending incremental file list/{next} /^(sent|total|building|file list)/{next} /^\.\//{next} /^\./{print} /^deleting/{print}'\'''
+alias pi.home='rsync -avL --progress --no-owner --no-group --open-noatime --human-readable --acls ~/.{bash_{aliases,functions,profile,options,exports,prompt,login,logout,extras,cursor,pi},profile,gitconfig,npmrc,bashrc} rsync://pi.local/home/ 2>&1 | awk '\''/^sending incremental file list/{next} /^(sent|total|building|file list)/{next} /^\.\//{next} /^\./{print} /^deleting/{print}'\'''
 
 # GPU
 alias gpu.usage='nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv'

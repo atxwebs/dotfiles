@@ -22,7 +22,7 @@ if [ -f "$script_file" ]; then
     exit_code=$?
     if [ $exit_code -ne 0 ]; then
       # Use jq to properly construct the JSON
-      jq -n --arg msg "$output" '{"followup_message": ("Review this:\n" + $msg)}'
+      jq -n --arg msg "$output" '{"followup_message": ("Automated review, address unless truly unrelated to your changes:\n" + $msg)}'
       exit 0
     fi
   fi
