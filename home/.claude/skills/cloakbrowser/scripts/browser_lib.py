@@ -11,6 +11,7 @@ import os
 import random
 import subprocess
 import time
+from datetime import datetime
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -27,12 +28,17 @@ IDLE_TIMEOUT = os.environ.get("AGENT_BROWSER_IDLE_TIMEOUT_MS", "180000")  # 3 mi
 
 # ─── Daemon lifecycle ───────────────────────────────────────────────────────
 
+BLOCKED_RESOURCE_TYPES = {"image", "font", "media", "stylesheet"}
+
+
 def ensure_daemon(url: str) -> str:
     """Start agent-browser daemon with CloakBrowser, return CDP WebSocket URL."""
+    now = datetime.now()
+    fp = now.strftime("%y%m%d%H") + str(now.minute // 10)
     env = {
         **os.environ,
         "AGENT_BROWSER_EXECUTABLE_PATH": CLOAK_BIN,
-        "AGENT_BROWSER_ARGS": "--no-sandbox,--fingerprint=12345,--fingerprint-platform=windows",
+        "AGENT_BROWSER_ARGS": f"--no-sandbox,--fingerprint={fp}",
         "AGENT_BROWSER_IDLE_TIMEOUT_MS": IDLE_TIMEOUT,
     }
     cmd = ["agent-browser", "open", url]
@@ -48,15 +54,23 @@ def ensure_daemon(url: str) -> str:
 
 # ─── CDP connection ─────────────────────────────────────────────────────────
 
-def connect_cdp(ws_url: str, idle_delays: bool = False):
+def connect_cdp(ws_url: str, idle_delays: bool = False, block: bool = True):
     """Connect Playwright to CDP, apply humanize patches, return (pw, browser, context, page)."""
     pw = sync_playwright().start()
     browser = pw.chromium.connect_over_cdp(ws_url)
     context = browser.contexts[0]
-    page = context.pages[0] if context.pages else context.new_page()
+    page = context.pages[-1] if context.pages else context.new_page()
     cfg = resolve_config("default", {"idle_between_actions": idle_delays})
     patch_browser(browser, cfg)
-    page.set_viewport_size({"width": 1280, "height": 720})
+
+    if block:
+        def _block(route):
+            if route.request.resource_type in BLOCKED_RESOURCE_TYPES:
+                route.abort()
+            else:
+                route.continue_()
+        page.route("**/*", _block)
+
     return pw, browser, context, page
 
 

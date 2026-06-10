@@ -89,11 +89,10 @@ def main():
             if pw:
                 disconnect_cdp(pw, browser)
 
-        if out_file:
-            out_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(out_file, "w") as f:
-                for r in results:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_file, "w") as f:
+            for r in results:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
         if min_seconds:
             remaining = min_seconds - (time.time() - start)

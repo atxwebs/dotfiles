@@ -122,7 +122,6 @@ def read_cached(url):
 
 
 def crawl(url, total_urls):
-    start_time = time.time()
     cached = read_cached(url)
     if cached:
         print(cached)
@@ -131,32 +130,58 @@ def crawl(url, total_urls):
         return
 
     pw, browser, context, page = None, None, None, None
+    timed_out = False
     try:
         ws_url = ensure_daemon("about:blank")
         pw, browser, context, page = connect_cdp(ws_url)
 
         start_time = time.time()
-        page.goto(url, wait_until="load", timeout=30000)
-        elapsed = time.time() - start_time
-        print(f"[TIMING] {url}: {elapsed:.2f}s", file=sys.stderr)
-        title = page.evaluate("document.title")
-        jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
-        text = page.evaluate(EXTRACT_JS) or ""
+        try:
+            page.goto(url, wait_until="load", timeout=30000)
+        except Exception as nav_err:
+            err_msg = str(nav_err).lower()
+            if "timeout" in err_msg:
+                timed_out = True
+                print(f"[TIMEOUT] {url}: {nav_err}", file=sys.stderr)
+            else:
+                # Status error or other navigation failure - abort
+                log_blocked(url, f"navigation failed: {nav_err}")
+                print(f"[ERROR] {url}: {nav_err}")
+                return
 
+        elapsed = time.time() - start_time
+        print(f"[TIMING] {url}: {elapsed:.2f}s{' (timeout)' if timed_out else ''}", file=sys.stderr)
+
+        try:
+            title = page.evaluate("document.title") if not timed_out else url
+            jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
+            text = page.evaluate(EXTRACT_JS) or ""
+        except Exception as eval_err:
+            log_blocked(url, f"evaluation failed: {eval_err}")
+            print(f"[ERROR] {url}: {eval_err}")
+            return
+
+        # Check for Cloudflare challenge
         if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
             log_blocked(url, "cloudflare")
             print("[BLOCKED: cloudflare]")
             return
 
+        # Check if we got meaningful content
+        if not text or len(text.strip()) < 50:
+            log_blocked(url, "empty or insufficient content")
+            print(f"[ERROR] {url}: extracted only {len(text.strip())} chars")
+            return
+
         content = f"URL: {url}\n# {title}\n"
         if jsonld:
             content += f"\n## JSON-LD\n\n{jsonld}\n"
-        content += f"\n{text}"
+        content += f"\n{text}\n"
         print(content)
 
         p = output_path(url)
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(f"Source: {url}\n\n# {title}\n" + (f"\n## JSON-LD\n\n{jsonld}\n" if jsonld else "") + f"\n{text}\n")
+        p.write_text(content)
 
     except Exception as e:
         elapsed = time.time() - start_time
