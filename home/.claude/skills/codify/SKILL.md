@@ -28,11 +28,12 @@ Most invocations update. New skills are rare.
 
 ## Three levels of specificity
 
-| Level | Artifact | When |
-| ----- | -------- | ---- |
-| Text instructions | Prose in SKILL.md | Judgment calls, tone, branching on context |
-| Inline snippets | 1-2 line code blocks in SKILL.md | Short commands, parameters vary per invocation |
-| Scripts | `scripts/*.sh` (or `.py`/`.js`) | Stable logic, reused across sessions, complex pipelines |
+| Level             | Artifact                         | When                                                              |
+| ----------------- | -------------------------------- | ----------------------------------------------------------------- |
+| Text instructions | Prose in SKILL.md                | Judgment calls, tone, branching on context                        |
+| Inline snippets   | 1-2 line code blocks in SKILL.md | Short commands, parameters vary per invocation                    |
+| References        | `references/*.md`                | Long tables, env variants, notebooks — ~200+ lines or multi-topic |
+| Scripts           | `scripts/*.sh` (or `.py`/`.js`)  | Stable logic, reused across sessions, complex pipelines           |
 
 **Scripts:** start in Bash (terse, native shell access). Use `jq` inline for JSON—it keeps Bash clean and scales it further. Extract to `scripts/lib/*.jq` only when filters are bulky or reused across scripts. Migrate to `.js`/`.py` when logic outgrows Bash or you're inlining JS/Py inside it. Agent picks language. One bundle beats many ad-hoc calls; delete superseded wrappers.
 
@@ -86,6 +87,8 @@ Read full files only for skills you will change.
 
 **Consolidation check:** Can new script replace N ad-hoc calls? Shared lib instead of copy-paste? Lighter list script vs full bundle?
 
+**Split check:** ~200+ lines, multi-env/topic bloat, or user asks to slim → [skill-split](./references/skill-split.md). Single-topic checklists ~150 lines can stay whole.
+
 **Graduation check:** One-liner → script → skill glue. Don't create a new skill when extending an existing one suffices. Detail: [workflow-decomposition](./references/workflow-decomposition.md).
 
 ### 2. Report
@@ -124,6 +127,8 @@ Detail: [script-testing](./references/script-testing.md)
 | Deterministic automation | `scripts/`                         |
 | Shared jq/helpers        | `scripts/lib/`                     |
 | Long examples            | `references/*.md` (one level deep) |
+
+Split pattern: [skill-split.md](./references/skill-split.md).
 
 **Locations:** `~/.claude/skills/` (primary), `.claude/skills/` (project checkout).
 
