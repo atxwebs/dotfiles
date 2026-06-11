@@ -10,6 +10,8 @@ import sys, os, re, time
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Ensure sibling modules (browser_lib) are importable regardless of cwd
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp
 
 CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
