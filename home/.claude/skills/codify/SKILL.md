@@ -34,7 +34,7 @@ Most invocations update. New skills are rare.
 | Inline snippets | 1-2 line code blocks in SKILL.md | Short commands, parameters vary per invocation |
 | Scripts | `scripts/*.sh` (or `.py`/`.js`) | Stable logic, reused across sessions, complex pipelines |
 
-**Scripts:** shared `scripts/lib/*.jq`. One bundle script beats many ad-hoc calls. Extract shared libs; delete superseded wrappers.
+**Scripts:** start in Bash (terse, native shell access). Use `jq` inline for JSON—it keeps Bash clean and scales it further. Extract to `scripts/lib/*.jq` only when filters are bulky or reused across scripts. Migrate to `.js`/`.py` when logic outgrows Bash or you're inlining JS/Py inside it. Agent picks language. One bundle beats many ad-hoc calls; delete superseded wrappers.
 
 **Snippets:** `gh pr list --state open --json number,title`, `jq -c '.items[]'`. Keep inline when the command is short or the user/args change each time.
 
