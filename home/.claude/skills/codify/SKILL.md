@@ -1,38 +1,44 @@
 ---
-name: learn
-description: Read when the user asks to learn from a conversation, capture learnings, improve skills, or cement recurring work into scripts.
+name: codify
+description: Read when the user asks to codify a session, capture learnings, improve skills, or cement recurring work into scripts.
 ---
 
-# Learn from Conversation
+# Codify a Session
 
 ## Critical reminder
 
 Skills load into context. Be concise. Every word costs tokens.
 
-## What `/learn` means
+## Two modes
 
-Do not only hunt for user complaints. **Replay what you did in this session:**
+**Update existing skill:** `/codify /lint` or `/codify /aws` — polish, add scripts, refine rules in an existing skill.
+
+**Create new skill:** `/codify ~/.claude/skills/new-skill` — extract session learnings into a fresh skill at that path.
+
+Most invocations update. New skills are rare.
+
+## What `/codify` means
+
+**Replay what you did in this session:**
 
 1. Sequence of steps (commands, reads, branches)
 2. Which steps are **deterministic** vs need **judgment**
 3. What to cement as scripts vs what stays in SKILL.md
 4. What to remove (superseded scripts, duplicated logic)
 
-Most learnings update an **existing** skill. New skills are rare.
+## Three levels of specificity
 
-## Deterministic → scripts | Judgment → SKILL.md
+| Level | Artifact | When |
+| ----- | -------- | ---- |
+| Text instructions | Prose in SKILL.md | Judgment calls, tone, branching on context |
+| Inline snippets | 1-2 line code blocks in SKILL.md | Short commands, parameters vary per invocation |
+| Scripts | `scripts/*.sh` (or `.py`/`.js`) | Stable logic, reused across sessions, complex pipelines |
 
-| Deterministic (script)         | Judgment (skill glue)              |
-| ------------------------------ | ---------------------------------- |
-| Stable API calls, fixed flags  | When to run which script           |
-| Parse/merge into JSON          | Approve / skip / comment verdicts  |
-| Filters, counts, bot detection | User-facing wording and tone rules |
-| Read-only fetches              | Interpreting diff meaning          |
-| Idempotent transforms          | Branching on ambiguous risk        |
+**Scripts:** shared `scripts/lib/*.jq`. One bundle script beats many ad-hoc calls. Extract shared libs; delete superseded wrappers.
 
-**Scripts:** `scripts/*.sh` (or `.py`/`.js`), shared `scripts/lib/*.jq`. One bundle script beats many ad-hoc calls. Extract shared libs; delete superseded wrappers.
+**Snippets:** `gh pr list --state open --json number,title`, `jq -c '.items[]'`. Keep inline when the command is short or the user/args change each time.
 
-**SKILL.md:** when to invoke scripts, how to read output, NEVER rules, report format, explicit approval before mutations.
+**SKILL.md prose:** when to invoke scripts/snippets, NEVER rules, report format, explicit approval before mutations.
 
 Detail: [workflow-decomposition](./references/workflow-decomposition.md)
 
@@ -137,4 +143,4 @@ Slightly pushy phrasing helps under-triggering. After adding scripts, update WHE
 - One concern per script; compose in skill workflow
 - Delete superseded scripts when merged
 - Project-repo conventions → that repo's rules/docs; personal automation → `~/.claude/skills/`
-- Never encode domain rules in `learn` — teach the split, apply in target skill
+- Never encode domain rules in `codify` — teach the split, apply in target skill
