@@ -1,9 +1,3 @@
----
-name: new-convo
-description: Summarize conversation to start a new one
-disable-model-invocation: true
----
-
 # Summarize conversation to start a new one
 
 We'll start a new chat, so you will lose context.

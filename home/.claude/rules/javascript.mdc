@@ -1,6 +1,7 @@
 ---
-name: javascript
-description: Read when working with *.js files
+description: General rules for all JavaScript files
+globs: *.js
+alwaysApply: false
 ---
 
 # JavaScript Rules

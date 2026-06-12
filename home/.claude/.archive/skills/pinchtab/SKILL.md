@@ -1,69 +1,37 @@
 ---
 name: pinchtab
-description: Browser automation for LLMs via PinchTab. Use when controlling a browser, automating form fills, or building web-scraping tools.
+description: Use to crawl websites without needing stealth mode (use camoufox-cli for anti-detect)
 ---
 
-# Pinchtab
+# PinchTab
 
-Browser control for AI agents. HTTP API + CLI. 12MB Go binary, token-efficient text extraction.
+Browser automation CLI. 12MB Go binary, uses real Chrome.
 
-## Install from scratch
+## Server
 
-```bash
-curl -fsSL https://pinchtab.com/install.sh | bash
-```
+Install and run as a background service: `pinchtab daemon install && pinchtab daemon start`
 
-Linux amd64: binary may be `pinchtab-linux-amd64` while CLI expects `x64`. Set:
-```bash
-export PINCHTAB_BINARY_PATH=~/.pinchtab/bin/0.7.6/pinchtab-linux-amd64
-```
-
-Chrome profile permission issues:
-```bash
-export BRIDGE_PROFILE=/tmp/pinchtab-profile
-export BRIDGE_NO_RESTORE=true
-```
-
-## CLI (server must be running)
+## Crawl
 
 ```bash
-pinchtab                          # start server (port 9867)
-pinchtab nav https://example.com   # navigate
-pinchtab snap -i -c               # snapshot (interactive, compact)
-pinchtab fill e12 "query"          # fill by ref
-pinchtab click e16                 # click by ref
-pinchtab press Enter               # press key
-pinchtab text                      # extract page text
+~/.claude/skills/pinchtab/scripts/crawl.sh <url1> [url2] ...
 ```
 
-Refs (e0, e1, …) come from snapshot. Invalidated after navigate — snapshot again.
+Strips noise (scripts, styles, nav, ads, hidden elements), unwraps links inline, and returns clean text. Uses the default profile (persisted logins). Output saved to `PINCHTAB_CRAWL_OUTPUT_DIR` if set.
 
-## Integration
+## Page Interaction
 
-`src/integrations/pinchtab.ts` — `pinchtab` object:
+Read [references/interaction.md](references/interaction.md) when you need to click, fill forms, or interact with page elements.
 
-- `navigate(url)`, `snapshot(opts)`, `click(ref)`, `fill(ref, text)`, `press(key)`, `text()`
-- `startServer()`, `stopServer()` — lifecycle (start skips if already up)
-- `eval(expression)` — JS in page (e.g. `form.submit()` when click fails)
+## Key Concepts
 
-Env: `PINCHTAB_URL`, `PINCHTAB_BINARY_PATH`, `BRIDGE_PROFILE`
+- **Profiles** store cookies, sessions, local storage. Default profile at `~/.pinchtab/profiles/default/`.
+- **Sessions** are CLI auth tokens for tab context. Created with `pinchtab session create --agent-id <id>`.
+- Always create a session before browser commands: `export PINCHTAB_SESSION=$(pinchtab session create --agent-id myagent)`
 
-## Tools
+## Reference
 
-`src/tools/browser/*.ts`: `browserNavigate`, `browserSnapshot`, `browserFill`, `browserClick`, `browserPress`, `browserText`, `browserEval`, `browserStartServer`, `browserStopServer`
-
-Session: `src/sessions/browserSearch.ts` — search via form (DDG/Google).
-
-## Shutdown (ensure browser is off at end)
-
-Sessions must call `browserStopServer` when done. If pinchtab was started manually, kill it:
-
-```bash
-pkill -9 -f pinchtab
-# verify: curl -s http://localhost:9867/health  (should fail)
-```
-
-## Caveats
-
-- Google: click "Buscar con Google" can open image-upload UI; use `browserEval` + `form.submit()` fallback
-- DuckDuckGo: Search button (e80) often disabled; use eval fallback
+- [Interaction](references/interaction.md)
+- [Snapshot Refs](references/snapshot-refs.md)
+- [Commands](references/commands.md)
+- [Profiles](references/profiles.md)
