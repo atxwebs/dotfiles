@@ -39,7 +39,7 @@ Most invocations update. New skills are rare.
 
 **Snippets:** `gh pr list --state open --json number,title`, `jq -c '.items[]'`. Keep inline when the command is short or the user/args change each time.
 
-**SKILL.md prose:** when to invoke scripts/snippets, NEVER rules, report format, explicit approval before mutations.
+**SKILL.md prose:** when to invoke scripts/snippets, NEVER rules, report format. Mutating target-skill scripts need `--dry-run` or explicit user OK — not a codify gate on every edit.
 
 Detail: [workflow-decomposition](./references/workflow-decomposition.md)
 
@@ -53,7 +53,11 @@ When structured output helps the agent (not required when plain text is natural)
 
 ## Workflow
 
-### 1. Assess (do not edit yet)
+**Agile default:** low-risk skill polish (wording, wiring, snippets, read-only scripts) → assess and **execute in one turn**. No proposal essay.
+
+**Pause first** only for: new skills, destructive/mutating scripts, large splits, or genuinely unclear scope.
+
+### 1. Assess
 
 **Session replay**
 
@@ -91,23 +95,30 @@ Read full files only for skills you will change.
 
 **Graduation check:** One-liner → script → skill glue. Don't create a new skill when extending an existing one suffices. Detail: [workflow-decomposition](./references/workflow-decomposition.md).
 
-### 2. Report
+### 2. Report (brief)
 
-- Skills to update (and why)
-- New scripts: name, replaces what, sample invocation
-- SKILL.md deltas: rules/wiring only (not re-documenting JSON fields)
-- Artifacts to remove
-- **Test plan** per new/changed script
+**Max ~8 bullets or one short paragraph.** User should not read a book.
 
-Wait for user approval.
+Format: `skill → change` lines only. Example:
 
-### 3. Execute (after approval)
+```
+testing: post-publish verify snippet (mongo + jq + curl)
+codify: agile execute, shorter report
+skip: new script — ad-hoc jq was enough
+```
+
+Include test plan only for new/changed scripts (one line each).
+
+**Wait for approval** only when pause triggers above apply. Otherwise go to step 3 immediately.
+
+### 3. Execute
 
 - Minimal edits; match existing skill style
 - Add scripts + update SKILL script table
 - Run script tests before marking done
 - New skill only if user asked or nothing fits: read `~/.claude/skills-cursor/create-skill/SKILL.md`
 - Rewrite skill **`description`** only if trigger scenarios changed (see below)
+- Tell user what landed in **3–5 lines** — not a recap of the whole session
 
 ## Script testing (required)
 
