@@ -73,9 +73,10 @@ def main():
 
         pw, browser, context, pw_page = None, None, None, None
         try:
-            ws_url = ensure_daemon(ddg_url)
+            ws_url = ensure_daemon("about:blank")
             pw, browser, context, pw_page = connect_cdp(ws_url)
 
+            pw_page.goto(ddg_url, wait_until="load", timeout=30000)
             pw_page.wait_for_load_state("networkidle")
             raw = pw_page.evaluate(EXTRACT_JS)
 
@@ -89,7 +90,7 @@ def main():
             results = []
         finally:
             if pw:
-                disconnect_cdp(pw, browser)
+                disconnect_cdp(pw, browser, pw_page)
 
         out_file.parent.mkdir(parents=True, exist_ok=True)
         with open(out_file, "w") as f:

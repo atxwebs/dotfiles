@@ -27,7 +27,7 @@ def main():
 
     pw, browser, context, page = None, None, None, None
     try:
-        ws_url = ensure_daemon(args.url)
+        ws_url = ensure_daemon("about:blank")
         pw, browser, context, page = connect_cdp(ws_url)
 
         page.goto(args.url, wait_until="networkidle", timeout=30000)
@@ -52,7 +52,7 @@ def main():
 
     finally:
         if pw:
-            disconnect_cdp(pw, browser)
+            disconnect_cdp(pw, browser, page)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Crawl URLs with agent-browser daemon + Playwright CDP + CloakBrowser humanize.
 
-Tab-per-call model:
-  - First call spawns the daemon (~600MB), reuses it on subsequent calls
-  - Each URL gets a Playwright page connected via CDP with humanize patches
+Single-tab model:
+  - One daemon + one Playwright tab for all URLs in a run
+  - Sequential page.goto() per URL on the same tab
   - Daemon auto-shutdowns after idle (AGENT_BROWSER_IDLE_TIMEOUT_MS)
 """
 import sys, os, re, time
@@ -123,21 +123,10 @@ def read_cached(url):
     return None
 
 
-def crawl(url, total_urls):
-    cached = read_cached(url)
-    if cached:
-        print(cached)
-        if total_urls > 1:
-            print("\n---END---")
-        return
-
-    pw, browser, context, page = None, None, None, None
+def crawl_url(page, url):
     timed_out = False
+    start_time = time.time()
     try:
-        ws_url = ensure_daemon("about:blank")
-        pw, browser, context, page = connect_cdp(ws_url)
-
-        start_time = time.time()
         try:
             page.goto(url, wait_until="load", timeout=30000)
         except Exception as nav_err:
@@ -146,7 +135,6 @@ def crawl(url, total_urls):
                 timed_out = True
                 print(f"[TIMEOUT] {url}: {nav_err}", file=sys.stderr)
             else:
-                # Status error or other navigation failure - abort
                 log_blocked(url, f"navigation failed: {nav_err}")
                 print(f"[ERROR] {url}: {nav_err}")
                 return
@@ -163,13 +151,11 @@ def crawl(url, total_urls):
             print(f"[ERROR] {url}: {eval_err}")
             return
 
-        # Check for Cloudflare challenge
         if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
             log_blocked(url, "cloudflare")
             print("[BLOCKED: cloudflare]")
             return
 
-        # Check if we got meaningful content
         if not text or len(text.strip()) < 50:
             log_blocked(url, "empty or insufficient content")
             print(f"[ERROR] {url}: extracted only {len(text.strip())} chars")
@@ -190,12 +176,6 @@ def crawl(url, total_urls):
         print(f"[TIMING] {url}: {elapsed:.2f}s (FAILED)", file=sys.stderr)
         print(f"[ERROR] {url}: {e}")
         log_blocked(url, f"exception: {e}")
-    finally:
-        if pw:
-            disconnect_cdp(pw, browser)
-
-    if total_urls > 1:
-        print("\n---END---")
 
 
 def main():
@@ -205,8 +185,24 @@ def main():
         sys.exit(1)
 
     init_blocked_log()
-    for u in urls:
-        crawl(u, len(urls))
+    total = len(urls)
+    pw, browser, page = None, None, None
+
+    try:
+        for u in urls:
+            cached = read_cached(u)
+            if cached:
+                print(cached)
+            else:
+                if pw is None:
+                    ws_url = ensure_daemon("about:blank")
+                    pw, browser, _, page = connect_cdp(ws_url)
+                crawl_url(page, u)
+            if total > 1:
+                print("\n---END---")
+    finally:
+        if pw:
+            disconnect_cdp(pw, browser, page)
 
 
 if __name__ == "__main__":

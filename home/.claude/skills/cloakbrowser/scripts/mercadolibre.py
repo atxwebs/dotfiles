@@ -175,7 +175,7 @@ def main():
         sys.exit(1)
     finally:
         if pw:
-            disconnect_cdp(pw, browser)
+            disconnect_cdp(pw, browser, page)
 
     # Save output
     date_dir = datetime.now().strftime("%Y-%m-%d")

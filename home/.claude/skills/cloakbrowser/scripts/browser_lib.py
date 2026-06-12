@@ -3,7 +3,7 @@
 All cloakbrowser scripts should use this. Provides:
   - ensure_daemon(url)      → Start agent-browser daemon with CloakBrowser, return CDP WebSocket URL
   - connect_cdp(ws_url)     → Connect Playwright, apply humanize patches, return (pw, browser, context, page)
-  - disconnect_cdp(pw, br)  → Cleanly disconnect Playwright; daemon keeps browser alive
+  - disconnect_cdp(pw, br, page) → Close tab, disconnect Playwright; daemon stays alive
   - idle(sec)               → Human-like pause with micro-movement between actions
   - CLOAK_BIN               → Resolved CloakBrowser binary path
 """
@@ -55,11 +55,15 @@ def ensure_daemon(url: str) -> str:
 # ─── CDP connection ─────────────────────────────────────────────────────────
 
 def connect_cdp(ws_url: str, idle_delays: bool = False, block: bool = True):
-    """Connect Playwright to CDP, apply humanize patches, return (pw, browser, context, page)."""
+    """Connect Playwright to CDP, create a fresh page, apply humanize patches.
+
+    Always creates a new page (tab) so concurrent callers don't share state.
+    Returns (pw, browser, context, page).
+    """
     pw = sync_playwright().start()
     browser = pw.chromium.connect_over_cdp(ws_url)
     context = browser.contexts[0]
-    page = context.pages[-1] if context.pages else context.new_page()
+    page = context.new_page()
     cfg = resolve_config("default", {"idle_between_actions": idle_delays})
     patch_browser(browser, cfg)
 
@@ -74,12 +78,13 @@ def connect_cdp(ws_url: str, idle_delays: bool = False, block: bool = True):
     return pw, browser, context, page
 
 
-def disconnect_cdp(pw, browser):
-    """Cleanly disconnect Playwright; daemon keeps browser alive for idle timeout."""
-    try:
-        browser.close()
-    except Exception:
-        pass
+def disconnect_cdp(pw, browser, page=None):
+    """Close the page/tab, disconnect Playwright. Daemon stays alive for idle timeout."""
+    if page:
+        try:
+            page.close()
+        except Exception:
+            pass
     try:
         pw.stop()
     except Exception:
