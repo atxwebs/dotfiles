@@ -72,6 +72,7 @@ def main():
             start = time.time()
 
         pw, browser, context, pw_page = None, None, None, None
+        had_error = False
         try:
             ws_url = ensure_daemon("about:blank")
             pw, browser, context, pw_page = connect_cdp(ws_url)
@@ -83,19 +84,22 @@ def main():
             try:
                 results = raw if isinstance(raw, list) else json.loads(raw)
             except (json.JSONDecodeError, TypeError):
+                had_error = True
                 results = []
 
         except Exception as e:
             print(f"[ERROR] {e}", file=sys.stderr)
+            had_error = True
             results = []
         finally:
             if pw:
                 disconnect_cdp(pw, browser, pw_page)
 
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(out_file, "w") as f:
-            for r in results:
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        if not had_error:
+            out_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(out_file, "w") as f:
+                for r in results:
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
         if min_seconds:
             remaining = min_seconds - (time.time() - start)

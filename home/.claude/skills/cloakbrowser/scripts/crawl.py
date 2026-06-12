@@ -156,9 +156,9 @@ def crawl_url(page, url):
             print("[BLOCKED: cloudflare]")
             return
 
-        if not text or len(text.strip()) < 50:
-            log_blocked(url, "empty or insufficient content")
-            print(f"[ERROR] {url}: extracted only {len(text.strip())} chars")
+        if not text:
+            log_blocked(url, "empty content")
+            print(f"[ERROR] {url}: no content extracted")
             return
 
         content = f"URL: {url}\n# {title}\n"
