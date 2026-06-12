@@ -160,3 +160,4 @@ Slightly pushy phrasing helps under-triggering. After adding scripts, update WHE
 - Delete superseded scripts when merged
 - Project-repo conventions → that repo's rules/docs; personal automation → `~/.claude/skills/`
 - Never encode domain rules in `codify` — teach the split, apply in target skill
+- **NEVER** pad markdown tables for column alignment — `| --- |` separators only

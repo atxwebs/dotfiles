@@ -2,15 +2,15 @@
 
 Example session (review triage):
 
-| Step                     | Level              | Artifact               |
-| ------------------------ | ------------------ | ---------------------- |
-| List pending items       | Script             | `list-candidates.sh`   |
-| Per-item stats / filters | Script (lib)       | `lib/stats.jq`         |
-| Bot vs human signals     | Script (lib)       | `lib/classify.jq`      |
-| Bundle fetches           | Script             | `assess.sh`            |
-| Fetch raw diff           | Snippet            | `gh pr view $NUM`      |
-| Verdict / comment text   | Text instructions  | SKILL.md rules         |
-| Post / mutate remote     | Script + approval  | `--dry-run` + user OK  |
+| Step                     | Level             | Artifact              |
+| ------------------------ | ----------------- | --------------------- |
+| List pending items       | Script            | `list-candidates.sh`  |
+| Per-item stats / filters | Script (lib)      | `lib/stats.jq`        |
+| Bot vs human signals     | Script (lib)      | `lib/classify.jq`     |
+| Bundle fetches           | Script            | `assess.sh`           |
+| Fetch raw diff           | Snippet           | `gh pr view $NUM`     |
+| Verdict / comment text   | Text instructions | SKILL.md rules        |
+| Post / mutate remote     | Script + approval | `--dry-run` + user OK |
 
 ## Graduation ladder
 
@@ -26,18 +26,21 @@ Prefer extending an existing skill over creating a new one.
 ## When to use each level
 
 **Text instructions (prose in SKILL.md):**
+
 - Heuristics with exceptions ("usually approve unless…")
 - NEVER lists (tone, approval gates)
 - Mapping script output → user-facing report
 - Choosing lighter list script vs full bundle
 
 **Inline snippets (1-2 line code blocks):**
+
 - Short commands where args change each invocation
 - `gh pr list --state open --json number,title`
 - `jq -c '.items[]'`
 - One-liners that don't warrant a script file
 
 **Scripts (`scripts/*.sh` or `.py`):**
+
 - Same calls every time with stable structured output
 - Logic duplicated across sessions or ad-hoc blocks
 - Classification rules that never need context (allowlists, path globs)
