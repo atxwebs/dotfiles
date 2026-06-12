@@ -2,12 +2,12 @@
 
 # Universal script to restore Git remotes and npm dependencies for all project directories
 # Works by auto-detecting repository URLs from package.json or using a provided base URL
-# Usage: ./universal-restore-projects.sh [--dry-run] [--remote-base <base-url>]
+# Usage: ./restore-projects.sh [--dry-run] [--remote-base <base-url>]
 #
 # Examples:
-#   ./universal-restore-projects.sh --dry-run
-#   ./universal-restore-projects.sh --remote-base git@github.com:mfdtrade
-#   ./universal-restore-projects.sh --remote-base https://github.com/myuser
+#   ./restore-projects.sh --dry-run
+#   ./restore-projects.sh --remote-base git@github.com:mfdtrade
+#   ./restore-projects.sh --remote-base https://github.com/myuser
 
 # set -e  # Exit on any error - disabled for robustness during NVM/npm operations
 

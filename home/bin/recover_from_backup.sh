@@ -15,8 +15,11 @@ NC='\033[0m' # No Color
 
 # Configuration (same as your existing backup)
 BORG_REPO="ssh://pi@pi.local/mnt/ssd/backups/casius"
-# TODO: Update with the one we want
-ARCHIVE_NAME="Casius-flesler-2025-07-29T18:26:18"
+if [[ -z "${ARCHIVE_NAME:-}" ]]; then
+    echo "Error: ARCHIVE_NAME environment variable is required" >&2
+    echo "Usage: ARCHIVE_NAME=<archive-name> $0" >&2
+    exit 1
+fi
 #export BORG_PASSPHRASE='...'
 
 # Command line options
