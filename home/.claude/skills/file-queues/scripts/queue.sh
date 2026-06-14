@@ -8,12 +8,11 @@ set -euo pipefail
 
 CMD="${1:-}"
 QUEUE_PATH="${2:-}"
-DATA="${3:-}"
 
-if [ -z "$QUEUES_ROOT" ]; then
-  echo "Error: QUEUES_ROOT not set" >&2
-  exit 1
-fi
+# Shift past command and queue-path so remaining args are data items
+shift 2 2>/dev/null || true
+
+QUEUES_ROOT="${QUEUES_ROOT:-.}"
 
 if [ -z "$CMD" ] || [ -z "$QUEUE_PATH" ]; then
   echo "Usage: queue.sh <add|peek|next|count> <queue-path> [data]"
@@ -29,8 +28,20 @@ mkdir -p "$QUEUE_DIR"
 
 case "$CMD" in
   add)
-    if [ -z "$DATA" ]; then
-      echo "Error: add requires data argument"
+    # Collect data from args or stdin
+    ITEMS=()
+    if [ $# -gt 0 ]; then
+      # Multiple args mode
+      ITEMS=("$@")
+    elif [ ! -t 0 ]; then
+      # Stdin mode (pipe or heredoc)
+      while IFS= read -r line; do
+        [ -n "$line" ] && ITEMS+=("$line")
+      done
+    fi
+    
+    if [ ${#ITEMS[@]} -eq 0 ]; then
+      echo "Error: add requires data (args or stdin)"
       exit 1
     fi
     
@@ -38,10 +49,14 @@ case "$CMD" in
     if command -v flock >/dev/null 2>&1; then
       (
         flock -x 200
-        printf '%s\n' "$DATA" >> "$QUEUE_FILE"
+        for item in "${ITEMS[@]}"; do
+          printf '%s\n' "$item" >> "$QUEUE_FILE"
+        done
       ) 200>"$LOCK_FILE"
     else
-      printf '%s\n' "$DATA" >> "$QUEUE_FILE"
+      for item in "${ITEMS[@]}"; do
+        printf '%s\n' "$item" >> "$QUEUE_FILE"
+      done
     fi
     ;;
     

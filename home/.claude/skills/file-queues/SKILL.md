@@ -4,15 +4,29 @@ File-based queue system for managing work items across multiple agents.
 
 ## Usage
 
-Set `QUEUES_ROOT` to your queue directory, then call the script:
+`QUEUES_ROOT` defaults to current directory if not set. Queue paths are relative to `QUEUES_ROOT`:
 
 ```bash
-QUEUES_ROOT=inputs/queues ~/.claude/skills/file-queues/scripts/queue.sh add prospects/US/Veterinary '{"name":"Dr. Smith","source":"https://example.com"}'
+# Single item
+~/.claude/skills/file-queues/scripts/queue.sh add prospects/US/Veterinary '{"name":"Dr. Smith"}'
+
+# Multiple items as arguments
+~/.claude/skills/file-queues/scripts/queue.sh add prospects/US/Veterinary '{"name":"Dr. A"}' '{"name":"Dr. B"}'
+
+# Multiple items via stdin
+echo '{"name":"Dr. A"}
+{"name":"Dr. B"}' | ~/.claude/skills/file-queues/scripts/queue.sh add prospects/US/Veterinary
+
+# Multiple items via heredoc
+~/.claude/skills/file-queues/scripts/queue.sh add prospects/US/Veterinary <<EOF
+{"name":"Dr. A"}
+{"name":"Dr. B"}
+EOF
 ```
 
 ## Commands
 
-- `add <path> <json>` - Add item to queue (FIFO)
+- `add <path> [json...]` - Add item(s) to queue (FIFO). Accepts multiple arguments or stdin.
 - `next <path>` - Get and remove next item from queue
 - `peek <path>` - View next item without removing it
 - `count <path>` - Count items in queue
