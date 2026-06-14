@@ -1,3 +1,8 @@
+---
+name: file-queues
+description: Read when managing JSONL file-based work queues across agents.
+---
+
 # File Queues
 
 File-based queue system for managing work items across multiple agents.

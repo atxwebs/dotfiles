@@ -34,7 +34,7 @@ fi
 ENDPOINT="repos/$REPO/pulls/$PR_NUMBER/comments"
 
 # Clean body: strip Cursor links, bug IDs, and normalize whitespace
-CLEAN_BODY="(.body | gsub(\"<p><a[^>]*>.*?</a>.*?</p>\"; \"\") | gsub(\"<picture>.*?</picture>\"; \"\") | gsub(\"<!-- BUGBOT_BUG_ID:[^>]*-->\"; \"\") | gsub(\"&nbsp;\"; \" \") | gsub(\"\\\\s+\"; \" \") | trim)"
+CLEAN_BODY="(.body | gsub(\"<p><a[^>]*>.*?</a>.*?</p>\"; \"\") | gsub(\"<picture>.*?</picture>\"; \"\") | gsub(\"<!-- BUGBOT_BUG_ID:[^>]*-->\"; \"\") | gsub(\"&nbsp;\"; \" \") | gsub(\"\\\\s+\"; \" \") | gsub(\"^\\\\s+|\\\\s+$\"; \"\"))"
 
 # Build jq expression based on whether we're filtering for Cursor bot
 if [ "$FILTER_CURSOR" = "--cursor-only" ]; then

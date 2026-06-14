@@ -1,6 +1,6 @@
 ---
 name: llamacpp
-description: When working with llama.cpp (serve
+description: Read when working with llama.cpp server, local GGUF models, or Hugging Face downloads.
 ---
 
 # llama.cpp
