@@ -8,6 +8,7 @@ set -euo pipefail
 
 CMD="${1:-}"
 QUEUE_PATH="${2:-}"
+COUNT="${3:-1}"
 
 # Shift past command and queue-path so remaining args are data items
 shift 2 2>/dev/null || true
@@ -15,8 +16,9 @@ shift 2 2>/dev/null || true
 QUEUES_ROOT="${QUEUES_ROOT:-.}"
 
 if [ -z "$CMD" ] || [ -z "$QUEUE_PATH" ]; then
-  echo "Usage: queue.sh <add|peek|next|count> <queue-path> [data]"
+  echo "Usage: queue.sh <add|peek|next|count|dump> <queue-path> [count|data...]"
   echo "Example: queue.sh add prospects/US/Veterinary '{\"name\":\"Dr Smith\"}'"
+  echo "Example: queue.sh next prospects/US/Veterinary 3"
   exit 1
 fi
 
@@ -64,7 +66,7 @@ case "$CMD" in
     if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
       exit 1
     fi
-    head -n 1 "$QUEUE_FILE"
+    head -n "$COUNT" "$QUEUE_FILE"
     ;;
     
   next)
@@ -75,13 +77,13 @@ case "$CMD" in
     if command -v flock >/dev/null 2>&1; then
       (
         flock -x 200
-        head -n 1 "$QUEUE_FILE"
-        tail -n +2 "$QUEUE_FILE" > "$QUEUE_FILE.tmp"
+        head -n "$COUNT" "$QUEUE_FILE"
+        tail -n "+$((COUNT + 1))" "$QUEUE_FILE" > "$QUEUE_FILE.tmp"
         mv "$QUEUE_FILE.tmp" "$QUEUE_FILE"
       ) 200>"$LOCK_FILE"
     else
-      head -n 1 "$QUEUE_FILE"
-      tail -n +2 "$QUEUE_FILE" > "$QUEUE_FILE.tmp"
+      head -n "$COUNT" "$QUEUE_FILE"
+      tail -n "+$((COUNT + 1))" "$QUEUE_FILE" > "$QUEUE_FILE.tmp"
       mv "$QUEUE_FILE.tmp" "$QUEUE_FILE"
     fi
     ;;
