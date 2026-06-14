@@ -1,6 +1,8 @@
 # CloakBrowser Usage Reference
 
-Detailed patterns, gotchas, and snippets for using agent-browser with the CloakBrowser binary ad-hoc.
+**What we do and why:** [stealth.md](./stealth.md) (source-linked).
+
+This file: agent-browser CLI gotchas, batch patterns, CDP wiring. Scripts use `browser_lib.py` — don't copy stale args from below.
 
 ## Setup
 
@@ -29,25 +31,24 @@ agent-browser close
 # WRONG -- gets split into 3 args, last two become URLs
 --args "--blink-settings=imagesEnabled=false,cssImagesEnabled=false"
 
-# CORRECT -- each flag is its own --args entry (no commas inside values)
---args "--disable-blink-features=AutomationControlled" --args "--no-first-run"
-
 # CORRECT -- comma-join flags that DON'T contain internal commas
---args "--disable-blink-features=AutomationControlled,--no-first-run,--no-default-browser-check"
-
-# CORRECT -- put --blink-settings in the same comma-joined list
---args "--disable-blink-features=AutomationControlled,--blink-settings=imagesEnabled=false"
+--args "--no-sandbox,--fingerprint=12345"
 ```
 
 **Note**: `cssImagesEnabled=false` is redundant with `imagesEnabled=false` (which blocks all images including CSS backgrounds). Use only `imagesEnabled=false`.
 
-## Stealth Args (Recommended)
+## Stealth args
+
+Use library defaults — do not hand-roll blink flags:
 
 ```bash
-ARGS="--disable-blink-features=AutomationControlled,--no-first-run,--no-default-browser-check,--disable-infobars,--blink-settings=imagesEnabled=false"
-
-agent-browser --executable-path "$CLOAK_BIN" --args "$ARGS" open https://example.com
+# Official integration pattern (comma-joined for agent-browser)
+STEALTH_ARGS=$(python3 -c "from cloakbrowser.config import get_default_stealth_args; print(','.join(get_default_stealth_args()))")
+export AGENT_BROWSER_EXECUTABLE_PATH="$CLOAK_BIN"
+export AGENT_BROWSER_ARGS="$STEALTH_ARGS"
 ```
+
+`browser_lib.daemon_args()` does this via `build_args()` plus a time-based `--fingerprint` override. On Linux, `--fingerprint-platform=windows` is expected — see [stealth.md](./stealth.md).
 
 ## Daemon Persistence
 
@@ -96,27 +97,14 @@ echo '[["open","https://example.com"],["eval","document.title"],["click","#btn"]
   | agent-browser --executable-path "$CLOAK_BIN" --args "$ARGS" batch --json
 ```
 
-**Python helper pattern** (used in crawl.py and ddg-search.py):
+**Python helper pattern** — prefer `browser_lib.ensure_daemon()` + `connect_cdp()`. Legacy batch-only sketch:
 
 ```python
+# Use daemon_args() from browser_lib — not hand-rolled blink flags
+from browser_lib import daemon_args, CLOAK_BIN
+
 def _cmd():
-    return [
-        "agent-browser",
-        "--executable-path", CLOAK_BIN,
-        "--args", "--disable-blink-features=AutomationControlled,--no-first-run,--no-default-browser-check,--disable-infobars,--blink-settings=imagesEnabled=false",
-    ]
-
-def ab(*args, **kwargs):
-    env = {**os.environ, "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"}
-    return subprocess.run(_cmd() + list(args), capture_output=True, text=True, env=env, **kwargs)
-
-def ab_batch(*cmds, **kwargs):
-    env = {**os.environ, "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"}
-    return subprocess.run(
-        _cmd() + ["batch", "--json"],
-        input=json.dumps([list(c) for c in cmds]),
-        capture_output=True, text=True, env=env, **kwargs,
-    )
+    return ["agent-browser", "--executable-path", CLOAK_BIN, "--args", daemon_args()]
 ```
 
 ### Batch Output Structure
@@ -342,65 +330,25 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
 
 ## Python CDP Integration (Daemon-First)
 
-Connect Playwright to the agent-browser daemon for programmatic control while preserving the daemon lifecycle (idle timeout, RAM management).
+Scripts use `browser_lib` — see `custom.py`, `crawl.py`, `ddg-search.py`.
 
 ### Setup
 
 ```bash
-# Export these so agent-browser launches CloakBrowser with stealth patches
-export AGENT_BROWSER_EXECUTABLE_PATH=~/.cloakbrowser/chromium-146.0.7680.177.5/chrome
-export AGENT_BROWSER_ARGS="--no-sandbox,--fingerprint=12345,--fingerprint-platform=windows"
-```
-
-### Script Pattern
-
-```bash
-~/.claude/skills/cloakbrowser/scripts/custom.py <url>              # Open URL, print title + text
-~/.claude/skills/cloakbrowser/scripts/custom.py <url> --eval <js>  # Run JS and print result
-~/.claude/skills/cloakbrowser/scripts/custom.py <url> --snapshot   # Print accessibility snapshot
-~/.claude/skills/cloakbrowser/scripts/custom.py <url> --html       # Print page HTML
+# browser_lib sets these via ensure_daemon() — get_default_stealth_args() per agent_browser.sh
+~/.claude/skills/cloakbrowser/scripts/custom.py https://example.com
 ```
 
 ### Manual Pattern
 
 ```python
-import subprocess, os
-from playwright.sync_api import sync_playwright
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp
 
-# Ensure daemon uses CloakBrowser
-os.environ["AGENT_BROWSER_IDLE_TIMEOUT_MS"] = "300000"
-os.environ["AGENT_BROWSER_EXECUTABLE_PATH"] = "~/.cloakbrowser/chromium-*/chrome"
-os.environ["AGENT_BROWSER_ARGS"] = "--no-sandbox,--fingerprint=12345,--fingerprint-platform=windows"
-
-# 1. Start daemon (first command spawns it)
-subprocess.run(["agent-browser", "open", "https://example.com"], capture_output=True)
-
-# 2. Get CDP WebSocket URL
-ws_url = subprocess.run(["agent-browser", "get", "cdp-url"],
-                       capture_output=True, text=True).stdout.strip()
-
-# 3. Connect Playwright to daemon's browser
-pw = sync_playwright().start()
-browser = pw.chromium.connect_over_cdp(ws_url)
-context = browser.contexts[0]
-page = context.pages[0]
-
-# 4. Use full Playwright API
-page.goto("https://target-site.com")
+ws_url = ensure_daemon("about:blank")
+pw, browser, context, page = connect_cdp(ws_url)  # humanize on by default
+page.goto("https://example.com")
 print(page.title())
-
-# 5. Apply humanize patches (optional)
-from cloakbrowser.human import patch_browser, resolve_config
-cfg = resolve_config("default")
-patch_browser(browser, cfg)
-# Now page.click(), page.type(), page.fill() use human-like behavior
-
-# 6. Agent-browser can still operate independently
-subprocess.run(["agent-browser", "snapshot"], capture_output=True)
-
-# 7. Disconnect — daemon keeps browser alive, auto-shutdowns after idle
-browser.close()
-pw.stop()
+disconnect_cdp(pw, browser, page)
 ```
 
 ### Key Points
@@ -412,9 +360,9 @@ pw.stop()
 
 ### Limitations
 
-- **Stealth patches active** — All C++ fingerprint patches work automatically over CDP (GPU, screen, WebGL, canvas, etc.)
-- **`humanize` available over CDP** — Use `from cloakbrowser.human import patch_browser, resolve_config; patch_browser(browser, resolve_config("default"))` after connecting. See example below.
-- **Viewport may need manual set** — Headless CDP sometimes doesn't report viewport; set with `page.set_viewport_size({"width": 1280, "height": 720})` if humanize fails with "Viewport size not available"
+- **Stealth patches** — C++ patches active over CDP automatically
+- **humanize** — `browser_lib.connect_cdp()` applies `patch_browser()` by default ([README](https://github.com/CloakHQ/CloakBrowser#humanize))
+- **Viewport** — only set when CDP reports none ([stealth.md](./stealth.md))
 
 ## Gotchas Summary
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 # Ensure sibling modules (browser_lib) are importable regardless of cwd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, is_challenge_page, wait_for_challenge
 
 CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
 
@@ -129,6 +129,12 @@ def crawl_url(page, url):
     try:
         try:
             page.goto(url, wait_until="load", timeout=30000)
+            if not wait_for_challenge(page):
+                text = page.evaluate("document.body?.innerText || ''") or ""
+                if is_challenge_page(text):
+                    log_blocked(url, "cloudflare")
+                    print("[BLOCKED: cloudflare]")
+                    return
         except Exception as nav_err:
             err_msg = str(nav_err).lower()
             if "timeout" in err_msg:
@@ -151,7 +157,7 @@ def crawl_url(page, url):
             print(f"[ERROR] {url}: {eval_err}")
             return
 
-        if "just a moment" in text.lower() or ("cloudflare" in text.lower() and len(text) < 500):
+        if is_challenge_page(text):
             log_blocked(url, "cloudflare")
             print("[BLOCKED: cloudflare]")
             return

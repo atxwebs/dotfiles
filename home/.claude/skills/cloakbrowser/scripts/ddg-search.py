@@ -13,7 +13,7 @@ from urllib.parse import quote
 
 # Ensure sibling modules (browser_lib) are importable regardless of cwd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, wait_for_challenge
 
 EXTRACT_JS = r"""
 (() => {
@@ -78,6 +78,7 @@ def main():
             pw, browser, context, pw_page = connect_cdp(ws_url)
 
             pw_page.goto(ddg_url, wait_until="load", timeout=30000)
+            wait_for_challenge(pw_page, timeout=30)
             pw_page.wait_for_load_state("networkidle")
             raw = pw_page.evaluate(EXTRACT_JS)
 
