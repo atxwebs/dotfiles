@@ -19,6 +19,8 @@ Available CLI tools, use when suitable:
 - yq (YAML processor)
 - claude (Claude CLI)
 
+Verify all listed tools: `~/.claude/skills/installed-clis/scripts/which-all.sh` (parses this file, runs `command -v` each).
+
 ## Working on JSON, CSV, TSV
 
 - duckdb (PREFERRED, analytical database)
