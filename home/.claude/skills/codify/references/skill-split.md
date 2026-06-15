@@ -4,13 +4,13 @@ Split on **structure**, not line count alone. Goal: **SKILL.md ~50–80 lines** 
 
 **When to split**
 
-| Signal                                                                                        | Action                                      |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| User asks to slim                                                                             | Split                                       |
-| **~200+ lines**                                                                               | Should split                                |
-| **~150–200 lines** + multiple envs/topics, notebook appendices, or duplicate tables           | Should split                                |
+| Signal | Action |
+| --- | --- |
+| User asks to slim | Split |
+| **~200+ lines** | Should split |
+| **~150–200 lines** + multiple envs/topics, notebook appendices, or duplicate tables | Should split |
 | **~150 lines**, single cohesive checklist (naming rules, test style, one DB connection guide) | **Keep whole** — agents need it in one read |
-| Under **150 lines**                                                                           | Usually fine                                |
+| Under **150 lines** | Usually fine |
 
 `aws` was **331 lines** with DVM/acceptance/prod variants — obvious. **`mongodb`** / **`postgresql`** at ~100 are single-topic — fine.
 
@@ -25,14 +25,14 @@ Split on **structure**, not line count alone. Goal: **SKILL.md ~50–80 lines** 
 
 ## What moves to `references/`
 
-| Slice              | Filename pattern       | Contents                                               |
-| ------------------ | ---------------------- | ------------------------------------------------------ |
-| Auth / credentials | `auth.md`              | SSO, profiles, vault quirks, config stanzas            |
-| Generic recipes    | `<topic>-recipes.md`   | Reusable commands; no env tables                       |
-| Mental model       | `<topic>-<concept>.md` | Architecture, bucket/key model, routing to other refs  |
-| Env or variant     | `<topic>-<env>.md`     | One environment per file (dvm, acceptance, production) |
-| Session learnings  | `notebook.md`          | Durable discoveries — **append here**, not SKILL.md    |
-| Errors             | `troubleshooting.md`   | Symptom → fix; link back to env refs                   |
+| Slice | Filename pattern | Contents |
+| --- | --- | --- |
+| Auth / credentials | `auth.md` | SSO, profiles, vault quirks, config stanzas |
+| Generic recipes | `<topic>-recipes.md` | Reusable commands; no env tables |
+| Mental model | `<topic>-<concept>.md` | Architecture, bucket/key model, routing to other refs |
+| Env or variant | `<topic>-<env>.md` | One environment per file (dvm, acceptance, production) |
+| Session learnings | `notebook.md` | Durable discoveries — **append here**, not SKILL.md |
+| Errors | `troubleshooting.md` | Symptom → fix; link back to env refs |
 
 **Rules**
 
