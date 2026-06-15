@@ -9,14 +9,14 @@
 
 ## Recommended models
 
-| Model | Registry key | Extracts |
-|-------|--------------|----------|
-| **PiiDetection** | pii_superclinical_small | Names, dates, SSN, phone, email, address |
-| **DiseaseDetection** | disease_detection_superclinical | DISEASE, CONDITION, PATHOLOGY |
-| **PharmaDetection** | pharma_detection_superclinical | DRUG, MEDICATION, CHEM (allergies, meds) |
-| **PathologyDetection** | pathology_detection_modern | DISEASE, PATHOLOGY (findings) |
-| **BloodCancerDetection** | blood_cancer_detection | Cancer, DISEASE (blood tests, hematology) |
-| **AnatomyDetection** | anatomy_detection_electramed | Organ, Tissue, ANATOMY (ecography) |
+|Model|Registry key|Extracts|
+|---|---|---|
+|**PiiDetection**|pii_superclinical_small|Names, dates, SSN, phone, email, address|
+|**DiseaseDetection**|disease_detection_superclinical|DISEASE, CONDITION, PATHOLOGY|
+|**PharmaDetection**|pharma_detection_superclinical|DRUG, MEDICATION, CHEM (allergies, meds)|
+|**PathologyDetection**|pathology_detection_modern|DISEASE, PATHOLOGY (findings)|
+|**BloodCancerDetection**|blood_cancer_detection|Cancer, DISEASE (blood tests, hematology)|
+|**AnatomyDetection**|anatomy_detection_electramed|Organ, Tissue, ANATOMY (ecography)|
 
 **Measurements** (e.g. "5.2cm", "120 mg/dL"): NER extracts entity names, not numbers. Use regex or a separate extraction step for numeric values. Anatomy helps identify *what* is measured (e.g. "left ventricle").
 

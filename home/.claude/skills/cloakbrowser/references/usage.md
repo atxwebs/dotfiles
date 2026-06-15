@@ -366,12 +366,12 @@ disconnect_cdp(pw, browser, page)
 
 ## Gotchas Summary
 
-| Issue | Cause | Fix |
-| --- | --- | --- |
-| Stray tab with weird URL | `--args` splits on commas, value becomes URL | Don't put commas inside individual `--args` values |
-| Tab never closes | `_get_tab_id` reads `.data.tabId` | Read `.result.tabId` instead |
-| `--args` ignored warning | Daemon already running with different args | Use `agent-browser close` first, or accept existing daemon |
-| DDG returns empty results | File cached from previous empty run | Delete cached file or add cache-busting logic |
-| Multiple `--blink-settings` | Chrome only uses the last one | Combine in single value: `--blink-settings=key1=val1,key2=val2` |
-| Batch eval returns `[]` | Result is a list, not a string | Check type: if list, use directly; if string, `json.loads()` |
-| `agent-browser close` doesn't kill | Multiple sessions/daemons | Use `agent-browser close --all` or `pkill -9 -f "chrome"` |
+|Issue|Cause|Fix|
+|---|---|---|
+|Stray tab with weird URL|`--args` splits on commas, value becomes URL|Don't put commas inside individual `--args` values|
+|Tab never closes|`_get_tab_id` reads `.data.tabId`|Read `.result.tabId` instead|
+|`--args` ignored warning|Daemon already running with different args|Use `agent-browser close` first, or accept existing daemon|
+|DDG returns empty results|File cached from previous empty run|Delete cached file or add cache-busting logic|
+|Multiple `--blink-settings`|Chrome only uses the last one|Combine in single value: `--blink-settings=key1=val1,key2=val2`|
+|Batch eval returns `[]`|Result is a list, not a string|Check type: if list, use directly; if string, `json.loads()`|
+|`agent-browser close` doesn't kill|Multiple sessions/daemons|Use `agent-browser close --all` or `pkill -9 -f "chrome"`|

@@ -234,26 +234,26 @@ curl "/tabs/TAB_ID/pdf?preferCSSPageSize=true&raw=true" -o css-sized.pdf
 
 **Query Parameters:**
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `paperWidth` | float | 8.5 | Paper width in inches |
-| `paperHeight` | float | 11.0 | Paper height in inches |
-| `landscape` | bool | false | Landscape orientation |
-| `marginTop` | float | 0.4 | Top margin in inches |
-| `marginBottom` | float | 0.4 | Bottom margin in inches |
-| `marginLeft` | float | 0.4 | Left margin in inches |
-| `marginRight` | float | 0.4 | Right margin in inches |
-| `scale` | float | 1.0 | Print scale (0.1–2.0) |
-| `pageRanges` | string | all | Pages to export (e.g., `1-3,5`) |
-| `displayHeaderFooter` | bool | false | Show header and footer |
-| `headerTemplate` | string | — | HTML template for header |
-| `footerTemplate` | string | — | HTML template for footer |
-| `preferCSSPageSize` | bool | false | Honor CSS `@page` size |
-| `generateTaggedPDF` | bool | false | Generate accessible/tagged PDF |
-| `generateDocumentOutline` | bool | false | Embed document outline |
-| `output` | string | JSON | `file` to save to disk, default returns base64 |
-| `path` | string | auto | Destination path (prefer temp or workspace paths with `output=file`) |
-| `raw` | bool | false | Return raw PDF bytes instead of JSON |
+|Param|Type|Default|Description|
+|---|---|---|---|
+|`paperWidth`|float|8.5|Paper width in inches|
+|`paperHeight`|float|11.0|Paper height in inches|
+|`landscape`|bool|false|Landscape orientation|
+|`marginTop`|float|0.4|Top margin in inches|
+|`marginBottom`|float|0.4|Bottom margin in inches|
+|`marginLeft`|float|0.4|Left margin in inches|
+|`marginRight`|float|0.4|Right margin in inches|
+|`scale`|float|1.0|Print scale (0.1–2.0)|
+|`pageRanges`|string|all|Pages to export (e.g., `1-3,5`)|
+|`displayHeaderFooter`|bool|false|Show header and footer|
+|`headerTemplate`|string|—|HTML template for header|
+|`footerTemplate`|string|—|HTML template for footer|
+|`preferCSSPageSize`|bool|false|Honor CSS `@page` size|
+|`generateTaggedPDF`|bool|false|Generate accessible/tagged PDF|
+|`generateDocumentOutline`|bool|false|Embed document outline|
+|`output`|string|JSON|`file` to save to disk, default returns base64|
+|`path`|string|auto|Destination path (prefer temp or workspace paths with `output=file`)|
+|`raw`|bool|false|Return raw PDF bytes instead of JSON|
 
 Wraps `Page.printToPDF`. Prints background graphics by default.
 
@@ -443,12 +443,12 @@ curl -X POST /tabs/TAB_ID/solve/cloudflare -H 'Content-Type: application/json' \
 
 **Request fields:**
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `solver` | string | — | Solver name (omit for auto-detect) |
-| `tabId` | string | — | Target tab (omit for default tab) |
-| `maxAttempts` | int | 3 | Maximum solve attempts |
-| `timeout` | float | 30000 | Overall timeout in ms |
+|Field|Type|Default|Description|
+|---|---|---|---|
+|`solver`|string|—|Solver name (omit for auto-detect)|
+|`tabId`|string|—|Target tab (omit for default tab)|
+|`maxAttempts`|int|3|Maximum solve attempts|
+|`timeout`|float|30000|Overall timeout in ms|
 
 **Response:**
 

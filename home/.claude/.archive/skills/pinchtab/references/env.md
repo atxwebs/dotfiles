@@ -6,10 +6,10 @@ For agent workflows, most runtime behavior should be configured through `config.
 
 ## Agent-relevant variables
 
-| Var | Typical use | Notes |
+|Var|Typical use|Notes|
 |---|---|---|
-| `PINCHTAB_TOKEN` | Authenticate CLI or MCP requests to a protected server | Sent as `Authorization: Bearer ...` |
-| `PINCHTAB_CONFIG` | Override the config file path | Prefer this over ad hoc env overrides when automating |
+|`PINCHTAB_TOKEN`|Authenticate CLI or MCP requests to a protected server|Sent as `Authorization: Bearer ...`|
+|`PINCHTAB_CONFIG`|Override the config file path|Prefer this over ad hoc env overrides when automating|
 
 ## Targeting remote servers
 

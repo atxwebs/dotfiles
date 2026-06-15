@@ -16,13 +16,13 @@ description: LiteLLM proxy server for unified LLM API access. Use when making AP
 
 ## Available Models
 
-| Model Name | Provider | Capabilities |
-|------------|----------|--------------|
-| `qwen3.5-plus` | dashscope/qwen-plus | thinking, vision, function calling, JSON mode |
-| `qwen3-coder-next` | dashscope/qwen-coder-plus | thinking, vision, function calling, JSON mode |
-| `qwen3-coder-plus` | dashscope/qwen-coder-plus | thinking, vision, function calling, JSON mode |
-| `minimax-m2.5` | minimax/minimax-m2 | function calling, JSON mode |
-| `glm-5` | zhipuai/glm-4 | vision, function calling, JSON mode |
+|Model Name|Provider|Capabilities|
+|---|---|---|
+|`qwen3.5-plus`|dashscope/qwen-plus|thinking, vision, function calling, JSON mode|
+|`qwen3-coder-next`|dashscope/qwen-coder-plus|thinking, vision, function calling, JSON mode|
+|`qwen3-coder-plus`|dashscope/qwen-coder-plus|thinking, vision, function calling, JSON mode|
+|`minimax-m2.5`|minimax/minimax-m2|function calling, JSON mode|
+|`glm-5`|zhipuai/glm-4|vision, function calling, JSON mode|
 
 ## Usage
 

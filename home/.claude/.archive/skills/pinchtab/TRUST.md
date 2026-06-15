@@ -25,15 +25,15 @@ High-risk operations such as JavaScript evaluation, local-file upload, file down
 
 High-impact capabilities are **disabled by default** and require explicit configuration:
 
-| Capability | Default | Config Key |
+|Capability|Default|Config Key|
 |---|---|---|
-| JavaScript evaluation | **Disabled** | `security.allowEvaluate` |
-| File downloads | **Disabled** | `security.allowDownloads` |
-| File uploads | **Disabled** | `security.allowUploads` |
-| Network interception | **Disabled** | `security.allowNetworkIntercept` |
-| Challenge solving / stealth | **Disabled** | Requires explicit `/solve` call with user approval |
-| Navigation domains | **All allowed** | `security.allowedDomains` (restrict with allowlist) |
-| Cookie access | **Available** | Use only when task requires it; do not log or expose session tokens |
+|JavaScript evaluation|**Disabled**|`security.allowEvaluate`|
+|File downloads|**Disabled**|`security.allowDownloads`|
+|File uploads|**Disabled**|`security.allowUploads`|
+|Network interception|**Disabled**|`security.allowNetworkIntercept`|
+|Challenge solving / stealth|**Disabled**|Requires explicit `/solve` call with user approval|
+|Navigation domains|**All allowed**|`security.allowedDomains` (restrict with allowlist)|
+|Cookie access|**Available**|Use only when task requires it; do not log or expose session tokens|
 
 Agents reusing authenticated browser sessions should use dedicated low-privilege profiles and confirm with the user before performing account-changing actions.
 
@@ -81,15 +81,15 @@ Use `profiles.baseDir`, `profiles.defaultProfile`, or `PINCHTAB_CONFIG` if you n
 
 ## Security History
 
-| Advisory | Severity | Fixed In |
-| --- | --- | --- |
-| [GHSA-p8mm-644p-phmh / CVE-2026-33623](https://github.com/advisories/GHSA-p8mm-644p-phmh) | Medium | 0.8.5 |
-| [GHSA-w5pc-m664-r62v / CVE-2026-33622](https://github.com/advisories/GHSA-w5pc-m664-r62v) | Medium | 0.8.5 |
-| [GHSA-j65m-hv65-r264 / CVE-2026-33621](https://github.com/advisories/GHSA-j65m-hv65-r264) | Medium | 0.8.4 |
-| [GHSA-mrqc-3276-74f8 / CVE-2026-33620](https://github.com/advisories/GHSA-mrqc-3276-74f8) | Medium | 0.8.4 |
-| [GHSA-xqq2-4j46-vwp7 / CVE-2026-33619](https://github.com/advisories/GHSA-xqq2-4j46-vwp7) | Medium | 0.8.4 |
-| [GHSA-qwxp-6qf9-wr4m / CVE-2026-33081](https://github.com/advisories/GHSA-qwxp-6qf9-wr4m) | Medium | v0.8.3 |
-| [GHSA-rw8p-c6hf-q3pg / CVE-2026-30834](https://github.com/advisories/GHSA-rw8p-c6hf-q3pg) | High | v0.7.7 |
+|Advisory|Severity|Fixed In|
+|---|---|---|
+|[GHSA-p8mm-644p-phmh / CVE-2026-33623](https://github.com/advisories/GHSA-p8mm-644p-phmh)|Medium|0.8.5|
+|[GHSA-w5pc-m664-r62v / CVE-2026-33622](https://github.com/advisories/GHSA-w5pc-m664-r62v)|Medium|0.8.5|
+|[GHSA-j65m-hv65-r264 / CVE-2026-33621](https://github.com/advisories/GHSA-j65m-hv65-r264)|Medium|0.8.4|
+|[GHSA-mrqc-3276-74f8 / CVE-2026-33620](https://github.com/advisories/GHSA-mrqc-3276-74f8)|Medium|0.8.4|
+|[GHSA-xqq2-4j46-vwp7 / CVE-2026-33619](https://github.com/advisories/GHSA-xqq2-4j46-vwp7)|Medium|0.8.4|
+|[GHSA-qwxp-6qf9-wr4m / CVE-2026-33081](https://github.com/advisories/GHSA-qwxp-6qf9-wr4m)|Medium|v0.8.3|
+|[GHSA-rw8p-c6hf-q3pg / CVE-2026-30834](https://github.com/advisories/GHSA-rw8p-c6hf-q3pg)|High|v0.7.7|
 
 ## Questions?
 

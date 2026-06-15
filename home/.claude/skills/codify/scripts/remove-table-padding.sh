@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Strip markdown table column-alignment padding (| --- | separators only).
+# Compact markdown tables: |---|---| separators, |cell|cell| rows (no padding spaces).
+# Skips fenced ``` code blocks (shell pipes / jq must not be touched).
 # Usage: remove-table-padding.sh [--dry-run] <file-or-dir>
 #   file  — one .md file
 #   dir   — all **/*.md under dir (find -name '*.md')
@@ -32,16 +33,39 @@ done
 
 [[ -n "$TARGET" ]] || usage 1
 
-TABLE_SED='
-/^\|([[:space:]]*[-:]+[[:space:]]*\|)+[[:space:]]*$/ {
-  s/[[:space:]]*[-:]+[[:space:]]*\|/ --- |/g
-  b end
+transform() {
+  perl -ne '
+    chomp;
+    if (/^```/) {
+      $in_fence = !$in_fence;
+      print "$_\n";
+      next;
+    }
+    if ($in_fence) {
+      print "$_\n";
+      next;
+    }
+    sub compact_sep_cell {
+      my ($c) = @_;
+      return $c unless $c =~ /^:?-+:?$/ && index($c, "-") >= 0;
+      my $l = ($c =~ /^:/) ? ":" : "";
+      my $r = ($c =~ /:$/) ? ":" : "";
+      return "${l}---${r}";
+    }
+    if (/^\|/ && /^[[:space:]]*\|([[:space:]]*[-:]+[[:space:]]*\|)+[[:space:]]*$/) {
+      s/ //g;
+      my @parts = split /\|/, $_, -1;
+      shift @parts if @parts && $parts[0] eq "";
+      pop @parts while @parts && $parts[-1] =~ /^\s*$/;
+      @parts = map { compact_sep_cell($_) } @parts;
+      $_ = "|" . join("|", @parts) . "|";
+    } elsif (/^\|/) {
+      s/\| +/\|/g;
+      s/ +\|/\|/g;
+    }
+    print "$_\n";
+  ' "$1"
 }
-/^\|/ {
-  s/[[:space:]]{2,}\|/ |/g
-}
-:end
-'
 
 collect_files() {
   if [[ -f "$TARGET" ]]; then
@@ -66,10 +90,6 @@ collect_files() {
     echo "not found: $TARGET" >&2
     exit 1
   fi
-}
-
-transform() {
-  sed -E "$TABLE_SED" "$1"
 }
 
 changed=0

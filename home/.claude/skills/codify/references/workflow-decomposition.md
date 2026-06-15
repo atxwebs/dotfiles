@@ -2,24 +2,24 @@
 
 Example session (review triage):
 
-| Step | Level | Artifact |
-| --- | --- | --- |
-| List pending items | Script | `list-candidates.sh` |
-| Per-item stats / filters | Script (lib) | `lib/stats.jq` |
-| Bot vs human signals | Script (lib) | `lib/classify.jq` |
-| Bundle fetches | Script | `assess.sh` |
-| Fetch raw diff | Snippet | `gh pr view $NUM` |
-| Verdict / comment text | Text instructions | SKILL.md rules |
-| Post / mutate remote | Script + approval | `--dry-run` + user OK |
+|Step|Level|Artifact|
+|---|---|---|
+|List pending items|Script|`list-candidates.sh`|
+|Per-item stats / filters|Script (lib)|`lib/stats.jq`|
+|Bot vs human signals|Script (lib)|`lib/classify.jq`|
+|Bundle fetches|Script|`assess.sh`|
+|Fetch raw diff|Snippet|`gh pr view $NUM`|
+|Verdict / comment text|Text instructions|SKILL.md rules|
+|Post / mutate remote|Script + approval|`--dry-run` + user OK|
 
 ## Graduation ladder
 
-| Stage | Artifact | Signal |
-| --- | --- | --- |
-| 1 | Shell one-liner in chat | Same command twice |
-| 2 | Inline snippet in SKILL.md | Third use, or parameters vary per run |
-| 3 | `scripts/foo.sh` | Stable logic, reused across sessions |
-| 4 | SKILL.md glue + script table | Agent should invoke without being told |
+|Stage|Artifact|Signal|
+|---|---|---|
+|1|Shell one-liner in chat|Same command twice|
+|2|Inline snippet in SKILL.md|Third use, or parameters vary per run|
+|3|`scripts/foo.sh`|Stable logic, reused across sessions|
+|4|SKILL.md glue + script table|Agent should invoke without being told|
 
 Prefer extending an existing skill over creating a new one.
 

@@ -9,18 +9,18 @@ AI-assisted patient management for small practices. Three repos: rovetia-api, ro
 
 ## Routing
 
-| Task | READ |
-| --- | --- |
-| What is Rovetia, who is it for, core capabilities | [product](./references/product.md) |
-| Entities, PatientItem types, data flow | [domain-model](./references/domain-model.md) |
-| Pricing, credits, differentiation | [business](./references/business.md) |
-| Backend, GraphQL, Prisma, AWS | [api](./references/api.md) |
-| Web/mobile app stack, Capacitor | [app](./references/app.md) |
-| Marketing site | [www](./references/www.md) |
-| Deploy, domains, stages | [infrastructure](./references/infrastructure.md) |
-| AI models, tuples, costs | [ai-pipeline](./references/ai-pipeline.md) |
-| Brand, values, MVP limits | [brand-constraints](./references/brand-constraints.md) |
-| Current status, roadmap | [status-roadmap](./references/status-roadmap.md) |
+|Task|READ|
+|---|---|
+|What is Rovetia, who is it for, core capabilities|[product](./references/product.md)|
+|Entities, PatientItem types, data flow|[domain-model](./references/domain-model.md)|
+|Pricing, credits, differentiation|[business](./references/business.md)|
+|Backend, GraphQL, Prisma, AWS|[api](./references/api.md)|
+|Web/mobile app stack, Capacitor|[app](./references/app.md)|
+|Marketing site|[www](./references/www.md)|
+|Deploy, domains, stages|[infrastructure](./references/infrastructure.md)|
+|AI models, tuples, costs|[ai-pipeline](./references/ai-pipeline.md)|
+|Brand, values, MVP limits|[brand-constraints](./references/brand-constraints.md)|
+|Current status, roadmap|[status-roadmap](./references/status-roadmap.md)|
 
 ## Principles
 

@@ -37,12 +37,12 @@ Results are saved to `~/.exaai/search-{query}.json` with:
 
 ## Options
 
-| Option | Description | Default |
-| --- | --- | --- |
-| (positional) | Search query (required) | - |
-| `--category` | Filter by category: "news", "research paper", "company", "webpage", etc. | auto |
-| `--domains` | Comma-separated list of domains to include | all domains |
-| `--limit` | Number of results | 10 |
+|Option|Description|Default|
+|---|---|---|
+|(positional)|Search query (required)|-|
+|`--category`|Filter by category: "news", "research paper", "company", "webpage", etc.|auto|
+|`--domains`|Comma-separated list of domains to include|all domains|
+|`--limit`|Number of results|10|
 
 ## API Key
 

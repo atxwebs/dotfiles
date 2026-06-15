@@ -17,11 +17,11 @@ pinchtab server -yH             # both combined
 pinchtab server -e ./ext        # load browser extension
 ```
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--yolo` | `-y` | Apply guards down preset (enables evaluate, macro, download) |
-| `--headed` | `-H` | Start browser in headed (visible) mode |
-| `--extension <path>` | `-e` | Load browser extension (repeatable) |
+|Flag|Short|Description|
+|---|---|---|
+|`--yolo`|`-y`|Apply guards down preset (enables evaluate, macro, download)|
+|`--headed`|`-H`|Start browser in headed (visible) mode|
+|`--extension <path>`|`-e`|Load browser extension (repeatable)|
 
 > **Note:** Use `--headed` only when you need visual feedback (debugging, watching automation). Headless mode is more resource-efficient.
 
@@ -54,14 +54,14 @@ pinchtab nav https://pinchtab.com --block-images
 pinchtab nav https://pinchtab.com --tab <tabId>
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--new-tab` | Explicitly force a new tab |
-| `--tab <id>` | Reuse a specific tab |
-| `--snap` | Navigate and print an interactive compact snapshot |
-| `--block-images` | Block image loading (faster, fewer tokens) |
-| `--block-ads` | Block ads for this navigation |
-| `--print-tab-id` | Print only the tab ID |
+|Flag|Description|
+|---|---|
+|`--new-tab`|Explicitly force a new tab|
+|`--tab <id>`|Reuse a specific tab|
+|`--snap`|Navigate and print an interactive compact snapshot|
+|`--block-images`|Block image loading (faster, fewer tokens)|
+|`--block-ads`|Block ads for this navigation|
+|`--print-tab-id`|Print only the tab ID|
 
 ### `pinchtab tab` (not `tabs`)
 Manage browser tabs.
@@ -234,7 +234,7 @@ List running PinchTab instances across profiles.
 
 ## Known Quirks Summary
 
-| Wrong | Right | Note |
-|-------|-------|------|
-| `pinchtab ss` | `pinchtab screenshot` | No `ss` alias |
-| `pinchtab snapshot` | `pinchtab snap` | Use short form |
+|Wrong|Right|Note|
+|---|---|---|
+|`pinchtab ss`|`pinchtab screenshot`|No `ss` alias|
+|`pinchtab snapshot`|`pinchtab snap`|Use short form|

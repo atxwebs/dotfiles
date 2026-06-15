@@ -11,13 +11,13 @@ Port **18080**. Setup: [install](./references/install.md).
 
 ## Endpoints
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /health` | Health check |
-| `POST /analyze` | Medical NER (diseases, drugs, anatomy, genes) |
-| `POST /pii/extract` | PII detection (names, dates, SSN, etc.) |
-| `POST /pii/deidentify` | De-identify text (mask, remove, replace, hash) |
-| `POST /unload` | Unload model / restart container (gateway) |
+|Endpoint|Purpose|
+|---|---|
+|`GET /health`|Health check|
+|`POST /analyze`|Medical NER (diseases, drugs, anatomy, genes)|
+|`POST /pii/extract`|PII detection (names, dates, SSN, etc.)|
+|`POST /pii/deidentify`|De-identify text (mask, remove, replace, hash)|
+|`POST /unload`|Unload model / restart container (gateway)|
 
 ## Example Requests
 
