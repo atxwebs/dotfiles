@@ -3,6 +3,7 @@
 # Usage: remove-table-padding.sh [--dry-run] <file-or-dir>
 #   file  — one .md file
 #   dir   — all **/*.md under dir (find -name '*.md')
+#   --dry-run ... | grep 'would change'  — paths only (no diffs)
 set -euo pipefail
 
 DRY_RUN=0

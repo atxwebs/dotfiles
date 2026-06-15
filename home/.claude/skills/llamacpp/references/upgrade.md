@@ -75,7 +75,7 @@ curl -s http://127.0.0.1:58261/health
 ## Build Configuration Explained
 
 | Flag | Value | Why |
-|------|-------|-----|
+| --- | --- | --- |
 | `-DGGML_CUDA=ON` | Required | Enable NVIDIA GPU acceleration |
 | `-DGGML_CUDA_NCCL=OFF` | **Critical** | Prevents CUDA initialization errors on single-GPU |
 | `-DCMAKE_BUILD_TYPE=Release` | Required | Optimized build (10x faster than Debug) |
@@ -215,7 +215,7 @@ systemctl --user start llamacpp-server.service
 ## System Requirements
 
 | Component | Minimum | Recommended |
-|-----------|---------|-------------|
+| --- | --- | --- |
 | GPU | NVIDIA 6GB+ | NVIDIA 8GB+ (RTX 4070) |
 | CUDA | 12.0+ | 12.6+ |
 | RAM | 16GB | 32GB+ |

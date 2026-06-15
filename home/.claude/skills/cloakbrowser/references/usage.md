@@ -367,7 +367,7 @@ disconnect_cdp(pw, browser, page)
 ## Gotchas Summary
 
 | Issue | Cause | Fix |
-|---|---|---|
+| --- | --- | --- |
 | Stray tab with weird URL | `--args` splits on commas, value becomes URL | Don't put commas inside individual `--args` values |
 | Tab never closes | `_get_tab_id` reads `.data.tabId` | Read `.result.tabId` instead |
 | `--args` ignored warning | Daemon already running with different args | Use `agent-browser close` first, or accept existing daemon |

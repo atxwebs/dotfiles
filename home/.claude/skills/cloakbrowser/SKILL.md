@@ -53,7 +53,7 @@ See `references/usage.md` for the full Python CDP pattern.
 ## Environment Variables
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `CLOAK_BIN` | `~/.cloakbrowser/chromium-*/chrome` | Override browser binary |
 | `AGENT_BROWSER_HEADED` | `0` | `1` = visible browser |
 | `AGENT_BROWSER_IDLE_TIMEOUT_MS` | `180000` | Daemon idle shutdown |
