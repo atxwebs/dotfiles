@@ -35,7 +35,7 @@ CHALLENGE_MARKERS = (
     "checking your browser",
     "verify you are human",
     "attention required",
-    "cf-turnstile",
+    # "cf-turnstile" — appears in demo page copy, not just interstitials
 )
 
 # Don't block fonts — breaks Kasada/Akamai emoji canvas checks (library README)
@@ -139,8 +139,9 @@ def is_challenge_page(text: str) -> bool:
     lower = text.lower()
     if any(m in lower for m in CHALLENGE_MARKERS):
         return True
-    if "cloudflare" in lower and len(text) < 800:
-        return True
+    # Short-page "cloudflare" heuristic caused false positives on turnstile demo pages.
+    # if "cloudflare" in lower and len(text) < 800:
+    #     return True
     return False
 
 
@@ -188,10 +189,10 @@ def wait_for_challenge(page, timeout: float = 45) -> bool:
         if not clicked:
             clicked = _try_click_turnstile(page)
             if clicked:
-                idle(1.5, 3.0)
+                idle((1.5, 3.0))
                 continue
 
-        idle(0.8, 1.5)
+        idle((0.8, 1.5))
 
     try:
         text = page.evaluate("document.body?.innerText || ''") or ""

@@ -1,4 +1,5 @@
 """Shared fixtures and helpers for cloakbrowser E2E tests."""
+import subprocess
 import sys
 from pathlib import Path
 
@@ -46,6 +47,9 @@ class TestRun:
     def fail(self, msg):
         print(f"  FAIL  {msg}")
         self.failed += 1
+
+    def skip(self, msg):
+        print(f"  SKIP  {msg}")
 
     def check(self, cond, ok_msg, fail_msg):
         if cond:
