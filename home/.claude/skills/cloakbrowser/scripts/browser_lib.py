@@ -38,8 +38,8 @@ CHALLENGE_MARKERS = (
     # "cf-turnstile" — appears in demo page copy, not just interstitials
 )
 
-# Don't block fonts — breaks Kasada/Akamai emoji canvas checks (library README)
-BLOCKED_RESOURCE_TYPES = {"image", "media", "stylesheet"}
+# Block heavy assets for text crawls. Keep CSS + fonts — widgets/anti-bot checks need them.
+BLOCKED_RESOURCE_TYPES = {"image", "media"}
 
 
 def _time_fingerprint() -> str:
@@ -146,19 +146,40 @@ def is_challenge_page(text: str) -> bool:
 
 
 def _try_click_turnstile(page) -> bool:
-    """Click Turnstile checkbox in challenge iframes. Returns True if clicked."""
-    selectors = (
+    """Click Turnstile checkbox. Uses humanized clicks via patch_browser."""
+    click_selectors = (
         "input[type=checkbox]",
-        "#cf-turnstile",
+        "[role=checkbox]",
         ".ctp-checkbox-label",
         "label.ctp-checkbox-label",
-        "[role=checkbox]",
     )
+    iframe_selectors = (
+        ".cf-turnstile iframe",
+        'iframe[src*="challenges.cloudflare.com"]',
+        'iframe[src*="turnstile"]',
+    )
+
+    for iframe_sel in iframe_selectors:
+        try:
+            if page.locator(iframe_sel).count() == 0:
+                continue
+        except Exception:
+            continue
+        fl = page.frame_locator(iframe_sel)
+        for sel in click_selectors:
+            try:
+                loc = fl.locator(sel).first
+                loc.wait_for(state="visible", timeout=2000)
+                loc.click(timeout=5000)
+                return True
+            except Exception:
+                continue
+
     for frame in page.frames:
         url = frame.url or ""
         if "challenges.cloudflare.com" not in url and "turnstile" not in url:
             continue
-        for sel in selectors:
+        for sel in click_selectors:
             try:
                 loc = frame.locator(sel)
                 if loc.count() > 0 and loc.first.is_visible(timeout=500):
@@ -166,6 +187,17 @@ def _try_click_turnstile(page) -> bool:
                     return True
             except Exception:
                 continue
+
+    # Widget often has no <iframe> in DOM — checkbox is in challenge-platform frame or shadow host
+    try:
+        host = page.locator(".cf-turnstile, [data-sitekey]").first
+        host.wait_for(state="visible", timeout=2000)
+        box = host.bounding_box()
+        if box and box["width"] > 10:
+            page.mouse.click(box["x"] + 28, box["y"] + box["height"] / 2)
+            return True
+    except Exception:
+        pass
     return False
 
 
@@ -175,7 +207,7 @@ def wait_for_challenge(page, timeout: float = 45) -> bool:
     Returns True if challenge appears resolved, False if still blocked after timeout.
     """
     deadline = time.time() + timeout
-    clicked = False
+    last_click = 0.0
 
     while time.time() < deadline:
         try:
@@ -186,9 +218,9 @@ def wait_for_challenge(page, timeout: float = 45) -> bool:
         if not is_challenge_page(text):
             return True
 
-        if not clicked:
-            clicked = _try_click_turnstile(page)
-            if clicked:
+        if time.time() - last_click >= 2.0:
+            if _try_click_turnstile(page):
+                last_click = time.time()
                 idle((1.5, 3.0))
                 continue
 

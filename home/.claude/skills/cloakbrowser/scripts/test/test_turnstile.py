@@ -134,6 +134,8 @@ def open_daemon(url: str) -> str:
 
 
 def wait_for_token(page, timeout: float = TOKEN_WAIT) -> str:
+    # Let widget render before first click attempt
+    time.sleep(3)
     deadline = time.time() + timeout
     while time.time() < deadline:
         token = page.evaluate(
