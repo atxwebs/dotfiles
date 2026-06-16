@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --help           Show this help message"
             echo ""
             echo "This script restores EVERYTHING from the backup:"
-            echo "• All user files in /home/flesler/"
+            echo "• All user files in ~/"
             echo "• All system files (/etc, /var, /root)"
             echo "• Handles root-owned files properly"
             echo ""
@@ -127,7 +127,7 @@ echo -e "${RED}⚠️  This will restore EVERYTHING from the backup!${NC}"
 echo ""
 echo "What will be restored:"
 echo "USER FILES:"
-echo "• Complete /home/flesler/ directory (all files and subdirectories)"
+echo "• Complete ~/ directory (all files and subdirectories)"
 if [[ "$RUNNING_AS_ROOT" == "true" ]]; then
     echo "SYSTEM FILES:"
     echo "• /etc (system configurations)"
@@ -154,7 +154,7 @@ log "Starting complete recovery process..."
 # Recover user files
 log "=== Recovering ALL user files ==="
 if [[ "$RUNNING_AS_ROOT" == "true" ]]; then
-    # Running as root - extract to /home/flesler and fix ownership
+    # Running as root - extract to ~flesler and fix ownership
     cd /
     if [[ "$DRY_RUN" == "true" ]]; then
         log "DRY RUN: Would extract all files from home/flesler/"
@@ -165,15 +165,15 @@ if [[ "$RUNNING_AS_ROOT" == "true" ]]; then
         if borg extract --progress "$BORG_REPO::$ARCHIVE_NAME" home/flesler; then
             log "✓ All user files extracted successfully"
             log "Setting ownership to flesler:flesler..."
-            chown -R flesler:flesler /home/flesler 2>/dev/null || true
+            chown -R flesler:flesler ~flesler 2>/dev/null || true
             log "✓ User file ownership set correctly"
         else
             error "Failed to extract user files"
         fi
     fi
 else
-    # Running as user - extract to current directory (should be /home/flesler)
-    cd /home/flesler || error "Could not change to /home/flesler"
+    # Running as user - extract to current directory (should be ~)
+    cd "$HOME" || error "Could not change to $HOME"
     if [[ "$DRY_RUN" == "true" ]]; then
         log "DRY RUN: Would extract all files from home/flesler/"
         borg list "$BORG_REPO::$ARCHIVE_NAME" | grep "^home/flesler/" | head -10
@@ -218,8 +218,8 @@ if [[ "$DRY_RUN" != "true" ]]; then
     log "=== Setting correct permissions ==="
     
     if [[ "$RUNNING_AS_ROOT" == "true" ]]; then
-        SSH_DIR="/home/flesler/.ssh"
-        GNUPG_DIR="/home/flesler/.gnupg"
+        SSH_DIR=~flesler/.ssh
+        GNUPG_DIR=~flesler/.gnupg
     else
         SSH_DIR="$HOME/.ssh"
         GNUPG_DIR="$HOME/.gnupg"
@@ -248,7 +248,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo "Run without --dry-run to perform actual recovery"
 else
     echo -e "${GREEN}ALL files have been recovered from the backup!${NC}"
-    echo "• All user files restored to /home/flesler/"
+    echo "• All user files restored to ~/"
     if [[ "$RUNNING_AS_ROOT" == "true" ]]; then
         echo "• All system files restored to their original locations"
     fi

@@ -23,7 +23,7 @@
       maximised = True
       fullscreen = False
       size = 1600, 836
-      title = /home/flesler
+      title = ~
       last_active_term = 5bb21982-6391-4e22-82a8-3b2e24366184
       last_active_window = True
     [[[child1]]]
@@ -38,7 +38,7 @@
       order = 0
       profile = default
       uuid = dfa25d59-2d6c-4fa3-9efa-f5dd51d07534
-      directory = /home/flesler/Code/manufactured/mfd-fin-api
+      directory = ~/Code/manufactured/mfd-fin-api
     [[[child3]]]
       type = HPaned
       parent = child1
@@ -51,12 +51,12 @@
       order = 0
       profile = default
       uuid = 5bb21982-6391-4e22-82a8-3b2e24366184
-      directory = /home/flesler/Code/manufactured/mfd-fin-api
+      directory = ~/Code/manufactured/mfd-fin-api
     [[[terminal5]]]
       type = Terminal
       parent = child3
       order = 1
       profile = default
       uuid = aa0ef00d-eb9e-41d1-9fce-7923981170b5
-      directory = /home/flesler/Code/manufactured/mfd-fin-api
+      directory = ~/Code/manufactured/mfd-fin-api
 [plugins]

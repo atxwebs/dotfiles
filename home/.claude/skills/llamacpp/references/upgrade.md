@@ -136,7 +136,7 @@ systemctl --user start llamacpp-server.service
 **Fix:** Use absolute path in preset:
 ```ini
 [gemma-4-E4B-it-UD-Q5_K_XL]
-mmproj = /home/flesler/Applications/llamacpp/models/mmproj-BF16.gguf
+mmproj = ~/Applications/llamacpp/models/mmproj-BF16.gguf
 ```
 
 ### Issue: Server won't start after build
@@ -178,7 +178,7 @@ watch -n 1 'ps aux | grep cmake | grep -v grep'
 - **Config in models.ini:**
 ```ini
 [gemma-4-E4B-it-UD-Q5_K_XL]
-mmproj = /home/flesler/Applications/llamacpp/models/mmproj-BF16.gguf
+mmproj = ~/Applications/llamacpp/models/mmproj-BF16.gguf
 ```
 
 ### Vision Models

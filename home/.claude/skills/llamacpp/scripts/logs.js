@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
-const logFile = path.join(process.env.HOME || '/home/flesler', 'Applications/llamacpp/llamacpp-server.log');
+const logFile = path.join(os.homedir(), 'Applications/llamacpp/llamacpp-server.log');
 const n = parseInt(process.argv[2], 10) || 80;
 
 if (fs.existsSync(logFile)) {

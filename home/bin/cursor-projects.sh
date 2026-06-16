@@ -74,7 +74,7 @@ SELECT key, value FROM cursorDiskKV WHERE key LIKE 'composerData:%';
   if [ -n "$first_file" ] && [[ "$first_file" != "Untitled"* ]]; then
     if [[ "$first_file" =~ /Code/([^/]+)/([^/]+) ]]; then
       project="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}"
-    elif [[ "$first_file" =~ /home/flesler/Code/([^/]+) ]]; then
+    elif [[ "$first_file" =~ $HOME/Code/([^/]+) ]]; then
       project="${BASH_REMATCH[1]}"
     fi
   fi
