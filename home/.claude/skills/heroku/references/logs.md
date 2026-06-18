@@ -17,7 +17,7 @@ Sources skipped: `heroku[router]` (health checks), `app[api]` (log session open)
 ```bash
 heroku logs --num 200 --source app --process-type web | grep -iE '409|Conflict|Polling|Failed to getMe'
 heroku logs --num 100 --source app --process-type web | grep -i -E '(ignore|Newer message exists|discarding)'
-heroku logs --num 100 --source app --process-type web | grep -i error
+heroku logs --num 1000 --source app --process-type web --num 100 | grep -ie ERROR -e WARN
 heroku logs --num 1000 --source app --process-type web | grep /message
 ```
 
