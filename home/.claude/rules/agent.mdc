@@ -48,3 +48,8 @@ Minimize requests ruthlessly:
 - Always read full files or large complete sections — never small chunks
 - Batch every edit at once; rewrite the entire file in one go when practical
 - Plan thoroughly and execute multiple steps per turn
+
+# Wishlist and Backlog
+- You can add ideas/improvements to `docs/wishlist.md` when you identify opportunities
+- When the user says to move an item from wishlist to backlog, move it from `docs/wishlist.md` to `docs/backlog.md`
+- After making changes to either file, commit the changes

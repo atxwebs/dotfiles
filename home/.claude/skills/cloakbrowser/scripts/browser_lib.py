@@ -7,10 +7,12 @@ All cloakbrowser scripts should use this. Provides:
   - wait_for_challenge(page) → Detect Cloudflare/Turnstile, wait and try free checkbox click
   - is_challenge_page(text) → True if page looks like a bot challenge
   - idle(sec)               → Human-like pause with micro-movement between actions
+  - write_output(env_var, content, slug, ext) → Write timestamped output file if env_var set
   - CLOAK_BIN               → Resolved CloakBrowser binary path
 """
 import os
 import random
+import re
 import subprocess
 import time
 from datetime import datetime
@@ -248,3 +250,38 @@ def idle(seconds: float | tuple[float, float] = None):
     else:
         duration = seconds
     time.sleep(duration)
+
+
+# ─── Output file helpers ────────────────────────────────────────────────────
+
+def write_output(env_var: str, content: str, slug: str, ext: str = "txt") -> Path | None:
+    """Write content to a timestamped output file if env_var is set.
+
+    Creates path: $ENV_VAR/YYYY-MM-DD/HH-slug.ext
+
+    Args:
+        env_var: Environment variable name for output directory (e.g., "CRAWL_OUTPUT_DIR")
+        content: Content to write
+        slug: Filename slug (will be sanitized)
+        ext: File extension (default: "txt")
+
+    Returns:
+        Path to written file, or None if env_var not set
+    """
+    out_dir = os.environ.get(env_var)
+    if not out_dir:
+        return None
+
+    # Sanitize slug
+    slug = re.sub(r"[^a-z0-9-]", "-", slug.lower())[:80]
+
+    now = datetime.now()
+    date_dir = now.strftime("%Y-%m-%d")
+    hour = now.strftime("%H")
+    filename = f"{hour}-{slug}.{ext}"
+
+    path = Path(out_dir) / date_dir / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+
+    return path

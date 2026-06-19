@@ -12,11 +12,7 @@ from pathlib import Path
 
 # Ensure sibling modules (browser_lib) are importable regardless of cwd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, is_challenge_page, wait_for_challenge
-
-CRAWL_OUTPUT_DIR = Path(os.environ.get("CRAWL_OUTPUT_DIR", "/tmp"))
-
-BLOCKED_LOG = None
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, is_challenge_page, wait_for_challenge, write_output
 
 EXTRACT_JSONLD_JS = r"""
 (function() {
@@ -89,38 +85,25 @@ return "";
 """
 
 
-def init_blocked_log():
-    global BLOCKED_LOG
-    d = CRAWL_OUTPUT_DIR / datetime.now().strftime("%Y-%m-%d")
-    d.mkdir(parents=True, exist_ok=True)
-    BLOCKED_LOG = str(d / "blocked.log")
-
-
 def make_slug(url):
     s = re.sub(r"^https?://", "", url).split("/")[0].split("?")[0]
     return re.sub(r"[^a-z0-9]", "-", s.lower())[:80]
 
 
-def output_path(url):
-    return CRAWL_OUTPUT_DIR / datetime.now().strftime("%Y-%m-%d") / f"{datetime.now().strftime('%H')}-{make_slug(url)}.txt"
-
-
 def log_blocked(url, reason):
-    if BLOCKED_LOG:
-        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-        with open(BLOCKED_LOG, "a") as f:
-            f.write(f"[{ts}] {url} ({reason})\n")
+    out_dir = os.environ.get("CRAWL_OUTPUT_DIR")
+    if not out_dir:
+        return
+    d = Path(out_dir) / datetime.now().strftime("%Y-%m-%d")
+    d.mkdir(parents=True, exist_ok=True)
+    blocked_log = d / "blocked.log"
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    with open(blocked_log, "a") as f:
+        f.write(f"[{ts}] {url} ({reason})\n")
 
 
 def is_url(s):
     return bool(re.match(r"^https?://", s)) and "." in s
-
-
-def read_cached(url):
-    p = output_path(url)
-    if p.exists() and (content := p.read_text().strip()):
-        return content
-    return None
 
 
 def crawl_url(page, url):
@@ -183,9 +166,7 @@ def crawl_url(page, url):
         content += f"\n{text}\n"
         print(content)
 
-        p = output_path(url)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(content)
+        write_output("CRAWL_OUTPUT_DIR", content, make_slug(url), "txt")
 
     except Exception as e:
         elapsed = time.time() - start_time
@@ -200,21 +181,14 @@ def main():
         print("Usage: crawl.py <url1> [url2] ...", file=sys.stderr)
         sys.exit(1)
 
-    init_blocked_log()
-    total = len(urls)
     pw, browser, page = None, None, None
-
     try:
         for u in urls:
-            cached = read_cached(u)
-            if cached:
-                print(cached)
-            else:
-                if pw is None:
-                    ws_url = ensure_daemon("about:blank")
-                    pw, browser, _, page = connect_cdp(ws_url)
-                crawl_url(page, u)
-            if total > 1:
+            if pw is None:
+                ws_url = ensure_daemon("about:blank")
+                pw, browser, _, page = connect_cdp(ws_url)
+            crawl_url(page, u)
+            if len(urls) > 1:
                 print("\n---END---")
     finally:
         if pw:

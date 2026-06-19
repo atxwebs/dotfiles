@@ -7,13 +7,11 @@ Tab-per-call model:
   - Daemon auto-shutdowns after idle (AGENT_BROWSER_IDLE_TIMEOUT_MS)
 """
 import sys, os, re, json
-from datetime import datetime
-from pathlib import Path
 from urllib.parse import quote
 
 # Ensure sibling modules (browser_lib) are importable regardless of cwd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, wait_for_challenge
+from browser_lib import ensure_daemon, connect_cdp, disconnect_cdp, wait_for_challenge, write_output
 
 EXTRACT_JS = r"""
 (() => {
@@ -30,10 +28,6 @@ EXTRACT_JS = r"""
     }).filter(Boolean);
 })()
 """
-
-
-def read_jsonl(path):
-    return [json.loads(line) for line in path.read_text().strip().splitlines() if line.strip()]
 
 
 def main():
@@ -56,47 +50,38 @@ def main():
         ddg_url += f"&s={(page - 1) * 20}"
 
     slug = re.sub(r"[^a-z0-9]", "-", query.lower()).strip("-")
-    page_suffix = f"-page{page}" if page and page > 1 else ""
-    date_dir = datetime.now().strftime("%Y-%m-%d")
-    hour = datetime.now().strftime("%H")
-    out_dir = os.environ.get("DDG_SEARCH_OUTPUT_DIR", "/tmp")
-    out_file = Path(out_dir) / date_dir / f"{hour}-{slug}{page_suffix}.jsonl"
+    if page and page > 1:
+        slug = f"{slug}-page{page}"
 
-    if out_file.exists() and (lines := out_file.read_text().strip()):
-        results = read_jsonl(out_file)
-    else:
-        pw, browser, context, pw_page = None, None, None, None
-        had_error = False
+    pw, browser, context, pw_page = None, None, None, None
+    try:
+        ws_url = ensure_daemon("about:blank")
+        pw, browser, context, pw_page = connect_cdp(ws_url)
+
+        pw_page.goto(ddg_url, wait_until="load", timeout=30000)
+        wait_for_challenge(pw_page, timeout=30)
+        pw_page.wait_for_load_state("networkidle")
+        raw = pw_page.evaluate(EXTRACT_JS)
+
         try:
-            ws_url = ensure_daemon("about:blank")
-            pw, browser, context, pw_page = connect_cdp(ws_url)
-
-            pw_page.goto(ddg_url, wait_until="load", timeout=30000)
-            wait_for_challenge(pw_page, timeout=30)
-            pw_page.wait_for_load_state("networkidle")
-            raw = pw_page.evaluate(EXTRACT_JS)
-
-            try:
-                results = raw if isinstance(raw, list) else json.loads(raw)
-            except (json.JSONDecodeError, TypeError):
-                had_error = True
-                results = []
-
-        except Exception as e:
-            print(f"[ERROR] {e}", file=sys.stderr)
-            had_error = True
+            results = raw if isinstance(raw, list) else json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
             results = []
-        finally:
-            if pw:
-                disconnect_cdp(pw, browser, pw_page)
 
-        if not had_error:
-            out_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(out_file, "w") as f:
-                for r in results:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print(f"[ERROR] {e}", file=sys.stderr)
+        results = []
+    finally:
+        if pw:
+            disconnect_cdp(pw, browser, pw_page)
 
-    print(f"Saved to: {out_file}\n")
+    if results:
+        lines = [json.dumps(r, ensure_ascii=False) for r in results]
+        content = "\n".join(lines) + "\n"
+        out_file = write_output("DDG_SEARCH_OUTPUT_DIR", content, slug, "jsonl")
+        if out_file:
+            print(f"Saved to: {out_file}\n")
+
     for r in results:
         print(f"[{r['title']}]({r['url']})\n> {r['snippet']}\n")
 
