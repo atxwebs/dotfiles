@@ -150,12 +150,22 @@ def crawl_url(page, url):
 
         try:
             title = page.evaluate("document.title") if not timed_out else url
-            jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
-            text = page.evaluate(EXTRACT_JS) or ""
         except Exception as eval_err:
-            log_blocked(url, f"evaluation failed: {eval_err}")
-            print(f"[ERROR] {url}: {eval_err}")
-            return
+            title = url
+
+        # SPA race: load event fires before JS renders — retry extraction briefly
+        text, jsonld = "", ""
+        for attempt in range(4):
+            try:
+                jsonld = page.evaluate(EXTRACT_JSONLD_JS) or ""
+                text = page.evaluate(EXTRACT_JS) or ""
+            except Exception as eval_err:
+                log_blocked(url, f"evaluation failed: {eval_err}")
+                print(f"[ERROR] {url}: {eval_err}")
+                return
+            if text:
+                break
+            time.sleep(0.5)
 
         if is_challenge_page(text):
             log_blocked(url, "cloudflare")
@@ -164,7 +174,7 @@ def crawl_url(page, url):
 
         if not text:
             log_blocked(url, "empty content")
-            print(f"[ERROR] {url}: no content extracted")
+            print(f"[ERROR] {url}: no content extracted after {attempt + 1} attempts")
             return
 
         content = f"URL: {url}\n# {title}\n"
