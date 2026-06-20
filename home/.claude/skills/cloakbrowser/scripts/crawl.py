@@ -86,8 +86,10 @@ return "";
 
 
 def make_slug(url):
-    s = re.sub(r"^https?://", "", url).split("/")[0].split("?")[0]
-    return re.sub(r"[^a-z0-9]", "-", s.lower())[:80]
+    # Strip protocol only, keep path and query string
+    s = re.sub(r"^https?://", "", url)
+    # Now s is like "example.com/path/to/page?query=value"
+    return re.sub(r"[^a-z0-9]", "-", s.lower()).strip("-")[:80]
 
 
 def log_blocked(url, reason):

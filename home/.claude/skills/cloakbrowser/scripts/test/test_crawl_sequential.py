@@ -101,11 +101,42 @@ def test_single_connection(run):
     )
 
 
+def test_make_slug(run):
+    import crawl
+
+    # Different paths should produce different slugs
+    slug1 = crawl.make_slug("https://example.com/page1")
+    slug2 = crawl.make_slug("https://example.com/page2")
+    run.check(
+        slug1 != slug2,
+        "make_slug — different paths produce different slugs",
+        f"make_slug — same slug for different paths: {slug1}",
+    )
+
+    # Query strings should be included
+    slug3 = crawl.make_slug("https://example.com/page?query=1")
+    slug4 = crawl.make_slug("https://example.com/page")
+    run.check(
+        slug3 != slug4,
+        "make_slug — query strings are included",
+        f"make_slug — query string not included: {slug3} == {slug4}",
+    )
+
+    # Full path should be included
+    slug5 = crawl.make_slug("https://example.com/path/to/page")
+    run.check(
+        "path-to-page" in slug5,
+        "make_slug — full path is included",
+        f"make_slug — path not included: {slug5}",
+    )
+
+
 def main():
     runs = []
     for title, fn in [
         ("test_crawl_e2e", test_e2e),
         ("test_crawl_single_connection", test_single_connection),
+        ("test_make_slug", test_make_slug),
     ]:
         print(f"\n{'─' * 40}\n{title}\n")
         run = TestRun(title)
