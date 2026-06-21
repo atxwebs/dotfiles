@@ -1,0 +1,9 @@
+- Avoid `any` types in Prisma code; use Prisma-generated input types or inline query result types instead
+- Verify cascade delete behavior before deleting parent entities that have child relations
+- Denormalize redundant fields when it meaningfully simplifies queries
+- Prevent cascade deletion of entities that have important downstream dependencies
+- Use nullable fields without defaults when the field is truly optional and has no sensible default
+- Prefer hard delete over soft delete unless an audit trail or restore capability is required
+- Add Prisma cascade delete rules only for child entities that must not outlive their parent
+- Limit database queries to a single organization scope to prevent cross-tenant data leaks
+- Use Pick types and enums to minimize type assertions in Prisma query results

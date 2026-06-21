@@ -1,0 +1,10 @@
+- Reuse existing custom hooks instead of duplicating their logic in components
+- Conditionally render components instead of mounting hidden ones; avoid boolean open-state flags when the component can be unmounted
+- Use useMemo for derived values instead of syncing them with useState
+- Avoid useState for form field values; bind inputs to the form state or a form library instead of mirroring values in separate state
+- Separate concerns: don't mix toggling and updating logic in one event handler
+- Disable action buttons immediately after click to prevent double-submission
+- Include accessible labels (e.g. DialogTitle) inside modal/dialog containers for screen reader accessibility
+- Keep toggle state encapsulated within the component that owns it; don't lift toggle state to a parent unless the parent needs it
+- Pass arrays and objects directly to mutation calls and helper functions without wrapping them in new containers
+- Use useState initializer functions (passing a function, not a value) when the initial state depends on computation or props

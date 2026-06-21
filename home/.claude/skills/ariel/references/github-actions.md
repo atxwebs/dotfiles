@@ -1,0 +1,4 @@
+- Optimize Mac CI runner usage to avoid burning 10x credits
+- Use hashFiles for cache keys to make cache hits more deterministic
+- Regenerate Gemfile.lock on arm64 Mac and add arm64-darwin platform for Apple Silicon runners
+- Ensure Bundler platforms match CI runner architecture to avoid native gem issues

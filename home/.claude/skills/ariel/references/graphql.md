@@ -1,0 +1,19 @@
+- Add fields to create mutations instead of using separate update mutations
+- Cache boot-time queries in localStorage with cache-and-network fetch policy for instant app startup
+- Wrap GraphQL queries in reusable custom hooks rather than calling raw query functions directly in components
+- Trim unnecessary fields from listing queries to reduce payload size
+- Cache only high-value read-heavy queries (dashboards, reports, lists); avoid caching mutations or rarely-accessed data
+- Filter cache invalidation by query document, not just entity type, to avoid stale data in unrelated queries
+- Cache at operation level rather than only at entity level to reflect how data is actually consumed
+- Store boot-time cache per operation name with org context to prevent cross-org data leaks
+- Skip queries when no auth token is present since they will return null or error
+- Include full fragments in mutations so the GraphQL client auto-updates related queries from the mutation response, eliminating manual refetch
+- Reuse existing query hooks instead of writing new queries for the same data shape
+- Organize query files by domain noun (e.g., User.ts, Project.ts), not one file per query
+- Add optional wait flags to long-running mutations to allow synchronous completion when needed
+- Prefer conditional rendering (not mounting the component) over GraphQL skip directives when the component should not render at all
+- Exclude sub-queries from fragments on entities that may be deleted to prevent dangling reference errors
+- Refetch related entities when deleting connected records to maintain cache consistency
+- Enforce valid data formats at the schema level; empty strings are not valid for phones and emails
+- Query nested data through parent relationships instead of using global top-level queries
+- Reserve global top-level queries for admin use only; prefer scoped queries through parent entities

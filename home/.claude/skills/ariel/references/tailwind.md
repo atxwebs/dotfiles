@@ -1,0 +1,6 @@
+- Prefer native Tailwind classes over creating custom utilities
+- Avoid clamp() for responsive sizing; use Tailwind breakpoint-based classes instead
+- Avoid rem units when the project's root font-size differs from the browser default (16px)
+- Use Tailwind arbitrary values (e.g. w-[32px], h-[40vh]) when no built-in class fits
+- Use vh/cqh for landscape height constraints, vw/cqw for portrait width constraints
+- When sizing within an aspect ratio, adjust only the dimension that is the bottleneck (height in landscape, width in portrait)

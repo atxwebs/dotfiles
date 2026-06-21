@@ -1,0 +1,5 @@
+- Use container query units (cqmin, cqw, cqh) for sizing relative to container, not viewport
+- Use cqw for horizontal spacing, cqh for vertical spacing, combinations for font-size
+- Use clamp() with dynamic viewport units (e.g. dvh, svh) for responsive text sizing and spacing that scales with viewport
+- Prefer relative units (rem, vw, vh, container queries) over px for layout and typography, except where fixed values are needed (borders, shadows, fine-tuning)
+- Use ID selectors combined with state classes for scoped component styling when components need unique identification plus state-dependent styles

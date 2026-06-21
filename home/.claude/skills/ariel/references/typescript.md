@@ -1,0 +1,21 @@
+- Never use `any`; use `unknown` or proper generics when the type is uncertain
+- Use library-provided types directly instead of remapping or redefining them
+- Return raw payloads from libraries without wrapping in custom interfaces when the library type already matches your needs
+- Load native-only or heavy modules on demand with `await import()` for code splitting
+- Un-export anything that doesn't need to be part of the public API
+- Prefer exporting a single object (`const x = { ... }; export default x`) over individual named exports for module-level APIs
+- Place exported declarations at the top of files and private helpers at the bottom
+- Group sensitive imports with blank lines between them to prevent auto-sorters from reordering them
+- Move top-level imports to the top; avoid dynamic imports for code that is always eagerly used
+- Name namespace imports as nouns and their methods as verbs (`import * as blogposts; blogposts.scan()`)
+- Use multi-line blocks for `if` statements; never flatten them to single lines
+- Use type predicates (`x is T`) and type guards instead of loose runtime checks
+- Don't worry about circular dependencies when they are `type`-only imports (erased at compile time)
+- Store and pass numbers as numbers; never stringify numeric values like IDs, timestamps, or quantities
+- Extend component props from input props instead of passing through individual fields
+- Keep runtime changes minimal during type-only refactors — type changes must not alter behavior
+- Name mutations descriptively without redundant suffixes like `Mut`
+- Avoid unnecessary `as` casts; prefer properly typed expressions that don't need overriding
+- Use a structured logger instead of `console.*` in source code
+- Destructure only what you need from dynamic imports to minimize bundle size
+- Minimize runtime overhead when lazy-loading; inline small helpers and avoid redundant wrappers
