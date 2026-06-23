@@ -42,7 +42,11 @@ TEMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TEMP_OUTPUT"' EXIT
 
 PREFIX="{hostname}-$USER-"
-BORG='sudo --set-home --preserve-env borg'
+if [ -n "$DRY_RUN" ]; then
+	BORG='borg'
+else
+	BORG='sudo --set-home --preserve-env borg'
+fi
 
 # List all backups
 # $BORG list $BORG_REPO ; exit 0
@@ -146,7 +150,7 @@ $BORG create       \
   --exclude '/home/*/.config/Code/User' \
   --exclude '/home/*/.config/chromium' \
   --exclude '/home/*/.config/google-chrome' \
-  --exclude '/home/*/.config/Ledger \Live' \
+  --exclude '/home/*/.config/Ledger Live' \
   --exclude '/home/*/.config/Slack' \
   --exclude '/home/*/.config/joplin-desktop' \
   --exclude '/home/*/.config/VirtualBox' \
@@ -189,7 +193,12 @@ $BORG create       \
   --exclude '/home/*/anaconda3' \
   --exclude '/home/*/google-cloud-sdk' \
   --exclude '/home/*/cloud-code' \
+  --exclude '/home/*/.config/Pinokio' \
   --exclude '/home/*/pinokio' \
+  --exclude '/home/*/.config/Antigravity' \
+  --exclude '/home/*/.antigravity' \
+  --exclude '/home/*/Code/ai/ariel-bot/data' \
+  --exclude '**/.agents/**' \
   --exclude '/home/*/.docker' \
   --exclude '/home/*/.kube' \
   --exclude '/home/*/.eclipse' \
@@ -234,7 +243,9 @@ $BORG create       \
 
 backup_exit_code=${PIPESTATUS[0]}
 
-if [ $backup_exit_code -ne 0 ]; then
+if [ $backup_exit_code -eq 1 ]; then
+  info 'Backup completed with warnings (some files skipped due to permissions)'
+elif [ $backup_exit_code -gt 1 ]; then
   fatal 'Failed to backup'
 fi
 

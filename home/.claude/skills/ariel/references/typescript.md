@@ -4,7 +4,7 @@
 - Load native-only or heavy modules on demand with `await import()` for code splitting
 - Un-export anything that doesn't need to be part of the public API
 - Prefer exporting a single object (`const x = { ... }; export default x`) over individual named exports for module-level APIs
-- Place exported declarations at the top of files and private helpers at the bottom
+- Define the module object at the top (no `export` keyword); place `export default` at the bottom; private helpers go above or below — either is fine
 - Group sensitive imports with blank lines between them to prevent auto-sorters from reordering them
 - Move top-level imports to the top; avoid dynamic imports for code that is always eagerly used
 - Name namespace imports as nouns and their methods as verbs (`import * as blogposts; blogposts.scan()`)

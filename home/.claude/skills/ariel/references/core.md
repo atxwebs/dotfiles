@@ -55,7 +55,7 @@
 
 ## Architecture & System Composition
 
-- By default, export a default object with methods per module instead of many standalone named exports
+- By default, export a default object with methods per module instead of many standalone named exports (wrapper modules that re-export `* as` are fine)
 - Keep generic infrastructure free of project-specific knowledge; put domain logic in domain modules
 - Don't create separate files for trivial logic
 - Use module-level functions for fully stateless logic instead of passing callbacks or wrapping in classes
@@ -69,8 +69,8 @@
 
 - Eliminate code repetition; extract helpers or maps only when reused
 - Inline small single-purpose functions instead of extracting prematurely
-- Place imports at the top, exported code next, unexported helpers at the bottom
-- Move magic strings and numbers to module-level UPPER_CASE constants
+- Imports at the top; define the exported object next (without `export`); helpers above or below it; `export default` at the bottom
+- Move magic strings and numbers to module-level UPPER_CASE constants (skip values inside Zod schemas or where the literal is self-documenting in context)
 - Don't export functions, types, or constants not consumed externally
 - Don't remove existing comments unless explicitly asked; restore them if accidentally deleted during edits
 - Use imperative voice for SDK and API method names (noun-verb)
