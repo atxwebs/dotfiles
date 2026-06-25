@@ -114,6 +114,20 @@ Output:
 117:119 method src:session:Session:Session:on()
 ```
 
+### analyze.sh — Code Analysis
+
+```bash
+analyze.sh [target]
+```
+
+Auto-detects scope from argument:
+
+| Argument | Scope | Runs |
+|----------|-------|------|
+| *(none)* | Global | Cycles, Bottlenecks (coupling hubs), Stale abstractions |
+| File path (contains `.`) | File | Change surface (exports, consumers, risk), Unused imports |
+| Symbol name (no `.`) | Symbol | Affected (blast radius), Complexity |
+
 ## Codebase Health
 
 ### hotspots.sh
