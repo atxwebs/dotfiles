@@ -8,7 +8,7 @@
 - WhatsApp: infrastructure ready, user delegation on ice; future: Rovetia account for forwarding
 - Appointments: live (FullCalendar, CRUD)
 - AI ingestion: live (audio, OCR, extraction, chat)
-- Users: 0 real users, early bird testing with known contacts
+- Traction: Pre-discovery phase. ~5 early testers (known contacts), 0 paying users. Core challenge: product positioning, not awareness. See [gtm](./gtm.md) for strategy.
 
 ## Roadmap
 

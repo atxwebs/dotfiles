@@ -26,10 +26,11 @@ AI-assisted patient management for small practices (1–5 people). Converts unst
 ## Target Market
 
 - Small independent clinics (1–5 people)
-- Vets + human health practitioners
+- **Currently focused on veterinary clinics** (narrowed from vets + human health for Apple approval, cleaner ICP, and messaging focus)
 - Focus: Argentina/Latin America (Spanish-first), globally scalable
 - Not: large hospitals, heavy PMS, extreme customization
-- Early adopters: Argentina vets, dietitians, psychologists via referrals
+- Early adopter profile: Younger vets (<10 years experience, recent graduates) — no entrenched workflow, more open to tech/AI
+- Human health (dietitians, psychologists, dermatologists) on hold until vets validated
 
 ## Key Capabilities
 

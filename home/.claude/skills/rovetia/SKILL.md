@@ -21,6 +21,7 @@ AI-assisted patient management for small practices. Three repos: rovetia-api, ro
 |AI models, tuples, costs|[ai-pipeline](./references/ai-pipeline.md)|
 |Brand, values, MVP limits|[brand-constraints](./references/brand-constraints.md)|
 |Current status, roadmap|[status-roadmap](./references/status-roadmap.md)|
+|Go-to-market, ICP, traction strategy|[gtm](./references/gtm.md)|
 
 ## Principles
 
@@ -41,3 +42,4 @@ AI-assisted patient management for small practices. Three repos: rovetia-api, ro
 - [ai-pipeline](./references/ai-pipeline.md) — models, tuples, costs
 - [brand-constraints](./references/brand-constraints.md) — values, brand, MVP limits
 - [status-roadmap](./references/status-roadmap.md) — 2026 status and roadmap
+- [gtm](./references/gtm.md) — go-to-market strategy, ICP, traction approach
