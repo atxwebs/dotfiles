@@ -3,170 +3,51 @@ name: read-symbol
 description: Read when needing to find symbols in code files
 ---
 
+TypeScript/JavaScript only (.ts, .tsx, .js, .jsx) — not GraphQL, CSS, or other files.
+
 To run any script use `~/.claude/skills/read-symbol/scripts/<script> <args>`.
 
-### def.sh — Get Definition
+## Quick Decision Guide
 
-```bash
-def.sh [--type <kind>] <symbol> [symbol2 ...]
-```
+| Question | Use | What you get |
+|----------|-----|--------------|
+| "Where is X defined and what does it do?" | `def.sh X` | Functions: full body. Classes: full definition. Multiple exact matches returned together |
+| "Where is X used/called?" | `refs.sh X` | All file:line locations (~4s). Ambiguous bare names → first match only |
+| "What's in this file?" | `symbols.sh file` | All symbols — bare filename works (`HistoryTab`, `usePatientEntries`) |
+| "Find symbols by name" | `search.sh name` | Functions, types, interfaces, classes. Use `--kind variable` for consts |
+| "What files does this file depend on?" | `deps.sh file` | Imported files — bare name works |
+| "What files depend on this file?" | `rdeps.sh file` | Importers — bare name works |
+| "What methods does this class have?" | `members.sh ClassName` | All methods/fields with line ranges |
+| Deep analysis / codebase health | `analyze.sh [target]` | See below |
 
-Kinds: `function`, `class`, `interface`, `type`, `method`, `variable`
+## Gotchas
 
-- `--type type` matches both `type` and `interface`
-- `--type function` matches both functions and methods
-- `--type variable` matches `const`, `let`, `var`
-- Multiple symbols: `def.sh foo bar baz`
+- **Bare names** resolve functions, types (aliases + interfaces), and classes. Consts/variables need `def.sh --type variable X` or `search.sh --kind variable X`. Class methods need `members.sh ClassName`, not bare `def.sh methodName`.
+- **Ambiguous types** (e.g. `Opts` in multiple hooks) — `def.sh` returns all; `refs.sh` picks the first and warns. Use `search.sh` or a qualified `src:…` name to disambiguate.
+- **`refs.sh` is slow** (~4s per symbol) — inherent to the indexer. Batch carefully.
+- **First run** in a project may auto-index (one-time wait).
+- **Precision escape hatch**: qualified names like `src:hooks:usePatientEntries:usePatientEntries()` always work.
 
-Output:
-```
-src/index.ts:4:6
-async function main() {
-  await sess.start()
-}
-```
-
-### refs.sh — Get References
-
-```bash
-refs.sh <symbol> [symbol2 ...]
-```
-
-Output:
-```
-src/index.ts:12
-src/utils.ts:45
-```
-
-### symbols.sh — File Symbol Overview
-
-```bash
-symbols.sh <file>
-```
-
-Lists all symbols in a file with their types and signatures.
-
-Output:
-```
-38 var BUILT_IN_TOOLS var BUILT_IN_TOOLS: Tool[]
-40 class Session class Session
-389 type Event type Event
-391 type Listener type Listener
-```
-
-Format: `line kind name signature`
-
-### search.sh — Discover Symbols by Pattern
-
-```bash
-search.sh [--kind <kind>] <pattern>
-```
-
-Find symbols matching a pattern using wildcards (`*`, `?`).
-
-**Important:** Quote patterns containing wildcards to prevent shell expansion:
-- ✅ `search.sh '*'` or `search.sh "*"`
-- ❌ `search.sh *` (shell expands to filenames)
-
-Examples:
-- `search.sh 'handle*'` — find all symbols starting with "handle"
-- `search.sh 'User*'` — find all symbols starting with "User"
-- `search.sh --kind function '*Handler'` — find functions ending with "Handler"
-- `search.sh --kind class '*'` — find all classes
-
-Kinds: `function`, `class`, `interface`, `type`, `method`, `variable`
-
-Output:
-```
-src/session/Session.ts:40 Class src:session:Session:Session
-src/session/Session.ts:104 Method src:session:Session:Session:<constructor>()
-src/session/Session.ts:117 Method src:session:Session:Session:on()
-```
-
-Format: `file:line kind shortName`
-
-Returns up to 50 matches.
-
-## Dependency Analysis
-
-### deps.sh / rdeps.sh
-
-Show what files a file depends on (`deps.sh <file>`) or what files depend on it (`rdeps.sh <file>`).
-
-```bash
-deps.sh src/session/Session.ts
-rdeps.sh src/session/Session.ts
-```
-
-### members.sh
-
-List all members of a symbol (methods, fields, nested types). Requires full short name (e.g. `src:util:Logger`). Use `search.sh` to find it.
-
-**Limitations:** Does not work with enums or interfaces (scip-query limitation). Use `def.sh` to see interface definitions.
-
-```bash
-members.sh src:session:Session:Session
-```
-
-Output:
-```
-104:110 method src:session:Session:Session:<constructor>()
-117:119 method src:session:Session:Session:on()
-```
-
-### analyze.sh — Code Analysis
+## analyze.sh
 
 ```bash
 analyze.sh [target]
 ```
 
-Auto-detects scope from argument:
+| Argument | Runs |
+|----------|------|
+| *(none)* | Cycles, bottlenecks, stale abstractions, hotspots, isolated, dead code |
+| File path (has `/` or `.`) | Change surface, unused imports |
+| Symbol name | Blast radius, complexity |
 
-| Argument | Scope | Runs |
-|----------|-------|------|
-| *(none)* | Global | Cycles, Bottlenecks (coupling hubs), Stale abstractions |
-| File path (contains `.`) | File | Change surface (exports, consumers, risk), Unused imports |
-| Symbol name (no `.`) | Symbol | Affected (blast radius), Complexity |
+## Details
 
-## Codebase Health
-
-### hotspots.sh
-
-Show most-referenced symbols in the codebase.
+### def.sh
 
 ```bash
-hotspots.sh [limit]
+def.sh [--type <kind>] <symbol> [symbol2 ...]
 ```
 
-Default limit: 30
+Kinds: `function`, `class`, `interface`, `type`, `method`, `variable` — use `--type` when the bare name isn't in the default set above.
 
-### isolated.sh
-
-Find completely orphaned symbols (no references at all).
-
-```bash
-isolated.sh [min_loc]
-```
-
-Default min_loc: 3
-
-### dead.sh
-
-Find dead code (no cross-file references).
-
-```bash
-dead.sh [min_loc]
-```
-
-Default min_loc: 5
-
-## How It Works
-
-- Walks up from $PWD to find project root (package.json, tsconfig.json, etc.)
-- Auto-indexes on first query if no index exists
-- Index stored in `~/.cache/scip-query/projects/` (not in project)
-- Re-indexes only when source files change
-
-## Supported Languages
-
-TypeScript/JavaScript (primary). Python, Rust, Go supported if their SCIP indexers are installed.
+Pass multiple symbols in one call (`def.sh Foo Bar Baz`) — index is fetched once and reused, faster than separate invocations.

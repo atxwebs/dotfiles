@@ -10,25 +10,16 @@ if [[ $# -eq 0 ]]; then
   exit 1
 fi
 
-target="$1"
 root="$(find_project_root)"
-
 if [[ -z "$root" ]]; then
   echo "Error: No project root found" >&2
   exit 1
 fi
 
-# Make target relative to root if it's absolute
-if [[ "$target" == /* ]]; then
-  target="${target#$root/}"
-fi
-
-# Check if target exists
-if [[ ! -f "$root/$target" ]]; then
-  echo "Error: '$target' not found" >&2
+target=$(resolve_file_path "$root" "$1") || {
+  echo "Error: file '$1' not found" >&2
   exit 1
-fi
+}
 
 output=$(run_query "$root" scip-query rdeps "$target" --json) || exit 1
-
 echo "$output" | jq -r '.result[].relativePath'

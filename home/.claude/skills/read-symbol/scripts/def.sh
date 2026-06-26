@@ -15,11 +15,56 @@ usage() {
   exit 1
 }
 
+kind_matches_filter() {
+  local sig_kind="$1"
+  local type_filter="$2"
+
+  if [[ -z "$type_filter" ]]; then
+    return 0
+  fi
+
+  if [[ "$type_filter" == "type" || "$type_filter" == "interface" ]]; then
+    [[ "$sig_kind" == "type" || "$sig_kind" == "interface" ]]
+    return
+  fi
+
+  if [[ "$type_filter" == "function" ]]; then
+    [[ "$sig_kind" == "function" ]]
+    return
+  fi
+
+  [[ "$sig_kind" == "$type_filter" ]]
+}
+
+print_definition() {
+  local root="$1"
+  local query_symbol="$2"
+  local display_symbol="$3"
+  local type_filter="$4"
+  local output source_line sig_kind
+
+  output=$(run_query "$root" scip-query code "$query_symbol" --json) || return 1
+
+  if [[ "$(echo "$output" | jq -r '.result.source // ""')" == "" ]]; then
+    echo "Symbol '$display_symbol' not found" >&2
+    return 1
+  fi
+
+  source_line=$(echo "$output" | jq -r '.result.source // ""' | head -1)
+  sig_kind=$(detect_sig_kind "" "$source_line")
+
+  if ! kind_matches_filter "$sig_kind" "$type_filter"; then
+    echo "Symbol '$display_symbol' is a $sig_kind, not ${type_filter:-any}" >&2
+    return 1
+  fi
+
+  echo "$output" | format_def
+}
+
 if [[ $# -eq 0 ]]; then
   usage
 fi
 
-# Parse options
 type_filter=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -51,7 +96,6 @@ if [[ -z "$root" ]]; then
   exit 1
 fi
 
-# Normalize type filter
 if [[ -n "$type_filter" ]]; then
   type_filter=$(echo "$type_filter" | tr '[:upper:]' '[:lower:]')
   case "$type_filter" in
@@ -60,84 +104,47 @@ if [[ -n "$type_filter" ]]; then
   esac
 fi
 
+kinds_hint=""
+if [[ -n "$type_filter" ]]; then
+  kinds_hint="$(kinds_for_type_filter "$type_filter")"
+fi
+
+found_any=false
 for symbol in "$@"; do
-  # Use trace to get signature info
-  output=$(run_query "$root" scip-query trace "$symbol" --json) || exit 1
-  
-  # Check if result exists
-  has_result=$(echo "$output" | jq -r '.result.definitions | length')
-  if [[ "$has_result" == "0" || -z "$has_result" ]]; then
-    echo "Symbol '$symbol' not found" >&2
-    continue
+  mapfile -t targets < <(resolve_symbol_targets "$root" "$symbol" "$kinds_hint")
+  target_count=${#targets[@]}
+
+  if [[ "$target_count" -gt 1 ]]; then
+    echo "# $target_count definitions for '$symbol':"
+    echo ""
   fi
-  
-  # Get first definition
-  def=$(echo "$output" | jq -c '.result.definitions[0]')
-  signature=$(echo "$def" | jq -r '.signature // ""')
-  source_line=$(echo "$def" | jq -r '.source // ""' | head -1)
-  
-  # Detect kind: try signature first, fall back to source line
-  sig_kind=""
-  
-  # Check if signature starts with a keyword
-  case "$signature" in
-    "function "*) sig_kind="function" ;;
-    "class "*) sig_kind="class" ;;
-    "interface "*) sig_kind="interface" ;;
-    "type "*) sig_kind="type" ;;
-    "enum "*) sig_kind="enum" ;;
-    "const "*) sig_kind="variable" ;;
-    "let "*) sig_kind="variable" ;;
-    "var "*) sig_kind="variable" ;;
-    *)
-      # Signature is a SCIP path, parse source line
-      # Strip modifiers: export, async, static, default, public, private, protected
-      source_clean=$(echo "$source_line" | sed -E 's/^(export\s+)?(async\s+|static\s+|default\s+|public\s+|private\s+|protected\s+)*//')
-      
-      # Check for explicit keywords
-      if [[ "$source_clean" =~ ^function[[:space:]] ]]; then
-        sig_kind="function"
-      elif [[ "$source_clean" =~ ^class[[:space:]] ]]; then
-        sig_kind="class"
-      elif [[ "$source_clean" =~ ^interface[[:space:]] ]]; then
-        sig_kind="interface"
-      elif [[ "$source_clean" =~ ^type[[:space:]] ]]; then
-        sig_kind="type"
-      elif [[ "$source_clean" =~ ^enum[[:space:]] ]]; then
-        sig_kind="enum"
-      elif [[ "$source_clean" =~ ^(const|let|var)[[:space:]] ]]; then
-        sig_kind="variable"
-      else
-        # No keyword found, likely a method (e.g., "warmup = async (...)")
-        sig_kind="method"
-      fi
-      ;;
-  esac
-  
-  # Apply type filter if specified
-  if [[ -n "$type_filter" ]]; then
-    # Special case: type filter matches both type and interface
-    if [[ "$type_filter" == "type" || "$type_filter" == "interface" ]]; then
-      if [[ "$sig_kind" != "type" && "$sig_kind" != "interface" ]]; then
-        echo "Symbol '$symbol' is a $sig_kind, not type/interface" >&2
-        continue
-      fi
-    # function filter also matches method
-    elif [[ "$type_filter" == "function" ]]; then
-      if [[ "$sig_kind" != "function" && "$sig_kind" != "method" ]]; then
-        echo "Symbol '$symbol' is a $sig_kind, not function" >&2
-        continue
-      fi
-    elif [[ "$sig_kind" != "$type_filter" ]]; then
-      echo "Symbol '$symbol' is a $sig_kind, not $type_filter" >&2
-      continue
+
+  printed_for_symbol=false
+  for target in "${targets[@]}"; do
+    if [[ "$target_count" -gt 1 ]]; then
+      echo "## $target"
     fi
+
+    if print_definition "$root" "$target" "$symbol" "$type_filter"; then
+      found_any=true
+      printed_for_symbol=true
+      if [[ "$target_count" -gt 1 ]]; then
+        echo ""
+      fi
+    elif [[ "$target_count" -eq 1 ]]; then
+      :
+    fi
+  done
+
+  if [[ "$target_count" -gt 1 && "$printed_for_symbol" == "false" ]]; then
+    echo "Symbol '$symbol' not found" >&2
   fi
-  
-  # Format output from trace result
-  echo "$def" | jq -r '"\(.relativePath):\(.startLine):\(.endLine)\n\(.source)"'
-  
+
   if [[ $# -gt 1 ]]; then
     echo ""
   fi
 done
+
+if [[ "$found_any" == "false" ]]; then
+  exit 1
+fi

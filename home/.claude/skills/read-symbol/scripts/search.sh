@@ -9,7 +9,7 @@ source "$SCRIPT_DIR/lib.sh"
 usage() {
   echo "Usage: search.sh [--kind <kind>] <pattern>" >&2
   echo "" >&2
-  echo "Pattern supports wildcards: handle*, User*, *Service" >&2
+  echo "Without --kind: searches functions, types, interfaces, and classes." >&2
   echo "Kinds: function, class, interface, type, method, variable" >&2
   exit 1
 }
@@ -18,7 +18,6 @@ if [[ $# -eq 0 ]]; then
   usage
 fi
 
-# Parse options
 kind_filter=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -52,50 +51,54 @@ if [[ -z "$root" ]]; then
   exit 1
 fi
 
-# Convert glob pattern to regex
-regex_pattern=$(echo "$pattern" | sed 's/\*/.*/g' | sed 's/\?/./g')
-
-# Normalize kind if provided
 if [[ -n "$kind_filter" ]]; then
-  kind_filter=$(echo "$kind_filter" | tr '[:lower:]' '[:upper:]')
+  kind_filter=$(echo "$kind_filter" | tr '[:upper:]' '[:lower:]')
   case "$kind_filter" in
-    FUNCTION|FUNC) kind_filter="Function" ;;
-    CLASS) kind_filter="Class" ;;
-    INTERFACE) kind_filter="Interface" ;;
-    TYPE|TYPEALIAS) kind_filter="TypeAlias" ;;
-    METHOD) kind_filter="Method" ;;
-    VARIABLE|VAR|CONST|LET) kind_filter="Variable" ;;
+    function|func) kind_filter="Function" ;;
+    class) kind_filter="Class" ;;
+    interface) kind_filter="Interface" ;;
+    type|typealias) kind_filter="TypeAlias" ;;
+    method) kind_filter="Method" ;;
+    variable|var|const|let) kind_filter="Variable" ;;
+    *)
+      echo "Unknown kind: $kind_filter" >&2
+      usage
+      ;;
   esac
 fi
 
-# Get symbols
 if [[ -n "$kind_filter" ]]; then
-  output=$(run_query "$root" scip-query by-kind "$kind_filter" --limit 1000 --json 2>/dev/null) || output='{"result":[]}'
+  output=$(by_kind_json "$root" "$kind_filter")
 else
-  # Query all common kinds and combine
-  kinds=("Function" "Class" "Interface" "TypeAlias" "Method" "Variable")
-  all_results="[]"
-
-  for kind in "${kinds[@]}"; do
-    kind_output=$(run_query "$root" scip-query by-kind "$kind" --limit 1000 --json 2>/dev/null) || continue
-    if [[ -n "$kind_output" ]]; then
-      kind_results=$(echo "$kind_output" | jq -c '.result // []')
-      all_results=$(echo "$all_results" "$kind_results" | jq -s '.[0] + .[1]')
-    fi
-  done
-
-  output="{\"result\":$all_results}"
+  output=$(collect_symbols_json "$root")
 fi
 
-# Filter by pattern and format output
-matches=$(echo "$output" | jq -r --arg pattern "$regex_pattern" '
-  .result[] |
-  select(.shortName | test($pattern; "i")) |
-  "\(.relativePath):\(.startLine) \(.kindName) \(.shortName)"
-' | head -50)
+filter_matches() {
+  local mode="$1"
+  echo "$output" | jq -r --arg pattern "$pattern" --arg mode "$mode" '
+    def leaf($name):
+      ($name | split(":") | last | rtrimstr("()") | ascii_downcase);
+    def needle:
+      ($pattern | ascii_downcase);
+    .result[] |
+    select(
+      if $mode == "leaf" then
+        leaf(.shortName) | contains(needle)
+      else
+        (.shortName | ascii_downcase) | contains(needle)
+      end
+    ) |
+    "\(.relativePath):\(.startLine) \(.kindName) \(.shortName)"
+  ' | head -50
+}
+
+matches=$(filter_matches leaf)
+if [[ -z "$matches" ]]; then
+  matches=$(filter_matches fuzzy)
+fi
 
 if [[ -z "$matches" ]]; then
-  echo "No symbols found matching pattern '$pattern'" >&2
+  echo "No symbols found matching '$pattern'" >&2
   exit 1
 fi
 

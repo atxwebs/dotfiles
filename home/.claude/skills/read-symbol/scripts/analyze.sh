@@ -31,20 +31,27 @@ if [[ $# -eq 0 ]]; then
   echo ""
   echo "=== Stale Abstractions ==="
   run_query "$root" scip-query stale-abstractions 2>/dev/null || echo "(none)"
+  echo ""
+  echo "=== Hotspots (most referenced) ==="
+  run_query "$root" scip-query hotspots 2>/dev/null || echo "(none)"
+  echo ""
+  echo "=== Isolated (orphaned symbols) ==="
+  run_query "$root" scip-query isolated 2>/dev/null || echo "(none)"
+  echo ""
+  echo "=== Dead Code ==="
+  run_query "$root" scip-query dead 2>/dev/null || echo "(none)"
   exit 0
 fi
 
 target="$1"
 
-# Detect if it's a file (contains a dot for extension)
-if [[ "$target" == *.* ]]; then
+if [[ "$target" == */* || "$target" == *.* ]] && target=$(resolve_file_path "$root" "$target" 2>/dev/null); then
   echo "=== Change Surface (exports, consumers, risk) ==="
   run_query "$root" scip-query change-surface "$target" 2>/dev/null || echo "(none)"
   echo ""
   echo "=== Unused Imports ==="
   run_query "$root" scip-query unused-imports "$target" 2>/dev/null || echo "(none)"
 else
-  # Symbol
   echo "=== Affected (blast radius) ==="
   run_query "$root" scip-query affected "$target" 2>/dev/null || echo "(none)"
   echo ""

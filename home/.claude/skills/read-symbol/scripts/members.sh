@@ -18,12 +18,13 @@ if [[ -z "$root" ]]; then
   exit 1
 fi
 
-output=$(run_query "$root" scip-query members "$symbol" --json) || exit 1
-
-# Check if result is empty
-if ! echo "$output" | jq -e '.result | length > 0' >/dev/null 2>&1; then
-  echo "Error: No members found for symbol '$symbol'" >&2
-  exit 1
+output=""
+if ! output=$(members_json "$root" "$symbol"); then
+  resolved=$(resolve_symbol_short_name "$root" "$symbol") || exit 1
+  output=$(members_json "$root" "$resolved") || {
+    echo "Error: No members found for symbol '$symbol'" >&2
+    exit 1
+  }
 fi
 
 echo "$output" | jq -r '.result[] | "\(.startLine):\(.endLine) \(.kind) \(.shortName)"'
