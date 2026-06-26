@@ -1,0 +1,1 @@
+Your context window is close to compaction, you have a lot of valuable learnings. Before you do ANYTHING else, go ahead and dump all your knowledge into a .md file in tmp/. Don't run commands or read files before, dump your knowledge first.
