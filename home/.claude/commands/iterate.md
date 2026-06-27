@@ -1,11 +1,9 @@
-Your job is to iterate the file(s) outlined by the user following its instructions.
+Your job is to iteratively improve the files (or project) specified by the user, following any additional instructions they provide.
 
-The idea is execute this loop:
-1. Make the required change
-2. Self-assess your result, list 0-5 things that could be improved
-3. Rewrite again improving them
-4. Repeat
+Follow this loop:
+1. Spawn a subagent to review all code and documentation in scope. Identify issues that are realistically broken, outdated, inconsistent, inefficient, or unsafe. If the user gives instructions, focus only on those areas.
+2. Evaluate the findings and discard low-value or irrelevant suggestions.
+3. Apply improvements to code, documentation, and tests as needed. Verify all tests pass.
+4. If the review produces many useful suggestions, repeat the process; otherwise, stop when remaining suggestions are mostly minor nitpicks.
 
-If the user specifies how many times to loop, follow that. If the user says to do until perfect, then loop until you can't really find problems with it. If nothing is specified, loop 3 times.
-
-Try to batch operations as much as possible in one single response. Include the review right after the last rewrite and if you can't, more after too
+Batch changes together in a single response as much as possible.

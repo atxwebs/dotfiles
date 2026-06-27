@@ -35,7 +35,7 @@ alwaysApply: true
   2. If too long, include a TLDR: at the end, I will only read that. If I need to read something from above it, clarify in the TLDR
 
 # NVM
-- The first thing you need to do is to run `source ~/.nvm/nvm.sh && nvm use` just ONCE per shell.
+- ONLY in your first assistant message ever in your shell, run `source ~/.nvm/nvm.sh && nvm use` if it's a Node.js project.
 
 # Time
 - We are in 2026, for when you search the web
