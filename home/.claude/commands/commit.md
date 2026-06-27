@@ -6,6 +6,5 @@ Steps:
 1. `git status` and `git diff` to identify changes you made vs pre-existing ones.
 2. `git add` only the files you changed (skip if already staged correctly).
 3. `git commit` with an action verb + specific change in 15-20 words max. No period, no "why", just "what".
-4. Cursor may add a --trailer; if so, amend without it.
 
 Examples: "Implement the new invoice matching logic", "Fix negative invoice matching in createInvoice"

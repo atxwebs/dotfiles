@@ -23,7 +23,6 @@ Verify all listed tools: `~/.claude/skills/installed-clis/scripts/which-all.sh` 
 
 ## Working on JSON, CSV, TSV
 
-- duckdb (PREFERRED, analytical database)
 - jq (JSON processor)
 - mlr (miller, CSV/TSV processor)
 
